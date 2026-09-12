@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-04-PLAN.md
-last_updated: "2026-09-12T13:34:22.858Z"
-last_activity: "2026-09-12 — 01-03 executed: db/canonical.ts (canonicalJson, computeEntryHash, ZERO_HASH, fixedScale) with a pinned fixed hash vector; pure module, 19 tests green"
+stopped_at: Completed 01-governed-record-substrate-05-PLAN.md
+last_updated: "2026-09-12T13:41:38.981Z"
+last_activity: "2026-09-12 — 01-05 executed: migrations 0008 privileges + AI wall, 0009 eleven invariant triggers (mutation rejection, hash chain, HITL, five audit-coupling; 7 deferred), 0010 read-only verify_audit_chain; set 0001–0010 applies cleanly, schema_migrations=10, typecheck green"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 4
+  completed_plans: 5
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 4 complete (01-04 — migrations 0005–0007: recommendations, decisions, append-only audit store; 13 application tables now exist, audit store not yet protected)
-Status: In progress — ready for plan 01-05
-Last activity: 2026-09-12 — 01-04 executed: migrations 0005 recommendations (constant CHECK origin='AI'), 0006 decisions (decided_by NOT NULL REFERENCES specialists, exceptions_decision_fk), 0007 audit store (aev_origin_present_chk, 32-byte hash chain, 8 action values); applies cleanly, typecheck green
+Plan: 5 complete (01-05 — migrations 0008–0010: privileges + AI privilege wall, eleven invariant triggers, read-only chain verifier; the audit store is now governed. Migration set 0001–0010 complete)
+Status: In progress — ready for plan 01-06
+Last activity: 2026-09-12 — 01-05 executed: migrations 0008 privileges + AI wall, 0009 eleven invariant triggers (7 deferred; AUDIT_IMMUTABLE/AUDIT_CHAIN_BROKEN/HITL_VIOLATION/AUDIT_COUPLING_VIOLATION, all P0001), 0010 STABLE verify_audit_chain; set 0001–0010 applies cleanly, schema_migrations=10, typecheck green
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-governed-record-substrate P02 | 2 min | 3 tasks | 4 files |
 | Phase 01-governed-record-substrate P03 | 4 min | 2 tasks | 2 files |
 | Phase 01-governed-record-substrate P04 | 8 min | 3 tasks | 3 files |
+| Phase 01-governed-record-substrate P05 | 6 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: Canonical serialisation + entry-hash chain live once in a pure server/src/db/canonical.ts (no db/env/clock/randomness), shared byte-for-byte by the audit writer and the SQL verifier; the fixed hash vector 367a71b6… is pinned by test as a regression anchor for the whole chain
 - [Phase 01-governed-record-substrate]: The human-identity crux is decisions.decided_by uuid NOT NULL REFERENCES specialists (id) with no default, against a specialists table with no AI/SYSTEM row — a machine decision fails the FK before any trigger; mixed AI/HUMAN origin is representable only on decision_values
 - [Phase 01-governed-record-substrate]: Audit store (0007) is created but LEFT MUTABLE until plan 01-05 (0008 privileges + 0009 triggers); FR-0.17/FR-Y0.2 require the whole set to land in one `npm run migrate` invocation so no deployment window exposes a mutable store. aev_origin_present_chk already makes an unattributed audit value unstorable
+- [Phase 01-governed-record-substrate]: Enforcement lands in migrations 0008-0010 (privileges + 11 triggers + read-only verifier) in the same migration set as the tables, so no window exposes a mutable audit store (FR-Y0.2); four governance invariants raise P0001 with fixed prefixes AUDIT_IMMUTABLE/AUDIT_CHAIN_BROKEN/HITL_VIOLATION/AUDIT_COUPLING_VIOLATION asserted verbatim by plans 01-08/09/10
 
 ### Pending Todos
 
@@ -90,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-12T13:34:22.857Z
-Stopped at: Completed 01-governed-record-substrate-04-PLAN.md
+Last session: 2026-09-12T13:41:38.980Z
+Stopped at: Completed 01-governed-record-substrate-05-PLAN.md
 Resume file: None
