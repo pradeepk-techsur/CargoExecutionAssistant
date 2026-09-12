@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-03-PLAN.md
-last_updated: "2026-09-12T13:28:27.538Z"
+stopped_at: Completed 01-governed-record-substrate-04-PLAN.md
+last_updated: "2026-09-12T13:34:22.858Z"
 last_activity: "2026-09-12 — 01-03 executed: db/canonical.ts (canonicalJson, computeEntryHash, ZERO_HASH, fixedScale) with a pinned fixed hash vector; pure module, 19 tests green"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 3 complete (01-03 — canonical serialisation + SHA-256 per-case hash chain, pure db/canonical.ts, TEST-UNIT-04)
-Status: In progress — ready for plan 01-04
-Last activity: 2026-09-12 — 01-03 executed: db/canonical.ts (canonicalJson, computeEntryHash, ZERO_HASH, fixedScale) with a pinned fixed hash vector; pure module, 19 tests green
+Plan: 4 complete (01-04 — migrations 0005–0007: recommendations, decisions, append-only audit store; 13 application tables now exist, audit store not yet protected)
+Status: In progress — ready for plan 01-05
+Last activity: 2026-09-12 — 01-04 executed: migrations 0005 recommendations (constant CHECK origin='AI'), 0006 decisions (decided_by NOT NULL REFERENCES specialists, exceptions_decision_fk), 0007 audit store (aev_origin_present_chk, 32-byte hash chain, 8 action values); applies cleanly, typecheck green
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-governed-record-substrate P01 | 5 min | 3 tasks | 14 files |
 | Phase 01-governed-record-substrate P02 | 2 min | 3 tasks | 4 files |
 | Phase 01-governed-record-substrate P03 | 4 min | 2 tasks | 2 files |
+| Phase 01-governed-record-substrate P04 | 8 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: exceptions.decision_id is a bare uuid with no FK yet; exceptions_decision_fk is added in migration 0006 (plan 01-04) after the decisions table exists
 - [Phase 01-governed-record-substrate]: Entry provenance is a constant CHECK (origin = 'HUMAN') with NOT NULL and no default — no nullable path to an unattributed value; exception derivation integrity is a composite FK, both enforced at the DB with no trigger
 - [Phase 01-governed-record-substrate]: Canonical serialisation + entry-hash chain live once in a pure server/src/db/canonical.ts (no db/env/clock/randomness), shared byte-for-byte by the audit writer and the SQL verifier; the fixed hash vector 367a71b6… is pinned by test as a regression anchor for the whole chain
+- [Phase 01-governed-record-substrate]: The human-identity crux is decisions.decided_by uuid NOT NULL REFERENCES specialists (id) with no default, against a specialists table with no AI/SYSTEM row — a machine decision fails the FK before any trigger; mixed AI/HUMAN origin is representable only on decision_values
+- [Phase 01-governed-record-substrate]: Audit store (0007) is created but LEFT MUTABLE until plan 01-05 (0008 privileges + 0009 triggers); FR-0.17/FR-Y0.2 require the whole set to land in one `npm run migrate` invocation so no deployment window exposes a mutable store. aev_origin_present_chk already makes an unattributed audit value unstorable
 
 ### Pending Todos
 
@@ -87,6 +90,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-12T13:28:08.428Z
-Stopped at: Completed 01-governed-record-substrate-03-PLAN.md
+Last session: 2026-09-12T13:34:22.857Z
+Stopped at: Completed 01-governed-record-substrate-04-PLAN.md
 Resume file: None
