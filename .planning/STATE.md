@@ -2,15 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 01-governed-record-substrate-01-PLAN.md
-last_updated: "2026-09-12T13:20:19.548Z"
-last_activity: 2026-09-12 — Roadmap created; 15/15 v1 requirements mapped across 6 phases
+status: executing
+stopped_at: Completed 01-governed-record-substrate-02-PLAN.md
+last_updated: "2026-09-12T13:25:35.166Z"
+last_activity: "2026-09-12 — 01-01 executed: PostgreSQL 16.4 compose stack, three roles, forward-only migration runner, drop-not-truncate harness"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 1 complete (01-01 — substrate: compose Postgres, roles, migration runner, test harness)
-Status: In progress — ready for plan 01-02
-Last activity: 2026-09-12 — 01-01 executed: PostgreSQL 16.4 compose stack, three roles, forward-only migration runner, drop-not-truncate harness
+Plan: 2 complete (01-02 — core entity migrations 0001–0004: identity, entries, validation, exceptions)
+Status: In progress — ready for plan 01-03
+Last activity: 2026-09-12 — 01-02 executed: migrations 0001–0004 applied; constant-HUMAN origin CHECK and composite exception basis FK enforced at the database with no trigger
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-governed-record-substrate P01 | 5 min | 3 tasks | 14 files |
+| Phase 01-governed-record-substrate P02 | 2 min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,8 @@ Recent decisions affecting current work:
 - [Roadmap]: Resilience (degraded AI, double decision, stale screen) is delivered inside the phase owning the capability, not deferred — a guarantee that holds only on the happy path is not a guarantee.
 - [Stack, TechArch]: Node 22.11.0 / Express 4.21.1 / PostgreSQL 16.4 / USWDS 3.11.0 (Sass + JS), hand-written SQL with no ORM, server on 0.0.0.0:3000, no frame-blocking headers (preview IFRAME). Settled — not revisited by phases.
 - [Phase 01-governed-record-substrate]: Migration table is schema_migrations (not node-pg-migrate's default); fixed for all later plans. node-pg-migrate is a runtime dep so the compose migrate service can run it.
+- [Phase 01-governed-record-substrate]: exceptions.decision_id is a bare uuid with no FK yet; exceptions_decision_fk is added in migration 0006 (plan 01-04) after the decisions table exists
+- [Phase 01-governed-record-substrate]: Entry provenance is a constant CHECK (origin = 'HUMAN') with NOT NULL and no default — no nullable path to an unattributed value; exception derivation integrity is a composite FK, both enforced at the DB with no trigger
 
 ### Pending Todos
 
@@ -82,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-12T13:20:19.547Z
-Stopped at: Completed 01-governed-record-substrate-01-PLAN.md
+Last session: 2026-09-12T13:25:35.165Z
+Stopped at: Completed 01-governed-record-substrate-02-PLAN.md
 Resume file: None
