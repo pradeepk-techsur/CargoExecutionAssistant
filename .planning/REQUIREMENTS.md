@@ -120,28 +120,47 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| F0 | — | Pending |
-| F1 | — | Pending |
-| F2 | — | Pending |
-| F3 | — | Pending |
-| F4 | — | Pending |
-| F5 | — | Pending |
-| F6 | — | Pending |
-| F7 | — | Pending |
-| F8 | — | Pending |
-| F9 | — | Pending |
-| F10 | — | Pending |
-| F11 | — | Pending |
-| F12 | — | Pending |
-| F13 | — | Pending |
-| F14 | — | Pending |
+| F0 | Phase 1 — Governed Record Substrate | Pending |
+| F1 | Phase 2 — Identity and the Federal UI Foundation | Pending |
+| F2 | Phase 2 — Identity and the Federal UI Foundation | Pending |
+| F3 | Phase 3 — Receive, Validate, Except | Pending |
+| F4 | Phase 3 — Receive, Validate, Except | Pending |
+| F5 | Phase 3 — Receive, Validate, Except | Pending |
+| F6 | Phase 3 — Receive, Validate, Except | Pending |
+| F7 | Phase 4 — The Receipt-Ordered Queue | Pending |
+| F8 | Phase 4 — The Receipt-Ordered Queue | Pending |
+| F9 | Phase 5 — AI Recommendation as an Un-Applied Proposal | Pending |
+| F10 | Phase 5 — AI Recommendation as an Un-Applied Proposal | Pending |
+| F11 | Phase 6 — The Human Decision and the Record That Explains It | Pending |
+| F12 | Phase 6 — The Human Decision and the Record That Explains It | Pending |
+| F13 | Phase 1 — Governed Record Substrate | Pending |
+| F14 | Phase 6 — The Human Decision and the Record That Explains It | Pending |
+
+**Non-functional requirements by phase:**
+
+| NFR | Phase(s) |
+|-----|----------|
+| NFR-1 USWDS conformance | 2 (foundation), 3, 4, 5, 6 (per screen) |
+| NFR-2 Section 508 / WCAG 2.1 AA | 2 (foundation + sign-in sign-off), 3, 4, 5, 6 (per-screen sign-off) — no CI gate |
+| NFR-3 Audit immutability | 1 |
+| NFR-4 Per-value provenance | 1 (stored), 5 (rendered), 6 (re-stamped on edit) |
+| NFR-5 Human-in-the-loop / no auto-apply | 1 (database refusal), 6 (no path, verified by test) |
+| NFR-6 Audit completeness | 1 (coupling triggers), 3 (receipt), 6 (decision) |
+| NFR-7 Traceability without external tooling | 6 |
+| NFR-8 Security & access control | 2 |
+| NFR-9 AI dependency resilience | 5, re-walked end to end in 6 |
+| NFR-10 Responsiveness | 4, 5 |
+| NFR-11 Determinism of validation | 3 |
+| NFR-12 Platform | 2 (shell), inherited by 3, 4, 5, 6 |
 
 **Coverage:**
 - v1 functional requirements: 15 total
 - v1 non-functional requirements: 12 total
-- Mapped to phases: 0 (roadmap not yet created)
-- Unmapped: 15 ⚠️
+- Mapped to phases: 15 ✓ (each to exactly one phase — no orphans, no duplicates)
+- Unmapped: 0
+
+**Loop closure:** the governed decision loop (receive → validate → except → recommend → human decide → audit) first runs end to end at **Phase 6**, when F11, F12 and F14 land together. No phase defers a loop stage past that point.
 
 ---
 *Requirements defined: 2026-09-11*
-*Last updated: 2026-09-11 after initial definition*
+*Last updated: 2026-09-12 after roadmap creation (traceability populated)*
