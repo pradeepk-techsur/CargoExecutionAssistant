@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-02-PLAN.md
-last_updated: "2026-09-12T13:25:35.166Z"
-last_activity: "2026-09-12 — 01-01 executed: PostgreSQL 16.4 compose stack, three roles, forward-only migration runner, drop-not-truncate harness"
+stopped_at: Completed 01-governed-record-substrate-03-PLAN.md
+last_updated: "2026-09-12T13:28:27.538Z"
+last_activity: "2026-09-12 — 01-03 executed: db/canonical.ts (canonicalJson, computeEntryHash, ZERO_HASH, fixedScale) with a pinned fixed hash vector; pure module, 19 tests green"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 2 complete (01-02 — core entity migrations 0001–0004: identity, entries, validation, exceptions)
-Status: In progress — ready for plan 01-03
-Last activity: 2026-09-12 — 01-02 executed: migrations 0001–0004 applied; constant-HUMAN origin CHECK and composite exception basis FK enforced at the database with no trigger
+Plan: 3 complete (01-03 — canonical serialisation + SHA-256 per-case hash chain, pure db/canonical.ts, TEST-UNIT-04)
+Status: In progress — ready for plan 01-04
+Last activity: 2026-09-12 — 01-03 executed: db/canonical.ts (canonicalJson, computeEntryHash, ZERO_HASH, fixedScale) with a pinned fixed hash vector; pure module, 19 tests green
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-governed-record-substrate P01 | 5 min | 3 tasks | 14 files |
 | Phase 01-governed-record-substrate P02 | 2 min | 3 tasks | 4 files |
+| Phase 01-governed-record-substrate P03 | 4 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: Migration table is schema_migrations (not node-pg-migrate's default); fixed for all later plans. node-pg-migrate is a runtime dep so the compose migrate service can run it.
 - [Phase 01-governed-record-substrate]: exceptions.decision_id is a bare uuid with no FK yet; exceptions_decision_fk is added in migration 0006 (plan 01-04) after the decisions table exists
 - [Phase 01-governed-record-substrate]: Entry provenance is a constant CHECK (origin = 'HUMAN') with NOT NULL and no default — no nullable path to an unattributed value; exception derivation integrity is a composite FK, both enforced at the DB with no trigger
+- [Phase 01-governed-record-substrate]: Canonical serialisation + entry-hash chain live once in a pure server/src/db/canonical.ts (no db/env/clock/randomness), shared byte-for-byte by the audit writer and the SQL verifier; the fixed hash vector 367a71b6… is pinned by test as a regression anchor for the whole chain
 
 ### Pending Todos
 
@@ -85,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-12T13:25:35.165Z
-Stopped at: Completed 01-governed-record-substrate-02-PLAN.md
+Last session: 2026-09-12T13:28:08.428Z
+Stopped at: Completed 01-governed-record-substrate-03-PLAN.md
 Resume file: None
