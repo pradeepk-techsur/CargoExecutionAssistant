@@ -1,0 +1,51 @@
+
+## PER-03: Priya Raman
+
+**Access: non-user stakeholder — does not authenticate, has no system access in v1.** Priya holds no account, no dashboard, no metrics view and no reporting surface. PRD §10 #2 excludes every supervisory and analytics surface; PRD §10 #3 excludes a second role; and a presenter mode, demo mode or read-along surface for her benefit is itself excluded. The journey below is a **non-user journey — no authenticated access, no dedicated interface**: she witnesses a session driven by a cargo specialist, asks questions out loud, and receives structural answers backed by test evidence. Not one stage may be implemented as a surface built for her.
+
+---
+
+### JRN-03.1: Witness the Governed Loop and Probe the Claim
+
+**Persona:** PER-03 (Priya Raman)
+**Scenario:** *Non-user journey — no authenticated access, no dedicated interface.* Priya leads delivery for a CBP programme portfolio, and her question is not about cargo at all — it is whether CBP can build governed applications fast enough to be worth building. She sits beside a cargo specialist at a running instance and watches her work: sign in, hand-type a deliberately incomplete entry, watch it fail validation and open as an exception, open it from the queue, read the AI's recommendation and rationale, change one value with a reason, approve it, and then open the audit trail and read the whole story back including which values the machine proposed. Priya touches nothing. Her instruments are her eyes, her questions, and the evidence offered in answer — a live browser walkthrough rather than an API transcript, automated test results rather than policy statements, and per-screen review sign-off rather than a promise about a later release. She is judging whether that sequence needed an explanation, a workaround, or a future-tense verb.
+
+**Related Jobs:** JTBD-03.1, JTBD-03.2, JTBD-03.3, JTBD-03.4
+
+#### Journey Stages
+
+| Stage | Action | Touchpoint | Thinking | Feeling | Pain Point | Opportunity |
+|-------|--------|------------|----------|---------|------------|-------------|
+| Set the terms | States before anything starts that she wants the loop walked in a browser with data created during the session, not an API transcript and not a pre-staged dataset | The walkthrough agreed with the specialist (no system touchpoint) | "I have been shown a working backend and a missing interface before. Not this time." | Sceptical, professionally so | Her scepticism is earned: a broad application arriving partially finished answers her delivery question with a no (R-7) | No seeded dataset exists at all (excluded, PROJECT.md), so receive and validate are inside the demonstrated path by construction rather than by promise |
+| Watch receive and validate | Watches the specialist sign in and hand-type an incomplete entry, then watches the screen state plainly that an exception opened, naming the unsatisfied rules and their fields | Observed PER-01 session — sign-in (F1) and entry form (F6) | "Two of six stages, and the failure named itself. Nothing was staged for me." | Engaged, interest rising | A demonstration that begins at an already-existing case skips the two stages most easily faked | Atomic receipt — persist, validate, open the exception in one transaction — so there is no moment at which the entry exists unassessed |
+| Watch except and recommend | Watches the case appear in the receipt-ordered queue, be opened in one action, and present the validation findings alongside the AI's proposed action and plain-language rationale, with AI origin marked on every proposed value | Observed PER-01 session — queue (F8) and case detail (F10) | "The proposal is visibly the machine's and visibly un-applied. It is a draft sitting there waiting for her." | Attentive | If AI output appeared merged into the record, the whole human-in-the-loop claim would be unverifiable by watching | Present the recommendation as an un-applied proposal with origin marked beyond colour alone, so the claim is legible to a witness and not only to the operator |
+| Watch the human decide | Watches the specialist edit one value, write a reason in her own words, and approve — with the three actions arriving undefaulted and the reason enforced before the case can close | Observed PER-01 session — decision (F12) | "No option was pre-selected. Choosing the AI's answer cost her the same act as refusing it." | Convinced on the central point | A pre-selected default here would not be visible as a flaw to most witnesses, which is exactly why its absence is worth demonstrating explicitly | Undefaulted controls and mandatory reason capture shown live, so the accountability claim is observed rather than described |
+| Watch audit close the loop | Watches the audit trail opened from inside the case and read aloud: actor, action, timestamp, before/after, reason, and `HUMAN` on the changed value beside `AI` on the retained ones — with no export and no second system involved | Observed PER-01 session — audit trail (F14) | "Six of six. And the record explained itself in place, which is the part that usually needs a caveat." | Impressed, guard lowering | The trail is where a thin implementation shows: a history that needs an export or a tool would have ended the demonstration honestly here | Answer in place (NFR-7) — the absence of an export is the guarantee, not a gap in it |
+| Probe the accountability claim | Asks aloud whether anything in the system can resolve a case without a human, and receives a structural answer — no scheduled job, background worker, retry path or system actor can transition a case — backed by the automated test that proves the path does not exist | Verbal Q&A with the delivery team, plus automated test results (NFR-5, §4.3 #1) — no screen, no control panel | "That is a property of the build, not a discipline that depends on how people use it. A configuration switch would have been a worse answer." | Satisfied in a way a policy answer never achieves | A control panel showing that human review is enabled would, by existing, admit the alternative — which is why she is shown a test and not a toggle | Prove the absence of an auto-apply path by test, and let degraded mode (JRN-01.6) show the guarantee holds when the AI is down (SM-13) |
+| Check what was declined | After the demonstration, checks the shipped feature set line by line against the PRD §10 exclusion list — as a delivery-evidence review on paper, not as anything rendered in the product | The shipped F0–F14 feature set checked against PRD §10 (offline review; no in-product view exists) | "Narrow on purpose, and the narrowness bought loop completeness. No dashboard, no second role, no export, no filters." | Reassured about judgement, not just execution | Scope drift toward dashboards and multi-role access would have consumed exactly the budget loop completeness needed (R-2) | Key exclusions enforced structurally — no filter, sort, assignment or priority dimension in the data model or API; one role by construction — so the discipline is checkable rather than merely claimed |
+
+#### Key Moments
+- **Decision Point:** Probe the accountability claim — the moment her judgement is actually formed. A structural answer backed by test converts the governance claim from an assertion into a property; a policy answer here would undo all six preceding stages.
+- **Risk of Abandonment:** Watch receive and validate — if the walkthrough had to begin at a pre-existing case, two of the six stages would be taken on trust, and a loop demonstrated at four-sixths is a no regardless of polish. The absence of a seeded dataset is what protects this stage.
+- **Risk of Abandonment:** Watch audit close the loop — if the trail needed an export or a second system to be legible, the demonstration would end with a caveat, which for her is indistinguishable from a failure.
+- **Delight Opportunity:** Watch the human decide — three equally weighted actions with no default is a small design fact that carries the entire human-in-the-loop claim, and seeing it operated is more persuasive than any architecture slide describing it.
+- **Explicitly Not Built:** No programme or delivery dashboard, no volume/queue-health/aging/throughput/workload measure, no login or report of her own, no presenter or demo mode, no seeded dataset, no in-product scope-compliance view. All are recorded as out of scope in PERSONAS §PER-03 and JTBD §PER-03 and must stay there — a surface reporting on scope discipline would itself breach it.
+
+#### Success Outcome
+All six governed loop stages are demonstrated end to end in one unbroken browser sitting with no manual workaround and no verbal bridging (SM-1: 6 of 6), with 100% decision traceability answerable from the UI during the walkthrough (SM-2). The accountability guarantee is answered structurally and evidenced by test — zero auto-apply incidents (SM-4), 100% reason capture (SM-5) — rather than by policy. Federal standards are observed in the delivered screens, including a keyboard-only pass (SM-10, SM-11, SM-12). The loop remains completable with the AI provider unavailable (SM-13). And zero shipped features fall within a PRD §10 exclusion (SM-14), checked against the feature set after the demonstration rather than rendered in the product.
+
+#### Feature Touchpoints
+
+*Priya operates no feature. She observes a PER-01 session; the features below are the ones being demonstrated in front of her, and the evidence offered alongside them.*
+
+| Stage | Features |
+|-------|----------|
+| Set the terms | — (no system touchpoint; conditions set on the walkthrough itself) |
+| Watch receive and validate | F1, F6, F3, F4, F5 (observed, on F2) |
+| Watch except and recommend | F8, F7, F10, F9 (observed, on F2) |
+| Watch the human decide | F12, F11 (observed, on F2) |
+| Watch audit close the loop | F14, F13, F0 (observed, on F2) |
+| Probe the accountability claim | F11, F13 (structural guarantee; evidenced by test, not by a screen) |
+| Check what was declined | Full F0–F14 set checked against PRD §10 (offline review, no surface) |
+
+---
