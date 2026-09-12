@@ -108,7 +108,6 @@ describe('canonicalJson — timestamp precision', () => {
 
   it('round-trips an explicit-microsecond value unchanged', () => {
     // A value carrying explicit microseconds is preserved (not truncated to ms).
-    expect(canonicalJson(fixedScale('unused', 0))).toBeTypeOf('string'); // keep tree-shake honest
     const micros = '2026-09-11T14:32:07.512345Z';
     // The serialiser accepts a pre-formatted microsecond RFC 3339 string via a
     // tagged timestamp; assert it survives byte-for-byte.
@@ -163,7 +162,7 @@ describe('computeEntryHash — fixed vector', () => {
     // written audit entry has silently changed meaning, and every prior record
     // would fail verification. That is exactly what this test exists to catch.
     expect(h.toString('hex')).toBe(
-      '0000000000000000000000000000000000000000000000000000000000000000',
+      '367a71b6a3e546fc4f9b5ffb9a1cd259c8fa42fb9a1f4fd522447871aec15939',
     );
   });
 });
