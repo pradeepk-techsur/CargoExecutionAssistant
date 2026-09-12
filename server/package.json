@@ -1,0 +1,8 @@
+{
+  "name": "@cargoexec/server",
+  "version": "0.0.0",
+  "type": "module",
+  "dependencies": {
+    "@cargoexec/contract": "*"
+  }
+}
