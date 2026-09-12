@@ -1,3 +1,19 @@
+---
+pivota_spec_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: planning
+stopped_at: Completed 01-governed-record-substrate-01-PLAN.md
+last_updated: "2026-09-12T13:20:19.548Z"
+last_activity: 2026-09-12 — Roadmap created; 15/15 v1 requirements mapped across 6 phases
+progress:
+  total_phases: 6
+  completed_phases: 0
+  total_plans: 10
+  completed_plans: 1
+  percent: 0
+---
+
 # Project State
 
 ## Project Reference
@@ -10,18 +26,19 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-09-12 — Roadmap created; 15/15 v1 requirements mapped across 6 phases
+Plan: 1 complete (01-01 — substrate: compose Postgres, roles, migration runner, test harness)
+Status: In progress — ready for plan 01-02
+Last activity: 2026-09-12 — 01-01 executed: PostgreSQL 16.4 compose stack, three roles, forward-only migration runner, drop-not-truncate harness
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 0
-- Average duration: —
-- Total execution time: 0 hours
+
+- Total plans completed: 1
+- Average duration: 5 min
+- Total execution time: ~0.1 hours
 
 **By Phase:**
 
@@ -30,10 +47,12 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: —
 - Trend: —
 
 *Updated after each plan completion*
+| Phase 01-governed-record-substrate P01 | 5 min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -48,6 +67,7 @@ Recent decisions affecting current work:
 - [Roadmap]: Accessibility is a Phase 2 foundation inherited by every screen, with per-screen manual + assistive-technology sign-off inside each UI phase. There is no accessibility remediation phase and no CI gate (NFR-2).
 - [Roadmap]: Resilience (degraded AI, double decision, stale screen) is delivered inside the phase owning the capability, not deferred — a guarantee that holds only on the happy path is not a guarantee.
 - [Stack, TechArch]: Node 22.11.0 / Express 4.21.1 / PostgreSQL 16.4 / USWDS 3.11.0 (Sass + JS), hand-written SQL with no ORM, server on 0.0.0.0:3000, no frame-blocking headers (preview IFRAME). Settled — not revisited by phases.
+- [Phase 01-governed-record-substrate]: Migration table is schema_migrations (not node-pg-migrate's default); fixed for all later plans. node-pg-migrate is a runtime dep so the compose migrate service can run it.
 
 ### Pending Todos
 
@@ -62,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-12
-Stopped at: ROADMAP.md and STATE.md written; REQUIREMENTS.md traceability populated
+Last session: 2026-09-12T13:20:19.547Z
+Stopped at: Completed 01-governed-record-substrate-01-PLAN.md
 Resume file: None
