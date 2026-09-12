@@ -3,7 +3,7 @@ phase: 01
 gate_status: passed
 build_command: "npm run typecheck"
 test_command: "npx vitest run"
-last_updated: 2026-09-12T13:35:45Z
+last_updated: 2026-09-12T13:42:39Z
 tests_disabled_during_fixes: none
 shadowed_sources: 0
 waves:
@@ -16,6 +16,10 @@ waves:
     tests: pass
     fix_attempts: 0
   - wave: 3
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 4
     build: pass
     tests: pass
     fix_attempts: 0
@@ -123,5 +127,30 @@ No test files found, exiting with code 1[39m
 [2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
 [2m   Start at [22m 13:35:38
 [2m   Duration [22m 647ms[2m (transform 40ms, setup 0ms, collect 350ms, tests 209ms, environment 0ms, prepare 24ms)[22m
+```
+
+## Wave 4
+
+- Build: `npm run typecheck` → pass
+- Tests: `npx vitest run` → pass
+- Fix attempts: 0/3 — 25/25 pass. Migrations 0008-0010 (privileges, 11 triggers, chain verifier) landed; all 10 migrations apply.
+
+### Gate output
+
+```
+> typecheck
+> tsc -b contract server
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 111[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 13:42:34
+[2m   Duration [22m 580ms[2m (transform 36ms, setup 0ms, collect 334ms, tests 167ms, environment 0ms, prepare 23ms)[22m
 ```
 
