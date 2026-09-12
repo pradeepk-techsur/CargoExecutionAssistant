@@ -44,7 +44,17 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A transaction that moves an exception out of `OPEN` without a `decisions` row naming a real specialist is refused by the database, so "the AI resolved it" is unreachable even from a direct SQL session with full application privileges. *(no screen)*
   4. Every stored value carries an `AI` or `HUMAN` origin — there is no column default, nullable path, or insert route by which an unattributed value can come into existence. *(no screen)*
   5. A removed, altered or reordered audit entry is detectable from the per-case sequence and hash chain, and the verifier reports the break rather than repairing it. *(no screen)*
-**Plans**: TBD
+**Plans**: 10 plans in 6 waves
+- [ ] 01-01-PLAN.md — Scaffolding, PostgreSQL 16.4 under compose, the three governance roles, forward-only migration runner, drop-not-truncate test harness (wave 1)
+- [ ] 01-02-PLAN.md — Migrations 0001–0004: identity, entries with constant-HUMAN origin, validation, exception derivation integrity (wave 2)
+- [ ] 01-03-PLAN.md — Canonical JSON serialisation and the SHA-256 entry-hash computation, with its fixed-vector unit suite (wave 2)
+- [ ] 01-04-PLAN.md — Migrations 0005–0007: recommendations, decisions, and the append-only audit store (wave 3)
+- [ ] 01-05-PLAN.md — Migrations 0008–0010: privilege revocations, the four trigger families, and the read-only chain verifier (wave 4)
+- [ ] 01-06-PLAN.md — Connection pools, the only BEGIN, the audit writer `append(tx, entry)`, and the governed-case fixture builder (wave 5)
+- [ ] 01-07-PLAN.md — Architecture suite: no CI, no forbidden dependency, thirteen tables, twenty-five forbidden columns absent, declared grant matrix (wave 5)
+- [ ] 01-08-PLAN.md — Immutability suite: UPDATE/DELETE/TRUNCATE refused for app, ai **and owner**; entry of record and AI privilege wall (wave 6)
+- [ ] 01-09-PLAN.md — HITL, audit-coupling and provenance suites: deliberately mis-written transactions refused at COMMIT (wave 6)
+- [ ] 01-10-PLAN.md — Read-only per-case trail service, sequencing under concurrency, chain refusal, and excision detection in a copied database (wave 6)
 
 *Criteria here are system properties rather than screen behaviours because this phase ships no screen. They are verified by SQL and by test, exactly as the story map marks them **(no screen)** — asserting them as observable failures now is what makes Phases 2–6 safe to build.*
 
