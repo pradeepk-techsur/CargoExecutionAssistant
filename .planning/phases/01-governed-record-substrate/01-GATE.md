@@ -154,3 +154,52 @@ No test files found, exiting with code 1[39m
 [2m   Duration [22m 580ms[2m (transform 36ms, setup 0ms, collect 334ms, tests 167ms, environment 0ms, prepare 23ms)[22m
 ```
 
+
+## Backend pre-push gate
+
+- Status: failed
+- Wave-gate coverage: INCOMPLETE — wave(s) 5, 6, 7 ran with no GATE.md entry
+- Result marker + failing output tail:
+```
+__GATE__ build_exit=-1 test_exit=1 build_cmd=[none] test_cmd=[npm test] head=b73218488a0a1591e17c440ff9ee85f740cfb53c test_files=4 skip_marks=0 shadow_files=0
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 56[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m23 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 13:49:33
+[2m   Duration [22m 442ms[2m (transform 32ms, setup 0ms, collect 307ms, tests 57ms, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 111[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 13:49:33
+[2m   Duration [22m 225ms[2m (transform 19ms, setup 0ms, collect 41ms, tests 111ms, environment 0ms, prepare 21ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+[2mfilter:  [22m[33mserver/test/architecture[39m
+[2minclude: [22m[33m**/*.{test,spec}.?(c|m)[jt]s?(x)[39m
+[2mexclude:  [22m[33m**/node_modules/**[2m, [22m**/dist/**[2m, [22m**/cypress/**[2m, [22m**/.{idea,git,cache,output,temp}/**[2m, [22m**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build,eslint,prettier}.config.*[39m
+[31m
+No test files found, exiting with code 1[39m
+```
