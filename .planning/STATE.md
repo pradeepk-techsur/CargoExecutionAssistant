@@ -2,14 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-14T19:37:05.163Z"
-last_activity: "2026-09-14 — Phase 1 complete"
+status: in-progress
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-09-14T21:58:59.281Z"
+last_activity: "2026-09-14 — 02-01 executed: web-tier foundation. Pinned Express/React/USWDS/argon2 stack at exact §6.2 versions; added the web workspace + full script set; defined the F1 session wire contract + closed 23-member Y2 ErrorCode union (disjoint from the 8 internal codes) once in contract; server/src/config.ts refuses a broken boot four ways. unit 56 + arch 67 green, typecheck clean."
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 19
+  completed_plans: 11
   percent: 17
 ---
 
@@ -20,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 1 — Governed Record Substrate
+**Current focus:** Phase 2 — Identity and the Federal UI Foundation
 
 ## Current Position
 
-Phase: 1 of 6 (Governed Record Substrate) — COMPLETE
-Plan: 01-10 complete (chain verification & F13 read path: chain.spec.ts TEST-DB-13/14/15 + auditRead.service.ts readCaseTrail). All 10 of 10 phase-1 plans have SUMMARYs on disk (01-01..01-10). Wave 7 (the full test:db gate) done.
-Status: Phase 1 complete — all 10 plans executed, full suite (unit 23 + db 103 + arch 67) green. Ready for phase transition to Phase 2.
-Last activity: 2026-09-14 — 01-10 executed: chain verification. Two concurrent appends serialise under the case-anchor lock (contiguous seq, no gap/dup, second observably blocked); forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001) three ways; four independent TEMPLATE copies detect excision (false,4,3), alteration (false,3,3), reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash recomputation; verify_audit_chain repairs nothing. readCaseTrail is the strictly read-only per-case F13 read path. Phase success criterion 5 demonstrated end to end.
+Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
+Plan: 02-01 complete (web-tier foundation: pinned deps, web workspace, session wire contract + Y2 error union, config self-checks). Next: 02-02.
+Status: Phase 1 complete (10/10). Phase 2 plan 01 of N executed — unit 56 + arch 67 green, typecheck clean, all §6.2 pins exact, no a11y runner, no .github.
+Last activity: 2026-09-14 — 02-01 executed: web-tier foundation. Installed express/helmet/zod/argon2/pino/react/react-dom/react-router-dom/@uswds/uswds at exact TechArch §6.2 pins (+ sass/vite/supertest/@playwright/test dev deps); argon2 native binding loads; test:arch still green so nothing forbidden entered the tree. Added the `web` workspace (standalone non-composite tsconfig) and the full build/test/typecheck script set — `test` deliberately excludes `test:e2e`; `test:all` is the phase-completion gate. Defined the F1 session wire types + §3.10 error envelope once in contract/src/dto.ts and the closed 23-member ErrorCode union + ERROR_MESSAGES in errors.ts (proven disjoint from INTERNAL_INVARIANT_CODES). server/src/config.ts is environment-only with four fail-loud boot self-checks (loopback HOST, FRAME_ANCESTORS none/self, demo-iframe over http, missing DATABASE_URL_APP), messages naming keys not values. [Rule 3] added web/src/placeholder.ts so tsc -p web --noEmit has an input until 02-05.
 
 Progress: [██░░░░░░░░] 17%
 
@@ -61,6 +62,7 @@ Progress: [██░░░░░░░░] 17%
 | Phase 01-governed-record-substrate P09 | 9 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P08 | 14 min | 2 tasks | 1 files |
 | Phase 01-governed-record-substrate P10 | 10 min | 3 tasks | 2 files |
+| Phase 02-identity-and-the-federal-ui-foundation P01 | 5 min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -90,6 +92,9 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: TEST-DB-16 immutability of the entry of record is proved application-level (no UPDATE cargo_entries in server/src) not privilege-level: migration 0011 grants cargoexec_app UPDATE on cargo_entries for the FOR UPDATE anchor lock, so a raw UPDATE succeeds at the DB (user-approved reframe)
 - [Phase 01-governed-record-substrate]: cargoexec_ai cannot invoke append(): append() takes SELECT ... FOR UPDATE on cargo_entries which needs table UPDATE privilege A-1 denies the AI role; recommendation-status audit entries are written on a path that already holds the anchor. Pinned by immutability.spec.ts so a future UPDATE grant to the AI role fails loudly
 - [Phase 01-governed-record-substrate]: Plan 01-10 (final): chain verification proven — TEST-DB-13/14/15. Two concurrent appends serialise under the anchor lock (contiguous seq, no gap/dup, second observably blocked); forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001); four independent TEMPLATE copies detect excision (false,4,3), alteration (false,3,3), reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash recomputation. verify_audit_chain repairs nothing (byte-identical post-tamper, identical second verify). readCaseTrail is the read-only per-case F13 read path. DROP TRIGGER confined to chain.spec.ts throwaway copies. Full test:db gate green (103 db tests).
+- [Phase 02-identity-and-the-federal-ui-foundation]: test excludes test:e2e; test:all (with the keyboard-only/focus/in-iframe Playwright suites carrying criterion-4 + D-1 browser proof) is the phase-completion gate; test:unit/db/api/arch is the fast inner loop
+- [Phase 02-identity-and-the-federal-ui-foundation]: contract exports resolve @cargoexec/contract to ./dist/index.js so the server runs; npm run build:server (or typecheck) is the first command after a fresh clone before any npx vitest importing the contract
+- [Phase 02-identity-and-the-federal-ui-foundation]: server/src/config.ts is environment-only with four fail-loud boot self-checks (loopback HOST §6.5, FRAME_ANCESTORS none/self D-1 §4.5, demo-iframe over http §4.3, missing DATABASE_URL_APP); error messages name the key never the value §4.7; AI keys deferred to phase 5 as a comment not a skipped test
 
 ### Pending Todos
 
@@ -104,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T03:24:41.945Z
-Stopped at: Completed 01-governed-record-substrate-10-PLAN.md
+Last session: 2026-09-14T21:58:44.567Z
+Stopped at: Completed 02-01-PLAN.md
 Resume file: None
