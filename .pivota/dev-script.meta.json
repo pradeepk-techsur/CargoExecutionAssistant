@@ -2,16 +2,19 @@
   "generator_version": "init-dev-server@1",
   "catalog_entry": "compose",
   "generated_at": "2026-09-14T14:22:42Z",
-  "inspection_inputs_hash": "5240d8e9f2fdcd74511882913d06fb4bac711c6665a174da28814ec4c26f35d2",
+  "inspection_inputs_hash": "5ca9eef23ea212bd20ed2a141d4335c2655a3dffe6e126ecf58bdb2ad3a7a725",
   "inspection_inputs": {
     "matched_globs": [
-      "*compose.y*ml",
+      "docker-compose.yml",
       "package.json"
     ],
     "manifest_signatures": [
-      "docker-compose.yml:services:db,migrate",
-      "package.json:dep:node-pg-migrate@7.9.0",
-      "package.json:dep:pg@8.13.1"
+      "package.json:script:migrate=node --env-file=.env server/scripts/migrate.mjs",
+      "package.json:script:test:arch=vitest run server/test/architecture",
+      "package.json:script:test:db=vitest run server/test/db",
+      "package.json:script:test:unit=vitest run server/test/unit",
+      "package.json:script:test=npm run test:unit && npm run test:db && npm run test:arch",
+      "package.json:script:typecheck=tsc -b contract server"
     ],
     "existing_scripts": []
   }
