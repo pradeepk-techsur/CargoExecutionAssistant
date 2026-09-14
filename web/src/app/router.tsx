@@ -20,6 +20,7 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { Shell } from '../shell/Shell.js';
 import { NotBuiltYet } from '../screens/NotBuiltYet.js';
 import { NotFound } from '../screens/NotFound.js';
+import { SignIn } from '../screens/SignIn.js';
 import { SessionProvider, useSession } from '../session/SessionProvider.js';
 
 /** The root layout: SessionProvider around the whole route tree. */
@@ -63,8 +64,7 @@ export const router = createBrowserRouter([
     children: [
       {
         element: <ReducedShell />,
-        // Task 2 (this plan) replaces this element with the real SignIn screen.
-        children: [{ path: '/sign-in', element: <NotBuiltYet title="Sign in" /> }],
+        children: [{ path: '/sign-in', element: <SignIn /> }],
       },
       {
         element: <AuthenticatedShell />,
