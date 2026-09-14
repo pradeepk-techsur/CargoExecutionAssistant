@@ -10,6 +10,8 @@ import {
 import {
   insertSession,
   findSessionByTokenHash,
+  findSessionById,
+  updateCsrfTokenHash,
   revokeSession,
   updateLastSeen,
 } from '../db/repositories/sessions.js';
@@ -400,4 +402,26 @@ export async function signOut(
 /** Advance last_seen_at. The caller decides whether the 60-second throttle has elapsed. */
 export async function touchSession(pool: Pool, sessionId: string, lastSeenAt: Date): Promise<void> {
   await updateLastSeen(pool, sessionId, lastSeenAt);
+}
+
+/**
+ * Mint a FRESH CSRF token for an existing session, persist only its 32-byte
+ * SHA-256 digest, and return the raw token together with the session's absolute
+ * expiry. This is the store half of the rotate-on-GET behaviour of
+ * `GET /api/session` (§3.3): because only the hash is stored, the token cannot
+ * be read back, so every load-time GET re-issues one and updates the stored
+ * hash so the returned token is the one that will verify. The raw token leaves
+ * this function once and is never stored, logged or returned again (FR-1.14).
+ */
+export async function rotateCsrfToken(
+  pool: Pool,
+  sessionId: string,
+): Promise<{ csrfToken: string; absoluteExpiresAt: Date }> {
+  const row = await findSessionById(pool, sessionId);
+  if (row === null) {
+    throw new Error('rotateCsrfToken: session not found');
+  }
+  const csrfToken = randomBytes(32).toString('base64url');
+  await updateCsrfTokenHash(pool, sessionId, sha256(csrfToken));
+  return { csrfToken, absoluteExpiresAt: row.absolute_expires_at };
 }

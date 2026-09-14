@@ -125,6 +125,42 @@ export async function findSessionByTokenHash(
 }
 
 /**
+ * Look up a session by its id (used when rotating the CSRF token on a GET, where
+ * the principal is already resolved from the cookie and only the row's expiry is
+ * needed). Returns the session's own columns; the specialist is NOT joined here.
+ */
+export async function findSessionById(
+  q: Queryable,
+  sessionId: string,
+): Promise<SessionRow | null> {
+  const res = await q.query<SessionRow>(
+    `SELECT id, specialist_id, csrf_token_hash,
+            created_at, absolute_expires_at, last_seen_at,
+            revoked_at, revocation_reason
+       FROM sessions
+      WHERE id = $1`,
+    [sessionId],
+  );
+  return res.rows[0] ?? null;
+}
+
+/**
+ * Replace a session's `csrf_token_hash` with a freshly minted digest. Pass a
+ * raw 32-byte `Buffer` (the SHA-256 of the new token), never a hex string —
+ * `sessions_csrf_hash_len_chk` enforces octet_length = 32.
+ */
+export async function updateCsrfTokenHash(
+  q: Queryable,
+  sessionId: string,
+  csrfTokenHash: Buffer,
+): Promise<void> {
+  await q.query(`UPDATE sessions SET csrf_token_hash = $2 WHERE id = $1`, [
+    sessionId,
+    csrfTokenHash,
+  ]);
+}
+
+/**
  * Revoke a session, writing `revoked_at` and `revocation_reason` TOGETHER in one
  * statement — `sessions_revocation_chk` rejects either column alone.
  *
