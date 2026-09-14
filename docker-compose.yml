@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16.4
+    container_name: cargoexec-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-cargoexec_local_superuser}
+      POSTGRES_DB: cargoexec
+      CARGOEXEC_OWNER_PASSWORD: ${CARGOEXEC_OWNER_PASSWORD:-cargoexec_local_owner}
+      CARGOEXEC_APP_PASSWORD: ${CARGOEXEC_APP_PASSWORD:-cargoexec_local_app}
+      CARGOEXEC_AI_PASSWORD: ${CARGOEXEC_AI_PASSWORD:-cargoexec_local_ai}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cargoexec"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  migrate:
+    image: node:22.11-bookworm-slim
+    container_name: cargoexec-migrate
+    profiles: ["migrate"]
+    working_dir: /app
+    volumes:
+      - .:/app
+    environment:
+      DATABASE_URL_OWNER: postgres://cargoexec_owner:${CARGOEXEC_OWNER_PASSWORD:-cargoexec_local_owner}@db:5432/cargoexec
+    command: ["node", "server/scripts/migrate.mjs"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
