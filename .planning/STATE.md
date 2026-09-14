@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: in-progress
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-09-14T21:58:59.281Z"
-last_activity: "2026-09-14 — 02-01 executed: web-tier foundation. Pinned Express/React/USWDS/argon2 stack at exact §6.2 versions; added the web workspace + full script set; defined the F1 session wire contract + closed 23-member Y2 ErrorCode union (disjoint from the 8 internal codes) once in contract; server/src/config.ts refuses a broken boot four ways. unit 56 + arch 67 green, typecheck clean."
+stopped_at: Completed 02-03-PLAN.md
+last_updated: "2026-09-14T22:12:47.495Z"
+last_activity: "2026-09-14 — 02-03 executed: identity layer below HTTP. clock.ts injects Clock/systemClock/fixedClock (no env time skew). Two hand-written parameterised repositories (specialists, sessions); findSessionByTokenHash omits token_hash, revokeSession writes both revocation cols guarded by revoked_at IS NULL. session.service.ts is the sole credential-verifying module: Argon2id verify in both branches (DUMMY_HASH when no row) for timing parity, unknown-email == wrong-password AUTH_FAILED, throttle-before-DB keyed by sha256(email), 32-byte SHA-256 tokens only, injected-clock idle(30m)/absolute(8h) expiry recorded as revoked_at+reason. create-specialist CLI is the only account path (interactive TTY / idempotent --from-env). 11 DB cases + 8 throttle units green; test:db 114, test:arch 67, typecheck clean, build:server exit 0. [Rule 1] fixed pg CommonJS named-import so the CLI runs under native ESM."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 11
-  percent: 17
+  completed_plans: 13
+  percent: 68
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
-Plan: 02-01 complete (web-tier foundation: pinned deps, web workspace, session wire contract + Y2 error union, config self-checks). Next: 02-02.
-Status: Phase 1 complete (10/10). Phase 2 plan 01 of N executed — unit 56 + arch 67 green, typecheck clean, all §6.2 pins exact, no a11y runner, no .github.
-Last activity: 2026-09-14 — 02-01 executed: web-tier foundation. Installed express/helmet/zod/argon2/pino/react/react-dom/react-router-dom/@uswds/uswds at exact TechArch §6.2 pins (+ sass/vite/supertest/@playwright/test dev deps); argon2 native binding loads; test:arch still green so nothing forbidden entered the tree. Added the `web` workspace (standalone non-composite tsconfig) and the full build/test/typecheck script set — `test` deliberately excludes `test:e2e`; `test:all` is the phase-completion gate. Defined the F1 session wire types + §3.10 error envelope once in contract/src/dto.ts and the closed 23-member ErrorCode union + ERROR_MESSAGES in errors.ts (proven disjoint from INTERNAL_INVARIANT_CODES). server/src/config.ts is environment-only with four fail-loud boot self-checks (loopback HOST, FRAME_ANCESTORS none/self, demo-iframe over http, missing DATABASE_URL_APP), messages naming keys not values. [Rule 3] added web/src/placeholder.ts so tsc -p web --noEmit has an input until 02-05.
+Plan: 02-03 complete (identity layer below HTTP: clock injection, specialists/sessions repositories, session.service credential verification + throttle, create-specialist CLI, DB-backed session suite). 02-04 (session middleware + routes) executing in parallel on this branch.
+Status: Phase 1 complete (10/10). Phase 2: 02-01 + 02-03 executed. 02-03 gates green — test:db 114, test:unit throttle 8, test:arch 67, typecheck clean, build:server exit 0. Note: 02-04's in-flight HTTP-layer WIP (errorMapper.spec.ts, 3 failing) is untracked and out of scope for 02-03 — see deferred-items.md.
+Last activity: 2026-09-14 — 02-03 executed: identity layer below HTTP. Argon2id credential verification with a module-level dummy-hash timing equaliser (unknown email == wrong password, comparable time); opaque SHA-256-at-rest server sessions with injected-clock 30-min idle / 8-h absolute expiry recorded as revoked_at + revocation_reason; in-process sign-in throttle keyed by sha256(email) with no lockout state; create-specialist CLI as the sole operational account path (interactive TTY or idempotent --from-env). Structural Queryable serves Pool/PoolClient/Client. [Rule 1] pg CommonJS named-import → interop-default so the CLI runs under native ESM; [Rule 3] --from-env checks bootstrap keys before the DB URL; [Rule 3] widened Queryable to a structural interface.
 
-Progress: [██░░░░░░░░] 17%
+Progress: [███████░░░] 68%
 
 ## Performance Metrics
 
@@ -63,6 +63,8 @@ Progress: [██░░░░░░░░] 17%
 | Phase 01-governed-record-substrate P08 | 14 min | 2 tasks | 1 files |
 | Phase 01-governed-record-substrate P10 | 10 min | 3 tasks | 2 files |
 | Phase 02-identity-and-the-federal-ui-foundation P01 | 5 min | 3 tasks | 13 files |
+| Phase 02-identity-and-the-federal-ui-foundation P02 | 16 min | 3 tasks | 9 files |
+| Phase 02-identity-and-the-federal-ui-foundation P03 | 9 min | 3 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -95,6 +97,12 @@ Recent decisions affecting current work:
 - [Phase 02-identity-and-the-federal-ui-foundation]: test excludes test:e2e; test:all (with the keyboard-only/focus/in-iframe Playwright suites carrying criterion-4 + D-1 browser proof) is the phase-completion gate; test:unit/db/api/arch is the fast inner loop
 - [Phase 02-identity-and-the-federal-ui-foundation]: contract exports resolve @cargoexec/contract to ./dist/index.js so the server runs; npm run build:server (or typecheck) is the first command after a fresh clone before any npx vitest importing the contract
 - [Phase 02-identity-and-the-federal-ui-foundation]: server/src/config.ts is environment-only with four fail-loud boot self-checks (loopback HOST §6.5, FRAME_ANCESTORS none/self D-1 §4.5, demo-iframe over http §4.3, missing DATABASE_URL_APP); error messages name the key never the value §4.7; AI keys deferred to phase 5 as a comment not a skipped test
+- [Phase 02-identity-and-the-federal-ui-foundation]: securityHeaders disables helmet's framing/CSP defaults and hand-writes the §4.5 CSP; X-Frame-Options is never set (matched on set-shape not the bare name so the explaining comment survives); frame-ancestors only when configured
+- [Phase 02-identity-and-the-federal-ui-foundation]: The lazy module logger falls back to a default-config logger with identical §4.7 redaction when loadConfig() is unavailable, so request correlation/logging never crashes a config-less context; boot still refuses a bad env via loadConfig separately
+- [Phase 02-identity-and-the-federal-ui-foundation]: errorMapper is the single §3.7 translation point: full PG table (incl phases 3/6 rows, no skipped tests), internal invariant codes logged against request_id and returned as generic 500, ZodError detected structurally, details omitted when empty
+- [Phase 02-identity-and-the-federal-ui-foundation]: Password verified before the is_active check and the throttle checked before any DB access, so neither a deactivated account nor account existence is disclosable by response timing; unknown-email verifies against a module-level Argon2id DUMMY_HASH
+- [Phase 02-identity-and-the-federal-ui-foundation]: Sessions store only 32-byte SHA-256 digests; raw token/CSRF returned once. revokeSession guarded by revoked_at IS NULL so a sign-out/expiry race keeps the first reason. Idle/absolute expiry proven via injected fixedClock
+- [Phase 02-identity-and-the-federal-ui-foundation]: pg is CommonJS: value imports must use the interop-default form under native ESM (CLI fixed; pool.app/ai.ts flagged for 02-04). Queryable is a structural query-interface so Pool/PoolClient/one-shot Client all satisfy it
 
 ### Pending Todos
 
@@ -109,6 +117,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T21:58:44.567Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-09-14T22:12:47.494Z
+Stopped at: Completed 02-03-PLAN.md
 Resume file: None
