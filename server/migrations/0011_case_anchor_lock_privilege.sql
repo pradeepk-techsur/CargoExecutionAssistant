@@ -1,0 +1,24 @@
+-- Up Migration
+-- The case-anchor row lock the audit writer depends on (F0 FR-0.6, F13 FR-13.5,
+-- TechArch §1.5 step 10 / §1.6 step 10):
+--
+--   SELECT id FROM cargo_entries WHERE id = $1 FOR UPDATE
+--
+-- serialises concurrent writers to one case so `case_sequence` cannot gap or
+-- duplicate. PostgreSQL grants a `FOR UPDATE` / `FOR NO KEY UPDATE` /
+-- `FOR KEY SHARE` row lock only to a role holding the table's UPDATE privilege;
+-- SELECT alone permits only the weaker, non-serialising `FOR SHARE`. Migration
+-- 0008 granted cargoexec_app only SELECT, INSERT on cargo_entries, so the
+-- mandated lock failed with `permission denied for table cargo_entries`.
+--
+-- Grant UPDATE so the lock works. This does NOT weaken the entry-of-record
+-- immutability guarantee, which is application-level by definition (F0 FR-0.1:
+-- "no service method, endpoint, or UI affordance updates a cargo entry after
+-- receipt"): no UPDATE statement against cargo_entries exists anywhere in
+-- server/src, and an architecture test asserts it. The grant exists solely to
+-- acquire the advisory row lock the sequence invariant is built on.
+GRANT UPDATE ON cargo_entries TO cargoexec_app;
+-- cargoexec_ai is deliberately NOT granted UPDATE here: the AI worker never
+-- takes the audit anchor lock (it appends recommendation actions, which the
+-- request path has already anchored), and must remain unable to touch the entry
+-- of record (A-1).

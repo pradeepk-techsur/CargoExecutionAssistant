@@ -33,15 +33,20 @@ const OWNER = 'cargoexec_owner';
 
 const AUDIT_TABLES = ['audit_entries', 'audit_entry_values'];
 
-// FR-Y0.3 — the full cargoexec_app grant matrix, verbatim. UPDATE is held only
-// on the four mutable-state tables; everything else is append-only (SELECT +
-// INSERT). DELETE/TRUNCATE appear nowhere.
+// FR-Y0.3 — the full cargoexec_app grant matrix, verbatim. UPDATE is held on
+// the mutable-state tables AND on cargo_entries — the latter NOT to overwrite
+// the entry of record (which no code path does; F0 FR-0.1 makes immutability an
+// application guarantee) but because the case-anchor row lock the audit writer
+// depends on, `SELECT id FROM cargo_entries WHERE id = $1 FOR UPDATE`
+// (F0 FR-0.6, F13 FR-13.5, migration 0011), is only grantable to a role holding
+// the table's UPDATE privilege. Everything else is append-only (SELECT + INSERT).
+// DELETE/TRUNCATE appear nowhere.
 const EXPECTED_APP: Record<string, string[]> = {
   specialists: ['INSERT', 'SELECT', 'UPDATE'],
   sessions: ['INSERT', 'SELECT', 'UPDATE'],
   recommendations: ['INSERT', 'SELECT', 'UPDATE'],
   exceptions: ['INSERT', 'SELECT', 'UPDATE'],
-  cargo_entries: ['INSERT', 'SELECT'],
+  cargo_entries: ['INSERT', 'SELECT', 'UPDATE'],
   cargo_entry_field_origins: ['INSERT', 'SELECT'],
   validation_results: ['INSERT', 'SELECT'],
   validation_findings: ['INSERT', 'SELECT'],
@@ -99,11 +104,51 @@ describe('architecture — declared privilege matrix (freshly migrated)', () => 
     }
   });
 
-  it('cargoexec_app cannot update the entry of record (§2.14 item 4, D-3)', () => {
+  it('the entry of record is immutable at the application layer, not by an UPDATE-privilege revocation (§2.14 item 4, F0 FR-0.1)', () => {
+    // cargoexec_app DOES hold UPDATE on cargo_entries — but only so it can take
+    // the case-anchor row lock `SELECT id FROM cargo_entries WHERE id = $1 FOR
+    // UPDATE` that the audit writer's sequence assignment requires (F0 FR-0.6,
+    // F13 FR-13.5). PostgreSQL grants that row lock only to a role holding the
+    // table's UPDATE privilege. Immutability is instead guaranteed the way
+    // FR-0.1 defines it: "no service method, endpoint, or UI affordance updates
+    // a cargo entry after receipt" — asserted below by grepping server/src.
     const privs = appGrants['cargo_entries'] ?? [];
-    expect(privs, 'cargo_entries is physically immutable: no UPDATE for cargoexec_app').not.toContain('UPDATE');
+    expect(privs, 'cargoexec_app holds UPDATE on cargo_entries for the FOR UPDATE anchor lock').toContain('UPDATE');
     expect(privs, 'cargoexec_app must still hold SELECT on cargo_entries').toContain('SELECT');
     expect(privs, 'cargoexec_app must still hold INSERT on cargo_entries').toContain('INSERT');
+  });
+
+  it('no code path issues an UPDATE against cargo_entries (F0 FR-0.1 — application-level immutability)', async () => {
+    // The application guarantee that backs the UPDATE grant above: the only use
+    // of that privilege anywhere is the row lock; there is no `UPDATE
+    // cargo_entries` statement in the source. If a future change adds one, this
+    // fails and forces the author to justify overwriting the entry of record.
+    const { readdir, readFile } = await import('node:fs/promises');
+    const { join } = await import('node:path');
+    const srcRoot = new URL('../../src/', import.meta.url).pathname;
+
+    async function walk(dir: string): Promise<string[]> {
+      const entries = await readdir(dir, { withFileTypes: true });
+      const files: string[] = [];
+      for (const e of entries) {
+        const full = join(dir, e.name);
+        if (e.isDirectory()) files.push(...(await walk(full)));
+        else if (e.name.endsWith('.ts')) files.push(full);
+      }
+      return files;
+    }
+
+    const updateRe = /update\s+cargo_entries/i;
+    const offenders: string[] = [];
+    for (const file of await walk(srcRoot)) {
+      const text = await readFile(file, 'utf8');
+      if (updateRe.test(text)) offenders.push(file);
+    }
+    expect(
+      offenders,
+      `an UPDATE against cargo_entries appears in: ${offenders.join(', ')}. ` +
+        'The entry of record is immutable (F0 FR-0.1); corrections live on decision_values.',
+    ).toEqual([]);
   });
 
   it('the full cargoexec_app matrix equals FR-Y0.3 exactly (§2.14 item 3, item 4)', () => {

@@ -181,14 +181,23 @@ function normaliseValues(input: AuditAppendValue[] | undefined): CanonicalAuditV
     }
     const { field_name, before_value, before_origin, after_value, after_origin } = v;
 
-    // Field name must be a known entry field (FR-13.11 records only real fields).
-    if (typeof field_name !== 'string' || !ENTRY_FIELD_SET.has(field_name)) {
-      invalid(`value row ${i}: field_name ${JSON.stringify(field_name)} is not a member of ENTRY_FIELDS`);
+    if (typeof field_name !== 'string') {
+      invalid(`value row ${i}: field_name must be a string`);
     }
 
-    // Secrets denylist — by field name.
+    // Secrets denylist — by field name. Checked BEFORE the ENTRY_FIELDS
+    // membership test so a secret-shaped name (`password`, `api_key`, …) is
+    // refused as forbidden content rather than merely reported as an unknown
+    // field: the distinction matters because a caller must learn it tried to
+    // write a secret, not that it fat-fingered a field name (FR-13.12,
+    // T-01-34).
     if (SECRET_FIELD_NAME_RE.test(field_name)) {
       forbidden(`field_name ${JSON.stringify(field_name)} is denylisted; secrets are never written to the audit store`);
+    }
+
+    // Field name must be a known entry field (FR-13.11 records only real fields).
+    if (!ENTRY_FIELD_SET.has(field_name)) {
+      invalid(`value row ${i}: field_name ${JSON.stringify(field_name)} is not a member of ENTRY_FIELDS`);
     }
 
     // Secrets denylist — by value shape, both sides.
