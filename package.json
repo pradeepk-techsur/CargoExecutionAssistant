@@ -2,24 +2,52 @@
   "name": "cargoexec",
   "private": true,
   "type": "module",
-  "workspaces": ["contract", "server"],
+  "workspaces": ["contract", "server", "web"],
   "engines": { "node": "22.11.0" },
   "scripts": {
     "migrate": "node --env-file=.env server/scripts/migrate.mjs",
+    "build:css": "sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/uswds.scss web/public/assets/uswds.css",
+    "build:assets": "node web/scripts/copy-uswds-assets.mjs",
+    "build:web": "npm run build:css && npm run build:assets && vite build -c web/vite.config.ts",
+    "build:server": "tsc -b contract server",
+    "build": "npm run build:server && npm run build:web",
+    "dev": "npm run build:server && NODE_ENV=development node --env-file=.env server/dist/index.js",
+    "start": "node server/dist/index.js",
+    "create-specialist": "node server/dist/cli/create-specialist.js",
     "test:unit": "vitest run server/test/unit",
     "test:db": "vitest run server/test/db",
+    "test:api": "vitest run server/test/api",
     "test:arch": "vitest run server/test/architecture",
-    "test": "npm run test:unit && npm run test:db && npm run test:arch",
-    "typecheck": "tsc -b contract server"
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:db && npm run test:api && npm run test:arch",
+    "test:all": "npm run test && npm run test:e2e",
+    "typecheck": "tsc -b contract server && tsc -p web --noEmit"
   },
   "dependencies": {
     "pg": "8.13.1",
-    "node-pg-migrate": "7.9.0"
+    "node-pg-migrate": "7.9.0",
+    "express": "4.21.1",
+    "helmet": "8.0.0",
+    "zod": "3.23.8",
+    "argon2": "0.41.1",
+    "pino": "9.5.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-router-dom": "6.28.0",
+    "@uswds/uswds": "3.11.0"
   },
   "devDependencies": {
     "typescript": "5.6.3",
     "vitest": "2.1.5",
     "@types/node": "22.9.0",
-    "@types/pg": "8.11.10"
+    "@types/pg": "8.11.10",
+    "sass": "1.80.6",
+    "vite": "5.4.11",
+    "supertest": "7.0.0",
+    "@playwright/test": "1.48.2",
+    "@types/express": "4.17.21",
+    "@types/supertest": "6.0.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1"
   }
 }
