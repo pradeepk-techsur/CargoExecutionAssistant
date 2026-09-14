@@ -130,4 +130,15 @@ htmlcov/
 .env
 # TypeScript incremental build metadata (build output, not source).
 *.tsbuildinfo
+# Build output (plan 02-05). `dist/` is covered by the managed block above, but
+# the compiled USWDS stylesheet, fonts, sprite and JS copied into
+# web/public/assets are build artefacts too and must not be committed.
+web/dist/
+web/public/assets/
+server/dist/
+contract/dist/
+# Playwright artefacts (test-results/ and playwright-report/ are in the managed
+# block; kept here for clarity alongside the e2e config).
+playwright-report/
+test-results/
 

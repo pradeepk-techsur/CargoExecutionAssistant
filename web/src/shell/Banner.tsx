@@ -1,16 +1,17 @@
 // The USWDS government banner (FR-2.5), above the header on EVERY screen,
 // including /sign-in. Its "Here's how you know" disclosure is keyboard-operable
-// and expands INLINE (no popup — UX Pattern 10, iframe-safe): the shell never
-// depends on window.top and opens no new window.
+// and expands INLINE (no popup — UX Pattern 10, iframe-safe).
 //
-// This is a documented USWDS-conformant composition of the stock `usa-banner`
-// markup (FR-2.1); the disclosure toggle is wired in React rather than relying
-// on the USWDS JS so its behaviour is deterministic under test.
+// This is the STOCK `usa-banner` markup (FR-2.1) driven by the USWDS JS
+// (/assets/js/uswds.min.js, loaded from index.html): USWDS owns the disclosure
+// toggle, managing aria-expanded and the hidden content the WCAG-conformant way.
+// React does NOT also control it — two controllers on one button fight and the
+// toggle stops working. The initial `hidden` + `aria-expanded="false"` here is
+// the collapsed default USWDS then takes over on mount.
 
-import { useId, useState } from 'react';
+import { useId } from 'react';
 
 export function Banner(): JSX.Element {
-  const [expanded, setExpanded] = useState(false);
   const contentId = useId();
 
   return (
@@ -38,9 +39,8 @@ export function Banner(): JSX.Element {
             <button
               type="button"
               className="usa-accordion__button usa-banner__button"
-              aria-expanded={expanded}
+              aria-expanded={false}
               aria-controls={contentId}
-              onClick={() => setExpanded((v) => !v)}
             >
               <span className="usa-banner__button-text">Here&rsquo;s how you know</span>
             </button>
@@ -49,7 +49,7 @@ export function Banner(): JSX.Element {
         <div
           className="usa-banner__content usa-accordion__content"
           id={contentId}
-          hidden={!expanded}
+          hidden
         >
           <div className="grid-row grid-gap-lg">
             <div className="usa-banner__guidance tablet:grid-col-6">
