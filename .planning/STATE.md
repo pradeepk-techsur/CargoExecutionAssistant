@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-09-PLAN.md
-last_updated: "2026-09-14T03:08:13.520Z"
-last_activity: "2026-09-14 — 01-09 executed: governance refusal suite (hitl/coupling/provenance.spec.ts, 52 DB tests) proving phase success criteria 2/3/4. Deferred triggers (HITL + five coupling) refuse at COMMIT with P0001; CHECK/FK/UNIQUE/NOT NULL refuse at the statement; every refusal asserted by SQLSTATE + constraint name from cargoexec_app, each block with a positive control. RTM TEST-DB-04..12 and TEST-DB-18. tsc -b clean"
+stopped_at: Completed 01-governed-record-substrate-08-PLAN.md
+last_updated: "2026-09-14T03:09:21.185Z"
+last_activity: "2026-09-14 — 01-08 executed: immutability/behavioural-governance suite (immutability.spec.ts, 34 DB tests, RTM TEST-DB-01/02/03/16/17). Every UPDATE/DELETE/TRUNCATE/upsert against the audit store refused as app/ai AND owner — owner cases assert AUDIT_IMMUTABLE/P0001 (trigger, not privilege). TEST-DB-16 reframed to app-level immutability (0011 grants app UPDATE for the anchor lock); AI cannot invoke append() (no UPDATE → no FOR UPDATE lock). Both wave-6 siblings (01-08, 01-09) now done; only 01-10 remains. tsc -b clean, 187 tests green"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 01-09 complete (governance refusal suite: hitl/coupling/provenance.spec.ts — 52 DB tests proving phase success criteria 2/3/4, RTM TEST-DB-04..12 and TEST-DB-18). 8 of 10 phase-1 plans have SUMMARYs on disk (01-01..01-07, 01-09).
-Status: In progress — next is plan 01-10 (wave 7, the full test:db gate) which depends on both 01-08 and 01-09; 01-08 (behavioural governance/immutability suite) is the remaining sibling in wave 6.
-Last activity: 2026-09-14 — 01-09 executed: governance refusal suite (hitl/coupling/provenance.spec.ts, 52 DB tests). Deferred triggers (HITL + five coupling) refuse at COMMIT (P0001); CHECK/FK/UNIQUE/NOT NULL refuse at the statement; every refusal asserted by SQLSTATE + constraint name from cargoexec_app, each block with a positive control. tsc -b clean
+Plan: 01-08 complete (immutability/behavioural-governance suite: immutability.spec.ts — 34 DB tests, RTM TEST-DB-01/02/03/16/17, the SM-7 / phase criterion 1 evidence). 9 of 10 phase-1 plans have SUMMARYs on disk (01-01..01-09); both wave-6 siblings done.
+Status: In progress — next and last is plan 01-10 (wave 7, the full test:db gate) which depends on both 01-08 and 01-09, now both complete.
+Last activity: 2026-09-14 — 01-08 executed: immutability suite (immutability.spec.ts, 34 DB tests). Every UPDATE/DELETE/TRUNCATE/upsert against the audit store refused as app/ai AND owner; owner cases assert AUDIT_IMMUTABLE/P0001 (trigger, not privilege). TEST-DB-16 reframed to app-level immutability per migration 0011 (user-approved); AI worker cannot invoke append() (no UPDATE → no anchor lock, A-1). tsc -b clean, 187 tests green
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -60,6 +60,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-governed-record-substrate P07 | 8 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P06 | 12 min | 3 tasks | 8 files |
 | Phase 01-governed-record-substrate P09 | 9 min | 3 tasks | 3 files |
+| Phase 01-governed-record-substrate P08 | 14 min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,8 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: GRANT UPDATE ON cargo_entries TO cargoexec_app (migration 0011): the FR-0.6/FR-13.5 case-anchor FOR UPDATE lock is only grantable to a role holding UPDATE; entry-of-record immutability is kept application-level per FR-0.1 (no UPDATE statement in src), superseding 01-05's privilege-revocation reading of D-3. cargoexec_ai deliberately not granted.
 - [Phase 01-governed-record-substrate]: The audit writer (services/audit/writer.ts) is the single write chokepoint: one exported operation append(tx, entry), insert-only, cannot open a transaction; tx.ts is the sole BEGIN/COMMIT/ROLLBACK site (R-L2). occurred_at is SELECT now() inside the tx, never a parameter.
 - [Phase 01-governed-record-substrate]: Plan 01-09 governance refusal suite: 52 DB tests prove phase success criteria 2/3/4 — deferred triggers (HITL, five coupling) refuse at COMMIT (P0001), CHECK/FK/UNIQUE/NOT NULL refuse at the statement, each asserted by SQLSTATE + constraint name with a positive control, all from cargoexec_app
+- [Phase 01-governed-record-substrate]: TEST-DB-16 immutability of the entry of record is proved application-level (no UPDATE cargo_entries in server/src) not privilege-level: migration 0011 grants cargoexec_app UPDATE on cargo_entries for the FOR UPDATE anchor lock, so a raw UPDATE succeeds at the DB (user-approved reframe)
+- [Phase 01-governed-record-substrate]: cargoexec_ai cannot invoke append(): append() takes SELECT ... FOR UPDATE on cargo_entries which needs table UPDATE privilege A-1 denies the AI role; recommendation-status audit entries are written on a path that already holds the anchor. Pinned by immutability.spec.ts so a future UPDATE grant to the AI role fails loudly
 
 ### Pending Todos
 
@@ -100,6 +103,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T03:08:13.519Z
-Stopped at: Completed 01-governed-record-substrate-09-PLAN.md
+Last session: 2026-09-14T03:09:21.133Z
+Stopped at: Completed 01-governed-record-substrate-08-PLAN.md
 Resume file: None
