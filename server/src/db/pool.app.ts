@@ -1,4 +1,7 @@
-import { Pool } from 'pg';
+import pg from 'pg';
+
+const { Pool } = pg;
+type Pool = pg.Pool;
 
 /**
  * The request-path connection pool, connected as `cargoexec_app`.

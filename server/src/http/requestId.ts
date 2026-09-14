@@ -24,8 +24,19 @@ declare global {
     interface Request {
       /** Per-request child logger carrying `request_id`. Bound by requestId(). */
       log: Logger;
-      /** The authenticated specialist, filled by plan 02-04's auth middleware. */
+      /**
+       * The authenticated specialist, filled by `sessionMiddleware` from the
+       * `cargoexec_sid` cookie alone. THE SOLE source of actor identity in the
+       * product (FR-1.6): no handler may read an actor from a body/header/query.
+       */
       principal?: SpecialistDto;
+      /** The resolved session's id, set with `principal`. Used by sign-out. */
+      sessionId?: string;
+      /**
+       * The 32-byte SHA-256 of the session's CSRF token, set with `principal`.
+       * The CSRF middleware compares the client's `X-CSRF-Token` against this.
+       */
+      csrfTokenHash?: Buffer;
     }
   }
 }
