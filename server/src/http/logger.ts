@@ -105,7 +105,30 @@ let cachedLogger: Logger | undefined;
 
 function resolveLogger(): Logger {
   if (cachedLogger === undefined) {
-    cachedLogger = createLogger(loadConfig());
+    // Prefer the validated config so the log level honours the environment. But
+    // logging must NEVER be the thing that crashes request handling: if config
+    // cannot be loaded (e.g. a unit test with no DATABASE_URL_APP), fall back to
+    // a logger built with the same §4.7 redaction and a default level. The boot
+    // path (plan 02-04) calls loadConfig() separately and refuses to start on a
+    // bad environment, so this fallback never masks a real misconfiguration in
+    // production — it only keeps the correlation logger alive in contexts where
+    // the full config is deliberately absent.
+    let config: AppConfig;
+    try {
+      config = loadConfig();
+    } catch {
+      config = {
+        nodeEnv: 'production',
+        host: '0.0.0.0',
+        port: 3000,
+        databaseUrlApp: '',
+        sessionCookieProfile: 'governed',
+        frameAncestors: null,
+        logLevel: process.env['LOG_LEVEL']?.trim() || 'info',
+        originIsHttps: false,
+      };
+    }
+    cachedLogger = createLogger(config);
   }
   return cachedLogger;
 }
