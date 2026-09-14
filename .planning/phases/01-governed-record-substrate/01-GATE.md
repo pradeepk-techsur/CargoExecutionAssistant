@@ -421,3 +421,51 @@ No test files found, exiting with code 1[39m
 ## Phase gate
 
 final gate: inherited wave 7 result — code_review_gate made zero source commits (0 BLOCKERs, no fixer ran), and wave 7's gate was green with nothing changed since. Full suite (193 tests: 23 unit + 103 db + 67 arch) ran green on the final tree; `tsc -b contract server` exit 0. Regression statement: the entire suite passed on the final tree.
+
+## Backend pre-push gate
+
+- Status: passed
+- Result marker + failing output tail:
+```
+__GATE__ build_exit=-1 test_exit=0 build_cmd=[none] test_cmd=[npm test] head=0d60f4e0942317dac1ca10cb4c9499e4185f7ccd test_files=14 skip_marks=0 shadow_files=0
+[2m   Start at [22m 03:32:20
+[2m   Duration [22m 443ms[2m (transform 31ms, setup 0ms, collect 308ms, tests 57ms, environment 0ms, prepare 23ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 832[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m431[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 235[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 243[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 192[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 72[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 96[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m103 passed[39m[22m[90m (103)[39m
+[2m   Start at [22m 03:32:20
+[2m   Duration [22m 2.27s[2m (transform 95ms, setup 0ms, collect 146ms, tests 2.05s, environment 0ms, prepare 23ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m49 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 79[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 85[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m67 passed[39m[22m[90m (67)[39m
+[2m   Start at [22m 03:32:23
+[2m   Duration [22m 310ms[2m (transform 33ms, setup 0ms, collect 60ms, tests 170ms, environment 0ms, prepare 22ms)[22m
+
+```
