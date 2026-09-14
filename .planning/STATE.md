@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-07-PLAN.md
-last_updated: "2026-09-14T02:51:02.071Z"
-last_activity: "2026-09-14 — 01-07 executed: server/test/architecture/{absence,schema,privileges}.spec.ts; 25 forbidden columns + 13 tables + 8 audit actions + declared grant matrix (FR-Y0.3) asserted against a freshly migrated DB; no CI/a11y-runner/forbidden-dep/domain-INSERT. Item-6 DELETE/TRUNCATE assertion scoped to non-owner grantees (owner holds them by ownership; neutralised by trigger, asserted behaviourally in 01-08)"
+stopped_at: Completed 01-governed-record-substrate-06-PLAN.md
+last_updated: "2026-09-14T02:57:05.772Z"
+last_activity: "2026-09-14 — 01-06 executed: the audit writer append(tx, entry) (single insert-only chokepoint), tx.ts (sole BEGIN), pool.app/ai.ts, createGovernedCase fixtures, writer.spec.ts (9 groups). Migration 0011 grants UPDATE on cargo_entries to cargoexec_app for the FR-0.6 anchor lock (immutability kept application-level per FR-0.1; user-approved). Full suite 101 tests green, tsc -b clean, migration set 0001–0011 applies cleanly"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 01-07 complete (architecture suite — absence, schema, privileges; `npm run test:arch` green, 66 tests, 0 skips; the exclusion list is now a build constraint). 6 of 10 phase-1 plans have SUMMARYs on disk. Plan 01-06 (audit writer) is executing in parallel on this branch.
-Status: In progress — 01-07 done; next is plan 01-08 (behavioural governance/immutability suite, the counterpart to 01-07's declared-privilege spec)
-Last activity: 2026-09-14 — 01-07 executed: server/test/architecture/{absence,schema,privileges}.spec.ts; 25 forbidden columns + 13 tables + 8 audit actions + declared grant matrix (FR-Y0.3) asserted against a freshly migrated DB; no CI/a11y-runner/forbidden-dep/domain-INSERT. Item-6 DELETE/TRUNCATE assertion scoped to non-owner grantees (owner holds them by ownership; neutralised by trigger, asserted behaviourally in 01-08)
+Plan: 01-06 complete (audit writer append(tx, entry) — the single insert-only, transaction-bound audit chokepoint; tx.ts sole BEGIN; two lazy pools; createGovernedCase fixtures every wave-6 suite builds on; migration 0011). 01-07 (architecture suite) also complete. 7 of 10 phase-1 plans have SUMMARYs on disk.
+Status: In progress — 01-06 and 01-07 done; next is plan 01-08 (behavioural governance/immutability suite) using createGovernedCase from 01-06
+Last activity: 2026-09-14 — 01-06 executed: audit writer append(tx, entry) (single insert-only chokepoint), tx.ts (sole BEGIN), pool.app/ai.ts, createGovernedCase fixtures, writer.spec.ts (9 groups). Migration 0011 grants UPDATE on cargo_entries to cargoexec_app for the FR-0.6 anchor lock (immutability kept application-level per FR-0.1; user-approved). Full suite 101 tests green, tsc -b clean
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-governed-record-substrate P04 | 8 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P05 | 6 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P07 | 8 min | 3 tasks | 3 files |
+| Phase 01-governed-record-substrate P06 | 12 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: Enforcement lands in migrations 0008-0010 (privileges + 11 triggers + read-only verifier) in the same migration set as the tables, so no window exposes a mutable audit store (FR-Y0.2); four governance invariants raise P0001 with fixed prefixes AUDIT_IMMUTABLE/AUDIT_CHAIN_BROKEN/HITL_VIOLATION/AUDIT_COUPLING_VIOLATION asserted verbatim by plans 01-08/09/10
 - [Phase 01-governed-record-substrate]: Architecture tests (server/test/architecture/) assert ABSENCE: a .github dir, CI file, forbidden dependency, 26th column, 14th table, widened grant, domain-data INSERT, or cascading delete fails npm run test:arch. Deferred future-surface assertions are comments naming the owning phase, never skipped tests.
 - [Phase 01-governed-record-substrate]: §2.14 item 6 (DELETE/TRUNCATE granted to no role) is asserted against non-owner grantees only: cargoexec_owner holds them implicitly by ownership and cannot be revoked; the owner's raw-DELETE is neutralised by trigger and asserted behaviourally in plan 01-08 (§2.14 item 8).
+- [Phase 01-governed-record-substrate]: GRANT UPDATE ON cargo_entries TO cargoexec_app (migration 0011): the FR-0.6/FR-13.5 case-anchor FOR UPDATE lock is only grantable to a role holding UPDATE; entry-of-record immutability is kept application-level per FR-0.1 (no UPDATE statement in src), superseding 01-05's privilege-revocation reading of D-3. cargoexec_ai deliberately not granted.
+- [Phase 01-governed-record-substrate]: The audit writer (services/audit/writer.ts) is the single write chokepoint: one exported operation append(tx, entry), insert-only, cannot open a transaction; tx.ts is the sole BEGIN/COMMIT/ROLLBACK site (R-L2). occurred_at is SELECT now() inside the tx, never a parameter.
 
 ### Pending Todos
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T02:50:35.032Z
-Stopped at: Completed 01-governed-record-substrate-07-PLAN.md
+Last session: 2026-09-14T02:57:05.770Z
+Stopped at: Completed 01-governed-record-substrate-06-PLAN.md
 Resume file: None
