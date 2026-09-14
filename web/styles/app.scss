@@ -1,0 +1,43 @@
+// USWDS 3.11.0 Sass entry point (TechArch §7.2, §6.4).
+//
+// USWDS is consumed here as **Sass + JS + icon sprite**, NOT as a wrapper
+// component library: the project owns every rendered DOM node so manual
+// per-screen accessibility review (§7.7) certifies the markup this project
+// actually ships. Only USWDS `$theme-*` settings appear below — FR-2.2
+// forbids a raw hex colour or a raw `px` spacing value in any screen-level
+// style, so every colour, space and type step is a design token.
+//
+// Compiled by `npm run build:css` (dart-sass) into web/public/assets/uswds.css
+// with `--load-path=node_modules --load-path=node_modules/@uswds/uswds/packages`,
+// and served as a LINKED stylesheet (web/index.html) so CSP `style-src 'self'`
+// holds with no `unsafe-inline` (§4.5) — never imported from JavaScript.
+
+// Configure uswds-core ONCE with `@use ... with`, then forward the full USWDS
+// bundle. `uswds` re-forwards the already-configured uswds-core, so this does
+// not re-load or re-configure it (a `@forward with` here would deadlock — the
+// canonical USWDS 3.x theme shape is @use core with (...) then @forward uswds).
+@use "uswds-core" with (
+  // Self-served asset paths (FR-2.3): the sprite, fonts and images are copied
+  // into web/public/assets by copy-uswds-assets.mjs and served from this
+  // origin. No CDN host is referenced at build time or at runtime.
+  $theme-image-path: "/assets/img",
+  $theme-font-path: "/assets/fonts",
+  $theme-show-compile-warnings: false,
+  $theme-show-notifications: false
+);
+
+@forward "uswds";
+
+// Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
+// understood; when a specialist asks for reduced motion, honour it globally by
+// collapsing transitions and animations to an instant.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
