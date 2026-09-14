@@ -24,7 +24,7 @@ Resilience (degraded AI, conflicting decisions, stale screens) and per-screen ac
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them
+- [x] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them (completed 2026-09-14)
 - [ ] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits
 - [ ] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean
 - [ ] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action
@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 1: Governed Record Substrate
 **Goal**: The record the whole loop writes into exists and is governed by the database rather than by application convention — append-only, per-value provenance, a human behind every resolution, and exactly one audit entry per state change — so that a defect in any code written later cannot produce a governance failure.
-**Status**: Passed
+**Status**: Complete (2026-09-14)
 **Depends on**: Nothing (first phase)
 **Requirements**: F0, F13
 **Non-functional carried**: NFR-3, NFR-4, NFR-6, part of NFR-5
@@ -172,7 +172,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Governed Record Substrate | 0/TBD | Passed | - |
+| 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
 | 2. Identity and the Federal UI Foundation | 0/TBD | Not started | - |
 | 3. Receive, Validate, Except | 0/TBD | Not started | - |
 | 4. The Receipt-Ordered Queue | 0/TBD | Not started | - |
