@@ -6,7 +6,7 @@
   "engines": { "node": "22.11.0" },
   "scripts": {
     "migrate": "node --env-file=.env server/scripts/migrate.mjs",
-    "build:css": "sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/uswds.scss web/public/assets/uswds.css",
+    "build:css": "sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css",
     "build:assets": "node web/scripts/copy-uswds-assets.mjs",
     "build:web": "npm run build:css && npm run build:assets && vite build -c web/vite.config.ts",
     "build:server": "tsc -b contract server",
