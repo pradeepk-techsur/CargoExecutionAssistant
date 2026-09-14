@@ -2,10 +2,9 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-governed-record-substrate-10-PLAN.md
-last_updated: "2026-09-14T03:24:49.074Z"
-last_activity: "2026-09-14 — 01-10 executed (FINAL plan of phase 1): chain verification suite (chain.spec.ts, TEST-DB-13/14/15) + readCaseTrail read path (auditRead.service.ts). Concurrent appends serialise under the anchor lock; forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001); four independent TEMPLATE copies detect excision (false,4,3)/alteration (false,3,3)/reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash. Verifier repairs nothing. Full test:db gate green: unit 23 + db 103 + arch 67. Phase 1 complete (10/10 plans)."
+status: planning
+last_updated: "2026-09-14T19:37:05.163Z"
+last_activity: "2026-09-14 — Phase 1 complete"
 progress:
   total_phases: 6
   completed_phases: 1
