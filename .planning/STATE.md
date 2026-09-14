@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-09-14T22:13:29.927Z"
-last_activity: "2026-09-14 — 02-03 executed: identity layer below HTTP. Argon2id credential verification with a module-level dummy-hash timing equaliser (unknown email == wrong password, comparable time); opaque SHA-256-at-rest server sessions with injected-clock 30-min idle / 8-h absolute expiry recorded as revoked_at + revocation_reason; in-process sign-in throttle keyed by sha256(email) with no lockout state; create-specialist CLI as the sole operational account path (interactive TTY or idempotent --from-env). Structural Queryable serves Pool/PoolClient/Client. [Rule 1] pg CommonJS named-import → interop-default so the CLI runs under native ESM; [Rule 3] --from-env checks bootstrap keys before the DB URL; [Rule 3] widened Queryable to a structural interface."
+stopped_at: Completed 02-04-PLAN.md
+last_updated: "2026-09-14T22:29:04.910Z"
+last_activity: "2026-09-14 — 02-04 executed: the HTTP surface. createApp assembles the normative middleware order (requestId → headers → json(64kb) → static → session → csrf → routes → 404/405 → htmlRouteGuard → SPA fallback → errorMapper); sessionMiddleware attaches req.principal from the cargoexec_sid cookie ALONE (FR-1.6) and records revoked_at/'EXPIRED' at rejection; csrfMiddleware double-submit with timingSafeEqual; htmlRouteGuard 302s protected HTML docs to /sign-in?next=<validated path>. The three §3.3 session endpoints (POST/GET/DELETE), rotate-on-GET CSRF (client half mandatory in 02-07), API_ROUTE_TABLE (ten pairs, three implemented), process bootstrap binding 0.0.0.0:3000 with self-checks before listen. withApi harness + context-boot test + 11-case session suite. Full test green: unit 111, db 114, api 15, arch 67. [Rule 3] pool.app/ai.ts pg interop-default import for native ESM boot; [Rule 1] CSRF lets an unregistered-method listed path through so PUT /api/session is 405 not a masking 403. DEVIATION: production-mode SPA serving only (no Vite middleware)."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 13
-  percent: 68
+  completed_plans: 14
+  percent: 74
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
-Plan: 02-03 complete (identity layer below HTTP: clock injection, specialists/sessions repositories, session.service credential verification + throttle, create-specialist CLI, DB-backed session suite). 02-04 (session middleware + routes) executing in parallel on this branch.
-Status: Phase 1 complete (10/10). Phase 2: 02-01 + 02-03 executed. 02-03 gates green — test:db 114, test:unit throttle 8, test:arch 67, typecheck clean, build:server exit 0. Note: 02-04's in-flight HTTP-layer WIP (errorMapper.spec.ts, 3 failing) is untracked and out of scope for 02-03 — see deferred-items.md.
-Last activity: 2026-09-14 — 02-03 executed: identity layer below HTTP. Argon2id credential verification with a module-level dummy-hash timing equaliser (unknown email == wrong password, comparable time); opaque SHA-256-at-rest server sessions with injected-clock 30-min idle / 8-h absolute expiry recorded as revoked_at + revocation_reason; in-process sign-in throttle keyed by sha256(email) with no lockout state; create-specialist CLI as the sole operational account path (interactive TTY or idempotent --from-env). Structural Queryable serves Pool/PoolClient/Client. [Rule 1] pg CommonJS named-import → interop-default so the CLI runs under native ESM; [Rule 3] --from-env checks bootstrap keys before the DB URL; [Rule 3] widened Queryable to a structural interface.
+Plan: 02-04 complete (the HTTP surface: three identity middlewares, three §3.3 session endpoints, createApp in the normative middleware order, the data-driven route table, the 0.0.0.0:3000 process bootstrap, the reusable withApi harness, the context-boot test, and the 11-case session suite). Plans 02-01/02/03/04 executed; 02-05 (SPA shell) is next.
+Status: Phase 1 complete (10/10). Phase 2: 02-01, 02-02, 02-03, 02-04 executed. 02-04 gates green — full npm run test 0 (unit 111, db 114, api 15, arch 67), typecheck clean, build:server exit 0. The app boots against real PostgreSQL, binds 0.0.0.0:3000, answers 401 on unauthenticated GET /api/session. Out of scope: full `npm run build` fails at build:web (web/styles/uswds.scss + SPA are plan 02-05) — see deferred-items.md.
+Last activity: 2026-09-14 — 02-04 executed: the HTTP surface wired 02-02's cross-cutting concerns and 02-03's identity layer into three working session endpoints, proven by a context-boot test against a real database. req.principal is the sole actor source (FR-1.6); rotate-on-GET CSRF has a mandatory client half for 02-07; production-mode SPA serving only (recorded §6.5 deviation).
 
-Progress: [███████░░░] 68%
+Progress: [████████░░] 74%
 
 ## Performance Metrics
 
@@ -65,6 +65,7 @@ Progress: [███████░░░] 68%
 | Phase 02-identity-and-the-federal-ui-foundation P01 | 5 min | 3 tasks | 13 files |
 | Phase 02-identity-and-the-federal-ui-foundation P02 | 16 min | 3 tasks | 9 files |
 | Phase 02-identity-and-the-federal-ui-foundation P03 | 9 min | 3 tasks | 9 files |
+| Phase 02-identity-and-the-federal-ui-foundation P04 | 10 min | 3 tasks | 15 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,10 @@ Recent decisions affecting current work:
 - [Phase 02-identity-and-the-federal-ui-foundation]: Password verified before the is_active check and the throttle checked before any DB access, so neither a deactivated account nor account existence is disclosable by response timing; unknown-email verifies against a module-level Argon2id DUMMY_HASH
 - [Phase 02-identity-and-the-federal-ui-foundation]: Sessions store only 32-byte SHA-256 digests; raw token/CSRF returned once. revokeSession guarded by revoked_at IS NULL so a sign-out/expiry race keeps the first reason. Idle/absolute expiry proven via injected fixedClock
 - [Phase 02-identity-and-the-federal-ui-foundation]: pg is CommonJS: value imports must use the interop-default form under native ESM (CLI fixed; pool.app/ai.ts flagged for 02-04). Queryable is a structural query-interface so Pool/PoolClient/one-shot Client all satisfy it
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-04 ships production-mode SPA serving only (no Vite middleware); §6.5's one-origin-one-port-on-0.0.0.0:3000 is satisfied — a recorded deviation
+- [Phase 02-identity-and-the-federal-ui-foundation]: createApp injects the pool and constructs nothing at import time, enabling per-suite test databases and the context-boot test; API_ROUTE_TABLE lists all ten §3.1 pairs as data with three implemented, no 501 placeholders
+- [Phase 02-identity-and-the-federal-ui-foundation]: Rotate-on-GET CSRF has a mandatory client half: GET /api/session re-stores the token hash; 02-07's api.getSession must re-store csrf_token or a reload+POST/DELETE 403s while in-session tests still pass
+- [Phase 02-identity-and-the-federal-ui-foundation]: csrfMiddleware lets a state-changing method with no implemented route pass so PUT /api/session answers 405, not a masking 403; pool.app/ai.ts converted to pg interop-default import for native ESM boot
 
 ### Pending Todos
 
@@ -117,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T22:12:47.494Z
-Stopped at: Completed 02-03-PLAN.md
+Last session: 2026-09-14T22:28:55.430Z
+Stopped at: Completed 02-04-PLAN.md
 Resume file: None

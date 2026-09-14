@@ -23,6 +23,22 @@ discovering plan (scope boundary rule).
   interop-default form (`import pg from 'pg'; const { Pool } = pg;`) is the fix,
   as 02-03 already applied to the CLI's `Client` import.
 
+## From plan 02-04 (execution 2026-09-14)
+
+- **`npm run build` (the full build) fails at `build:web` because
+  `web/styles/uswds.scss` and the SPA do not exist yet.** `web/` currently holds
+  only `package.json`, `src/` and `tsconfig.json` — the USWDS stylesheet, the
+  shell and the Vite entry are plan **02-05**'s deliverables. 02-04's scope is
+  the SERVER build (`npm run build:server`, exit 0) and the API surface; the web
+  build is out of scope. Not fixed here (scope boundary). `server/src/index.ts`
+  already serves the built web bundle from `web/dist` when `serveStatic` is on,
+  so once 02-05 lands the web build the full `npm run build` will pass with no
+  server change. The three prior 02-04 deferred flags in the 02-03 section below
+  (pool ESM imports, the errorMapper WIP, the untracked http/ leftovers) are all
+  RESOLVED: pool.app.ts/pool.ai.ts converted to the interop-default form in this
+  plan (Task 1 commit); errorMapper + its suite were completed and committed by
+  02-02; the http/ files are all tracked.
+
 ## From plan 02-03 (execution 2026-09-14)
 
 - **Untracked `server/src/http/` leftovers break `npm run typecheck`.**
