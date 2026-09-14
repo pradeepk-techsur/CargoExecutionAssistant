@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-08-PLAN.md
-last_updated: "2026-09-14T03:09:21.185Z"
-last_activity: "2026-09-14 — 01-08 executed: immutability/behavioural-governance suite (immutability.spec.ts, 34 DB tests, RTM TEST-DB-01/02/03/16/17). Every UPDATE/DELETE/TRUNCATE/upsert against the audit store refused as app/ai AND owner — owner cases assert AUDIT_IMMUTABLE/P0001 (trigger, not privilege). TEST-DB-16 reframed to app-level immutability (0011 grants app UPDATE for the anchor lock); AI cannot invoke append() (no UPDATE → no FOR UPDATE lock). Both wave-6 siblings (01-08, 01-09) now done; only 01-10 remains. tsc -b clean, 187 tests green"
+stopped_at: Completed 01-governed-record-substrate-10-PLAN.md
+last_updated: "2026-09-14T03:24:49.074Z"
+last_activity: "2026-09-14 — 01-10 executed (FINAL plan of phase 1): chain verification suite (chain.spec.ts, TEST-DB-13/14/15) + readCaseTrail read path (auditRead.service.ts). Concurrent appends serialise under the anchor lock; forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001); four independent TEMPLATE copies detect excision (false,4,3)/alteration (false,3,3)/reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash. Verifier repairs nothing. Full test:db gate green: unit 23 + db 103 + arch 67. Phase 1 complete (10/10 plans)."
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 10
-  completed_plans: 9
-  percent: 0
+  completed_plans: 10
+  percent: 17
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 
 ## Current Position
 
-Phase: 1 of 6 (Governed Record Substrate)
-Plan: 01-08 complete (immutability/behavioural-governance suite: immutability.spec.ts — 34 DB tests, RTM TEST-DB-01/02/03/16/17, the SM-7 / phase criterion 1 evidence). 9 of 10 phase-1 plans have SUMMARYs on disk (01-01..01-09); both wave-6 siblings done.
-Status: In progress — next and last is plan 01-10 (wave 7, the full test:db gate) which depends on both 01-08 and 01-09, now both complete.
-Last activity: 2026-09-14 — 01-08 executed: immutability suite (immutability.spec.ts, 34 DB tests). Every UPDATE/DELETE/TRUNCATE/upsert against the audit store refused as app/ai AND owner; owner cases assert AUDIT_IMMUTABLE/P0001 (trigger, not privilege). TEST-DB-16 reframed to app-level immutability per migration 0011 (user-approved); AI worker cannot invoke append() (no UPDATE → no anchor lock, A-1). tsc -b clean, 187 tests green
+Phase: 1 of 6 (Governed Record Substrate) — COMPLETE
+Plan: 01-10 complete (chain verification & F13 read path: chain.spec.ts TEST-DB-13/14/15 + auditRead.service.ts readCaseTrail). All 10 of 10 phase-1 plans have SUMMARYs on disk (01-01..01-10). Wave 7 (the full test:db gate) done.
+Status: Phase 1 complete — all 10 plans executed, full suite (unit 23 + db 103 + arch 67) green. Ready for phase transition to Phase 2.
+Last activity: 2026-09-14 — 01-10 executed: chain verification. Two concurrent appends serialise under the case-anchor lock (contiguous seq, no gap/dup, second observably blocked); forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001) three ways; four independent TEMPLATE copies detect excision (false,4,3), alteration (false,3,3), reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash recomputation; verify_audit_chain repairs nothing. readCaseTrail is the strictly read-only per-case F13 read path. Phase success criterion 5 demonstrated end to end.
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██░░░░░░░░] 17%
 
 ## Performance Metrics
 
@@ -61,6 +61,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-governed-record-substrate P06 | 12 min | 3 tasks | 8 files |
 | Phase 01-governed-record-substrate P09 | 9 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P08 | 14 min | 2 tasks | 1 files |
+| Phase 01-governed-record-substrate P10 | 10 min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,7 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: Plan 01-09 governance refusal suite: 52 DB tests prove phase success criteria 2/3/4 — deferred triggers (HITL, five coupling) refuse at COMMIT (P0001), CHECK/FK/UNIQUE/NOT NULL refuse at the statement, each asserted by SQLSTATE + constraint name with a positive control, all from cargoexec_app
 - [Phase 01-governed-record-substrate]: TEST-DB-16 immutability of the entry of record is proved application-level (no UPDATE cargo_entries in server/src) not privilege-level: migration 0011 grants cargoexec_app UPDATE on cargo_entries for the FOR UPDATE anchor lock, so a raw UPDATE succeeds at the DB (user-approved reframe)
 - [Phase 01-governed-record-substrate]: cargoexec_ai cannot invoke append(): append() takes SELECT ... FOR UPDATE on cargo_entries which needs table UPDATE privilege A-1 denies the AI role; recommendation-status audit entries are written on a path that already holds the anchor. Pinned by immutability.spec.ts so a future UPDATE grant to the AI role fails loudly
+- [Phase 01-governed-record-substrate]: Plan 01-10 (final): chain verification proven — TEST-DB-13/14/15. Two concurrent appends serialise under the anchor lock (contiguous seq, no gap/dup, second observably blocked); forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001); four independent TEMPLATE copies detect excision (false,4,3), alteration (false,3,3), reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash recomputation. verify_audit_chain repairs nothing (byte-identical post-tamper, identical second verify). readCaseTrail is the read-only per-case F13 read path. DROP TRIGGER confined to chain.spec.ts throwaway copies. Full test:db gate green (103 db tests).
 
 ### Pending Todos
 
@@ -103,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T03:09:21.133Z
-Stopped at: Completed 01-governed-record-substrate-08-PLAN.md
+Last session: 2026-09-14T03:24:41.945Z
+Stopped at: Completed 01-governed-record-substrate-10-PLAN.md
 Resume file: None
