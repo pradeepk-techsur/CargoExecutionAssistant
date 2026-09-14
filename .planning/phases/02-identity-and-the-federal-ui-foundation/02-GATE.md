@@ -2,8 +2,8 @@
 phase: 02
 gate_status: passed
 build_command: "npm run build:server"
-test_command: "npm run test:unit && npm run test:db && npm run test:arch"
-last_updated: 2026-09-14T22:15:09Z
+test_command: "npm run test:unit && npm run test:db && npm run test:api && npm run test:arch"
+last_updated: 2026-09-14T22:30:34Z
 tests_disabled_during_fixes: none
 shadowed_sources: 0
 waves:
@@ -12,6 +12,10 @@ waves:
     tests: pass
     fix_attempts: 0
   - wave: 2
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 3
     build: pass
     tests: pass
     fix_attempts: 0
@@ -134,5 +138,93 @@ waves:
 [2m      Tests [22m [1m[32m67 passed[39m[22m[90m (67)[39m
 [2m   Start at [22m 22:15:00
 [2m   Duration [22m 300ms[2m (transform 36ms, setup 0ms, collect 63ms, tests 158ms, environment 0ms, prepare 22ms)[22m
+```
+
+## Wave 3
+
+- Build: `npm run build:server` → pass
+- Tests: `npm run test:unit && npm run test:db && npm run test:api && npm run test:arch` → pass
+- Fix attempts: 0/3 — Wave 3: unit 111 + db 114 + api 15 + arch 67 green; server boots and answers 401 unauth. web build & e2e deferred to 02-05/02-07
+
+### Gate output
+
+```
+> build:server
+> tsc -b contract server
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 57[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m28 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m111 passed[39m[22m[90m (111)[39m
+[2m   Start at [22m 22:30:20
+[2m   Duration [22m 595ms[2m (transform 68ms, setup 0ms, collect 401ms, tests 105ms, environment 0ms, prepare 23ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 823[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m434[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 227[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 236[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 185[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 358[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 70[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 117[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m114 passed[39m[22m[90m (114)[39m
+[2m   Start at [22m 22:30:21
+[2m   Duration [22m 2.64s[2m (transform 100ms, setup 0ms, collect 161ms, tests 2.39s, environment 0ms, prepare 25ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 482[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 53[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m   Start at [22m 22:30:24
+[2m   Duration [22m 765ms[2m (transform 64ms, setup 0ms, collect 152ms, tests 535ms, environment 0ms, prepare 22ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m49 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 82[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 77[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m67 passed[39m[22m[90m (67)[39m
+[2m   Start at [22m 22:30:25
+[2m   Duration [22m 306ms[2m (transform 34ms, setup 0ms, collect 64ms, tests 166ms, environment 0ms, prepare 22ms)[22m
 ```
 
