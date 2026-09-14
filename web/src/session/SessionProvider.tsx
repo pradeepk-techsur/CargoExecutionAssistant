@@ -20,7 +20,6 @@ import {
 import type { SpecialistDto } from '@cargoexec/contract';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client.js';
-import { useAnnounce } from '../shell/LiveRegions.js';
 import { validateNextPath } from '../app/nextPath.js';
 
 export type SessionStatus = 'loading' | 'signed-in' | 'signed-out';
@@ -38,7 +37,6 @@ export function SessionProvider(props: { children: ReactNode }): JSX.Element {
   const [specialist, setSpecialist] = useState<SpecialistDto | null>(null);
   const [status, setStatus] = useState<SessionStatus>('loading');
   const navigate = useNavigate();
-  const { announceStatus } = useAnnounce();
 
   // Resolve the session once on mount. getSession() re-stores the rotated CSRF
   // token internally, so a token is in hand the instant status leaves loading.
@@ -81,11 +79,12 @@ export function SessionProvider(props: { children: ReactNode }): JSX.Element {
     setSpecialist(null);
     setStatus('signed-out');
     // ?reason=signed-out lets /sign-in render the "You are signed out."
-    // confirmation (Screen-00 "Signed out" state); the polite announcement is
-    // made here so a screen-reader user hears it regardless of the screen.
+    // confirmation (Screen-00 "Signed out" state) AND make the polite
+    // announcement itself, after its screen-title announcement — otherwise a
+    // sign-out announcement made here is clobbered by the SignIn screen's own
+    // title announcement the instant it mounts.
     navigate('/sign-in?reason=signed-out', { replace: true });
-    announceStatus('You are signed out.');
-  }, [navigate, announceStatus]);
+  }, [navigate]);
 
   const value = useMemo<SessionContextValue>(
     () => ({ specialist, status, signIn, signOut }),

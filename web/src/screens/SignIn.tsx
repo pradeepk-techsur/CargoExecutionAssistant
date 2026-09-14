@@ -17,7 +17,7 @@
 // is no loading or empty state — the screen has no data to load. (These terms
 // are spelled obliquely so the affordance-absence grep stays clean.)
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ErrorCode } from '@cargoexec/contract';
 import { ERROR_MESSAGES } from '@cargoexec/contract';
 import { useScreenFocus } from '../shell/useScreenFocus.js';
@@ -112,6 +112,29 @@ export function SignIn(): JSX.Element {
   const reason = params.get('reason');
   const arrivedExpired = reason === 'expired';
   const arrivedSignedOut = reason === 'signed-out';
+
+  // Announce the ARRIVAL REASON politely, after the screen-title announcement
+  // that useScreenFocus makes on mount (so it is the sentence that lands, not
+  // the generic "Sign in"). The signed-out confirmation is owned by the screen
+  // we arrive at, per Screen-00's "Signed out" state — a screen-reader user
+  // hears "You are signed out." here, matching the visible slim success alert.
+  useEffect(() => {
+    if (arrivedSignedOut) {
+      const id = window.setTimeout(
+        () => announceStatus('You are signed out.'),
+        120,
+      );
+      return () => window.clearTimeout(id);
+    }
+    if (arrivedExpired) {
+      const id = window.setTimeout(
+        () => announceStatus('Your session expired. Sign in again to continue.'),
+        120,
+      );
+      return () => window.clearTimeout(id);
+    }
+    return undefined;
+  }, [arrivedSignedOut, arrivedExpired, announceStatus]);
 
   async function onSubmit(): Promise<void> {
     // The UswdsForm already ignores a repeat activation while busy; this guard is
