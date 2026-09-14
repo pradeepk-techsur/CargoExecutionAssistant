@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-04-PLAN.md
-last_updated: "2026-09-14T22:29:04.910Z"
-last_activity: "2026-09-14 — 02-04 executed: the HTTP surface. createApp assembles the normative middleware order (requestId → headers → json(64kb) → static → session → csrf → routes → 404/405 → htmlRouteGuard → SPA fallback → errorMapper); sessionMiddleware attaches req.principal from the cargoexec_sid cookie ALONE (FR-1.6) and records revoked_at/'EXPIRED' at rejection; csrfMiddleware double-submit with timingSafeEqual; htmlRouteGuard 302s protected HTML docs to /sign-in?next=<validated path>. The three §3.3 session endpoints (POST/GET/DELETE), rotate-on-GET CSRF (client half mandatory in 02-07), API_ROUTE_TABLE (ten pairs, three implemented), process bootstrap binding 0.0.0.0:3000 with self-checks before listen. withApi harness + context-boot test + 11-case session suite. Full test green: unit 111, db 114, api 15, arch 67. [Rule 3] pool.app/ai.ts pg interop-default import for native ESM boot; [Rule 1] CSRF lets an unregistered-method listed path through so PUT /api/session is 405 not a masking 403. DEVIATION: production-mode SPA serving only (no Vite middleware)."
+stopped_at: Completed 02-06-PLAN.md
+last_updated: "2026-09-14T22:46:12.467Z"
+last_activity: "2026-09-14 — 02-06 executed: three supertest suites (60 tests) on the withApi harness proving the unauthenticated matrix (criterion 2), the server-resolved actor across four naming vectors + a source scan (criterion 3), and idle/absolute/sign-out expiry recorded on the sessions row with a fixedClock (criterion 1). Test-only plan — no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than restructure the chain."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 14
-  percent: 74
+  completed_plans: 15
+  percent: 79
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
-Plan: 02-04 complete (the HTTP surface: three identity middlewares, three §3.3 session endpoints, createApp in the normative middleware order, the data-driven route table, the 0.0.0.0:3000 process bootstrap, the reusable withApi harness, the context-boot test, and the 11-case session suite). Plans 02-01/02/03/04 executed; 02-05 (SPA shell) is next.
-Status: Phase 1 complete (10/10). Phase 2: 02-01, 02-02, 02-03, 02-04 executed. 02-04 gates green — full npm run test 0 (unit 111, db 114, api 15, arch 67), typecheck clean, build:server exit 0. The app boots against real PostgreSQL, binds 0.0.0.0:3000, answers 401 on unauthenticated GET /api/session. Out of scope: full `npm run build` fails at build:web (web/styles/uswds.scss + SPA are plan 02-05) — see deferred-items.md.
-Last activity: 2026-09-14 — 02-04 executed: the HTTP surface wired 02-02's cross-cutting concerns and 02-03's identity layer into three working session endpoints, proven by a context-boot test against a real database. req.principal is the sole actor source (FR-1.6); rotate-on-GET CSRF has a mandatory client half for 02-07; production-mode SPA serving only (recorded §6.5 deviation).
+Plan: 02-06 complete (the governance suites: guard.spec, actor.spec, expiry.spec — the executable form of phase criteria 2, 3, 1). Plans 02-01/02/03/04/05/06 executed; 02-07 (the SPA calling the session endpoints) is next.
+Status: Phase 1 complete (10/10). Phase 2: 02-01…02-06 executed. 02-06 gates green — full npm run test 0 (unit 111, db 114, api 75, arch 67 = 367), typecheck clean, no skipped tests under server/test/api. The three governance criteria are now permanent regression assets. NOTE: criterion 2 is only PARTIALLY evidenced — 02-04 has no API auth gate, so only GET /api/session answers 401 unauthenticated; DELETE⇒403, unimplemented pairs⇒404. Recommended follow-up (owning module 02-04): a requireApiAuth middleware after sessionMiddleware/before csrfMiddleware. See 02-06-SUMMARY.md "Unmet must-haves".
+Last activity: 2026-09-14 — 02-06 executed: three supertest suites (60 tests) on the withApi harness proving the unauthenticated matrix (criterion 2), the server-resolved actor across four naming vectors + a source scan (criterion 3), and idle/absolute/sign-out expiry recorded on the sessions row with a fixedClock (criterion 1). Test-only plan — no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than restructure the chain.
 
-Progress: [████████░░] 74%
+Progress: [███████░░░] 79%
 
 ## Performance Metrics
 
@@ -66,6 +66,7 @@ Progress: [████████░░] 74%
 | Phase 02-identity-and-the-federal-ui-foundation P02 | 16 min | 3 tasks | 9 files |
 | Phase 02-identity-and-the-federal-ui-foundation P03 | 9 min | 3 tasks | 9 files |
 | Phase 02-identity-and-the-federal-ui-foundation P04 | 10 min | 3 tasks | 15 files |
+| Phase 02-identity-and-the-federal-ui-foundation P06 | 13 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -108,6 +109,8 @@ Recent decisions affecting current work:
 - [Phase 02-identity-and-the-federal-ui-foundation]: createApp injects the pool and constructs nothing at import time, enabling per-suite test databases and the context-boot test; API_ROUTE_TABLE lists all ten §3.1 pairs as data with three implemented, no 501 placeholders
 - [Phase 02-identity-and-the-federal-ui-foundation]: Rotate-on-GET CSRF has a mandatory client half: GET /api/session re-stores the token hash; 02-07's api.getSession must re-store csrf_token or a reload+POST/DELETE 403s while in-session tests still pass
 - [Phase 02-identity-and-the-federal-ui-foundation]: csrfMiddleware lets a state-changing method with no implemented route pass so PUT /api/session answers 405, not a masking 403; pool.app/ai.ts converted to pg interop-default import for native ESM boot
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-06 governance suites (guard/actor/expiry.spec, 60 tests) evidence phase criteria 2/3/1 as permanent regression assets; test-only, no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than add an API auth gate.
+- [Phase 02-identity-and-the-federal-ui-foundation]: Criterion 2 is only PARTIALLY evidenced: 02-04 has no API auth gate, so only GET /api/session returns 401 unauthenticated (DELETE⇒403, the 7 unimplemented pairs⇒404, /api/unknown⇒404). Follow-up in owning module 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware would restore uniform 401.
 
 ### Pending Todos
 
@@ -119,9 +122,10 @@ None yet.
 
 - **Open assumption (REQUIREMENTS.md):** the 31 validation rules `RIV-010`–`RIV-132` are an implementation assumption open to CBP refinement. Build the Phase 3 rule registry so a rule change is a data change plus a `rule_set_version` bump — never an architectural one.
 - **Scope pressure is the named project risk (PRD R-2).** Every phase carries at least one criterion asserting an exclusion is structural. Do not let a plan add a filter, metric, export, role or ingestion path.
+- Criterion 2 partially unmet (02-06): the phase must_have 'all ten §3.1 pairs answer 401 unauthenticated' is not satisfied — 02-04 lacks an API auth gate. Fix in 02-04: add requireApiAuth (after sessionMiddleware, before csrfMiddleware) so any /api/* except POST /api/session with no principal ⇒ 401, then tighten guard.spec's 4 adjusted assertions back to 401. See 02-06-SUMMARY.md.
 
 ## Session Continuity
 
-Last session: 2026-09-14T22:28:55.430Z
-Stopped at: Completed 02-04-PLAN.md
+Last session: 2026-09-14T22:46:04.615Z
+Stopped at: Completed 02-06-PLAN.md
 Resume file: None
