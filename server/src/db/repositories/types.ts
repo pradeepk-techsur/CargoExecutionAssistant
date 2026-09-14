@@ -1,10 +1,17 @@
-import type { Pool, PoolClient } from 'pg';
+import type { QueryResult, QueryResultRow } from 'pg';
 
 /**
- * Anything that can run a parameterised query: the request-path pool for a
- * single-statement call, or an open transaction client (`PoolClient`) when the
- * same repository function must run inside a caller's transaction. Defining it
- * once here means every repository function serves both a pooled call and a
- * transactional one without a second signature.
+ * Anything that can run a parameterised query. Structurally this is `pg`'s
+ * common surface across `Pool`, a pooled `PoolClient` (inside a transaction) and
+ * a one-shot `Client` (the operational CLI, which connects on the owner role).
+ * Defining it once — as the shared `query` method rather than the union of
+ * concrete classes — means every repository function serves a pooled call, a
+ * transactional one and the CLI without a second signature, and without the
+ * `exactOptionalPropertyTypes` friction of `Pool | PoolClient | Client`.
  */
-export type Queryable = Pool | PoolClient;
+export interface Queryable {
+  query<R extends QueryResultRow = QueryResultRow>(
+    queryText: string,
+    values?: readonly unknown[],
+  ): Promise<QueryResult<R>>;
+}
