@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-governed-record-substrate-05-PLAN.md
-last_updated: "2026-09-12T13:41:38.981Z"
-last_activity: "2026-09-12 — 01-05 executed: migrations 0008 privileges + AI wall, 0009 eleven invariant triggers (mutation rejection, hash chain, HITL, five audit-coupling; 7 deferred), 0010 read-only verify_audit_chain; set 0001–0010 applies cleanly, schema_migrations=10, typecheck green"
+stopped_at: Completed 01-governed-record-substrate-07-PLAN.md
+last_updated: "2026-09-14T02:51:02.071Z"
+last_activity: "2026-09-14 — 01-07 executed: server/test/architecture/{absence,schema,privileges}.spec.ts; 25 forbidden columns + 13 tables + 8 audit actions + declared grant matrix (FR-Y0.3) asserted against a freshly migrated DB; no CI/a11y-runner/forbidden-dep/domain-INSERT. Item-6 DELETE/TRUNCATE assertion scoped to non-owner grantees (owner holds them by ownership; neutralised by trigger, asserted behaviourally in 01-08)"
 progress:
   total_phases: 6
   completed_phases: 0
   total_plans: 10
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 1 of 6 (Governed Record Substrate)
-Plan: 5 complete (01-05 — migrations 0008–0010: privileges + AI privilege wall, eleven invariant triggers, read-only chain verifier; the audit store is now governed. Migration set 0001–0010 complete)
-Status: In progress — ready for plan 01-06
-Last activity: 2026-09-12 — 01-05 executed: migrations 0008 privileges + AI wall, 0009 eleven invariant triggers (7 deferred; AUDIT_IMMUTABLE/AUDIT_CHAIN_BROKEN/HITL_VIOLATION/AUDIT_COUPLING_VIOLATION, all P0001), 0010 STABLE verify_audit_chain; set 0001–0010 applies cleanly, schema_migrations=10, typecheck green
+Plan: 01-07 complete (architecture suite — absence, schema, privileges; `npm run test:arch` green, 66 tests, 0 skips; the exclusion list is now a build constraint). 6 of 10 phase-1 plans have SUMMARYs on disk. Plan 01-06 (audit writer) is executing in parallel on this branch.
+Status: In progress — 01-07 done; next is plan 01-08 (behavioural governance/immutability suite, the counterpart to 01-07's declared-privilege spec)
+Last activity: 2026-09-14 — 01-07 executed: server/test/architecture/{absence,schema,privileges}.spec.ts; 25 forbidden columns + 13 tables + 8 audit actions + declared grant matrix (FR-Y0.3) asserted against a freshly migrated DB; no CI/a11y-runner/forbidden-dep/domain-INSERT. Item-6 DELETE/TRUNCATE assertion scoped to non-owner grantees (owner holds them by ownership; neutralised by trigger, asserted behaviourally in 01-08)
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-governed-record-substrate P03 | 4 min | 2 tasks | 2 files |
 | Phase 01-governed-record-substrate P04 | 8 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P05 | 6 min | 3 tasks | 3 files |
+| Phase 01-governed-record-substrate P07 | 8 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: The human-identity crux is decisions.decided_by uuid NOT NULL REFERENCES specialists (id) with no default, against a specialists table with no AI/SYSTEM row — a machine decision fails the FK before any trigger; mixed AI/HUMAN origin is representable only on decision_values
 - [Phase 01-governed-record-substrate]: Audit store (0007) is created but LEFT MUTABLE until plan 01-05 (0008 privileges + 0009 triggers); FR-0.17/FR-Y0.2 require the whole set to land in one `npm run migrate` invocation so no deployment window exposes a mutable store. aev_origin_present_chk already makes an unattributed audit value unstorable
 - [Phase 01-governed-record-substrate]: Enforcement lands in migrations 0008-0010 (privileges + 11 triggers + read-only verifier) in the same migration set as the tables, so no window exposes a mutable audit store (FR-Y0.2); four governance invariants raise P0001 with fixed prefixes AUDIT_IMMUTABLE/AUDIT_CHAIN_BROKEN/HITL_VIOLATION/AUDIT_COUPLING_VIOLATION asserted verbatim by plans 01-08/09/10
+- [Phase 01-governed-record-substrate]: Architecture tests (server/test/architecture/) assert ABSENCE: a .github dir, CI file, forbidden dependency, 26th column, 14th table, widened grant, domain-data INSERT, or cascading delete fails npm run test:arch. Deferred future-surface assertions are comments naming the owning phase, never skipped tests.
+- [Phase 01-governed-record-substrate]: §2.14 item 6 (DELETE/TRUNCATE granted to no role) is asserted against non-owner grantees only: cargoexec_owner holds them implicitly by ownership and cannot be revoked; the owner's raw-DELETE is neutralised by trigger and asserted behaviourally in plan 01-08 (§2.14 item 8).
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-12T13:41:38.980Z
-Stopped at: Completed 01-governed-record-substrate-05-PLAN.md
+Last session: 2026-09-14T02:50:35.032Z
+Stopped at: Completed 01-governed-record-substrate-07-PLAN.md
 Resume file: None
