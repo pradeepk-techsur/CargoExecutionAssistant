@@ -310,7 +310,26 @@ fi
 # Final-attempt exit code propagates the INNER command's exit code, not a
 # fixed 1, so the caller (platform / Daytona) can distinguish "wrapper bug"
 # from "user command failed with N".
-EXEC_CMD='docker compose up -d --wait db && docker compose --profile migrate run --rm migrate && docker compose up db'
+EXEC_CMD='docker compose up -d --wait db || exit 1
+# The db container can be Up and healthy while its published port is NOT bound
+# on the host: a port sweep (boot-ctl free_port, fuser -k, any reclaim of 5432)
+# kills the docker-proxy that publishes the mapping, and a subsequent
+# `up -d --wait` is a no-op against an already-Running container, so it never
+# rebuilds it. `restart` republishes. Without this, every boot after the first
+# reports a healthy stack whose port nothing can reach.
+for _ in 1 2 3; do
+  (exec 3<>/dev/tcp/127.0.0.1/5432) 2>/dev/null && break
+  echo "[pivota] db is up but 5432 is not published on the host - restarting db to republish the port"
+  docker compose restart db
+  sleep 5
+done
+# Forward-only migration runner, in the repo'\''s own `migrate` profile service.
+# It reads node_modules from the bind-mounted repo, which is why the install
+# step above is not the usual compose no-op. Re-running is idempotent
+# ("No migrations to run!"), so this is safe on every boot.
+docker compose --profile migrate run --rm migrate || exit 1
+# Foreground process the platform supervises.
+docker compose up db'
 
 # #219: record what this boot is FOR, so the fast path at the top of the file
 # can tell "already running the same thing" from "running something stale".
