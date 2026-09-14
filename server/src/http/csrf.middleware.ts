@@ -21,11 +21,25 @@
 import crypto from 'node:crypto';
 import type { RequestHandler } from 'express';
 import { ApiError } from './errorMapper.js';
+import { API_ROUTE_TABLE } from './routes/index.js';
 
 // Only these methods change state and are therefore CSRF-checked. GET and HEAD
 // are NEVER checked and — by the ten-route contract — never change state; that
 // is an invariant of the API surface, not a convention of this file (§4.4).
 const STATE_CHANGING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+// The set of IMPLEMENTED method+path pairs, so CSRF only guards a request that
+// an actual state-changing route would handle. A state-changing method on a
+// known path that is NOT implemented (e.g. PUT /api/session) is a 405
+// METHOD_NOT_ALLOWED — a request-shape error, not a forged mutation — and must
+// be allowed past CSRF so the route stage can answer 405 (§3.1: "any other
+// method on a listed path returns 405"). Checking CSRF first would mask the 405
+// with a 403, contradicting the contract.
+const IMPLEMENTED_STATE_CHANGING = new Set(
+  API_ROUTE_TABLE.filter(
+    (r) => r.implemented && STATE_CHANGING.has(r.method.toUpperCase()),
+  ).map((r) => `${r.method.toUpperCase()} ${r.path}`),
+);
 
 // POST /api/session is the ONE state-changing request that is exempt: it CREATES
 // the session, so there is no stored token to compare against yet (§4.4; §3.1
@@ -50,6 +64,13 @@ export function csrfMiddleware(): RequestHandler {
     }
     if (isExempt(method, req.path)) {
       return next(); // POST /api/session mints the session; nothing to compare
+    }
+
+    // A state-changing method on a path that no implemented route handles is a
+    // 405 (a shape error), not a mutation to defend. Let it through so the route
+    // stage answers METHOD_NOT_ALLOWED rather than masking it with a 403.
+    if (!IMPLEMENTED_STATE_CHANGING.has(`${method} ${req.path}`)) {
+      return next();
     }
 
     const stored = req.csrfTokenHash;
