@@ -3,10 +3,11 @@ phase: 01
 gate_status: passed
 build_command: "npm run typecheck"
 test_command: "npm test"
-last_updated: 2026-09-14T03:29:37Z
+last_updated: 2026-09-14T03:29:58Z
 tests_disabled_during_fixes: none
 shadowed_sources: 0
 review_blockers_open: 0
+boot_smoke: skipped
 waves:
   - wave: 1
     build: pass
