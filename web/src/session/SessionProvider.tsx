@@ -80,7 +80,10 @@ export function SessionProvider(props: { children: ReactNode }): JSX.Element {
     await api.signOut();
     setSpecialist(null);
     setStatus('signed-out');
-    navigate('/sign-in', { replace: true });
+    // ?reason=signed-out lets /sign-in render the "You are signed out."
+    // confirmation (Screen-00 "Signed out" state); the polite announcement is
+    // made here so a screen-reader user hears it regardless of the screen.
+    navigate('/sign-in?reason=signed-out', { replace: true });
     announceStatus('You are signed out.');
   }, [navigate, announceStatus]);
 
