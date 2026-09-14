@@ -3,7 +3,7 @@ phase: 01
 gate_status: passed
 build_command: "npm run typecheck"
 test_command: "npm test"
-last_updated: 2026-09-14T02:58:31Z
+last_updated: 2026-09-14T03:10:32Z
 tests_disabled_during_fixes: none
 shadowed_sources: 0
 waves:
@@ -24,6 +24,10 @@ waves:
     tests: pass
     fix_attempts: 0
   - wave: 5
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 6
     build: pass
     tests: pass
     fix_attempts: 0
@@ -269,5 +273,72 @@ No test files found, exiting with code 1[39m
 [2m      Tests [22m [1m[32m67 passed[39m[22m[90m (67)[39m
 [2m   Start at [22m 02:58:20
 [2m   Duration [22m 299ms[2m (transform 36ms, setup 0ms, collect 63ms, tests 160ms, environment 0ms, prepare 23ms)[22m
+```
+
+## Wave 6
+
+- Build: `npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3
+
+### Gate output
+
+```
+> typecheck
+> tsc -b contract server
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 56[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m23 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 03:10:22
+[2m   Duration [22m 449ms[2m (transform 31ms, setup 0ms, collect 314ms, tests 57ms, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 249[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 254[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 180[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 72[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 98[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m      Tests [22m [1m[32m97 passed[39m[22m[90m (97)[39m
+[2m   Start at [22m 03:10:23
+[2m   Duration [22m 1.44s[2m (transform 78ms, setup 0ms, collect 127ms, tests 1.23s, environment 0ms, prepare 24ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m49 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 87[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 73[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m67 passed[39m[22m[90m (67)[39m
+[2m   Start at [22m 03:10:24
+[2m   Duration [22m 310ms[2m (transform 32ms, setup 0ms, collect 65ms, tests 166ms, environment 0ms, prepare 24ms)[22m
 ```
 
