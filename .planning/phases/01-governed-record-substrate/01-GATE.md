@@ -2,8 +2,8 @@
 phase: 01
 gate_status: passed
 build_command: "npm run typecheck"
-test_command: "npx vitest run"
-last_updated: 2026-09-12T13:42:39Z
+test_command: "npm test"
+last_updated: 2026-09-14T02:58:31Z
 tests_disabled_during_fixes: none
 shadowed_sources: 0
 waves:
@@ -20,6 +20,10 @@ waves:
     tests: pass
     fix_attempts: 0
   - wave: 4
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 5
     build: pass
     tests: pass
     fix_attempts: 0
@@ -203,3 +207,67 @@ __GATE__ build_exit=-1 test_exit=1 build_cmd=[none] test_cmd=[npm test] head=b73
 [31m
 No test files found, exiting with code 1[39m
 ```
+
+## Wave 5
+
+- Build: `npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3
+
+### Gate output
+
+```
+> typecheck
+> tsc -b contract server
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m23 passed[39m[22m[90m (23)[39m
+[2m   Start at [22m 02:58:18
+[2m   Duration [22m 437ms[2m (transform 32ms, setup 0ms, collect 305ms, tests 56ms, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 94[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 100[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m2 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 02:58:19
+[2m   Duration [22m 339ms[2m (transform 42ms, setup 0ms, collect 72ms, tests 194ms, environment 0ms, prepare 21ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m49 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 78[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 75[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m3 passed[39m[22m[90m (3)[39m
+[2m      Tests [22m [1m[32m67 passed[39m[22m[90m (67)[39m
+[2m   Start at [22m 02:58:20
+[2m   Duration [22m 299ms[2m (transform 36ms, setup 0ms, collect 63ms, tests 160ms, environment 0ms, prepare 23ms)[22m
+```
+
