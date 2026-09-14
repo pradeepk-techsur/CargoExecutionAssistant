@@ -1,9 +1,17 @@
 // The application shell (TechArch §7.4, §1A.4; UX Screen-00 wireframe).
 //
-// Shell renders the persistent frame ONCE, in this exact DOM order:
-//   1. Banner        — government banner, above the header, on EVERY screen
-//   2. SkipLink      — usa-skipnav, the first focusable element, → #main-content
+// Shell renders the persistent frame ONCE, in this DOM order:
+//   1. SkipLink      — usa-skipnav, THE FIRST FOCUSABLE ELEMENT, → #main-content
+//   2. Banner        — government banner, above the header, on EVERY screen
 //   3. Header        — role="banner"; reduced on /sign-in (no nav/name/sign-out)
+//
+// DEVIATION (Rule 1) from the plan's listed order (Banner #1, SkipLink #2): the
+// plan's own stated truth — "the skip link is the first focusable element on
+// every page" (FR-2.4, US-2.2, and this plan's must_haves + success criteria) —
+// requires the skip link to precede the banner's focusable disclosure button.
+// The banner renders visually first via source-order; the skip link is hidden
+// until focused, so it takes no visual space above the banner. The invariant
+// wins over the illustrative ordering.
 //   4. Nav           — via Header, only when NOT reduced (<nav aria-label="Primary">)
 //   5. main          — id="main-content", the routing outlet
 //   6. Footer        — role="contentinfo" + usa-identifier
@@ -35,8 +43,8 @@ export function Shell(props: ShellProps): JSX.Element {
 
   return (
     <>
-      <Banner />
       <SkipLink />
+      <Banner />
       <Header
         reduced={reduced}
         specialist={specialist}
