@@ -2,10 +2,10 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in-progress
+status: completed
 stopped_at: Completed 02-03-PLAN.md
-last_updated: "2026-09-14T22:12:47.495Z"
-last_activity: "2026-09-14 — 02-03 executed: identity layer below HTTP. clock.ts injects Clock/systemClock/fixedClock (no env time skew). Two hand-written parameterised repositories (specialists, sessions); findSessionByTokenHash omits token_hash, revokeSession writes both revocation cols guarded by revoked_at IS NULL. session.service.ts is the sole credential-verifying module: Argon2id verify in both branches (DUMMY_HASH when no row) for timing parity, unknown-email == wrong-password AUTH_FAILED, throttle-before-DB keyed by sha256(email), 32-byte SHA-256 tokens only, injected-clock idle(30m)/absolute(8h) expiry recorded as revoked_at+reason. create-specialist CLI is the only account path (interactive TTY / idempotent --from-env). 11 DB cases + 8 throttle units green; test:db 114, test:arch 67, typecheck clean, build:server exit 0. [Rule 1] fixed pg CommonJS named-import so the CLI runs under native ESM."
+last_updated: "2026-09-14T22:13:29.927Z"
+last_activity: "2026-09-14 — 02-03 executed: identity layer below HTTP. Argon2id credential verification with a module-level dummy-hash timing equaliser (unknown email == wrong password, comparable time); opaque SHA-256-at-rest server sessions with injected-clock 30-min idle / 8-h absolute expiry recorded as revoked_at + revocation_reason; in-process sign-in throttle keyed by sha256(email) with no lockout state; create-specialist CLI as the sole operational account path (interactive TTY or idempotent --from-env). Structural Queryable serves Pool/PoolClient/Client. [Rule 1] pg CommonJS named-import → interop-default so the CLI runs under native ESM; [Rule 3] --from-env checks bootstrap keys before the DB URL; [Rule 3] widened Queryable to a structural interface."
 progress:
   total_phases: 6
   completed_phases: 1
