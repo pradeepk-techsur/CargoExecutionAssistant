@@ -368,6 +368,26 @@ export async function expireSession(
   await revokeSession(pool, sessionId, 'EXPIRED', clock.now());
 }
 
+/**
+ * Record an expiry given only the raw token, resolving the session id through
+ * the same read path first. `loadSessionByToken` deliberately does not surface
+ * the id on a non-VALID outcome, so the middleware — which learns a session is
+ * EXPIRED but not which row — calls this to write the revocation without
+ * reaching into a repository itself (keeping the no-repository-in-http rule).
+ * `revokeSession` is guarded by `revoked_at IS NULL`, so this is idempotent
+ * and cannot overwrite an already-recorded reason under a concurrent request.
+ */
+export async function expireSessionByToken(
+  pool: Pool,
+  rawToken: string,
+  clock: Clock = systemClock,
+): Promise<void> {
+  const row = await findSessionByTokenHash(pool, sha256(rawToken));
+  if (row !== null && row.revoked_at === null) {
+    await revokeSession(pool, row.id, 'EXPIRED', clock.now());
+  }
+}
+
 /** Record a sign-out: revoked_at + revocation_reason = 'SIGNED_OUT'. Revokes only this session (FR-1.11). */
 export async function signOut(
   pool: Pool,
