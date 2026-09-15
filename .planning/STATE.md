@@ -2,14 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-15T21:25:39.760Z"
-last_activity: "2026-09-15 — Phase 4 complete"
+status: executing
+stopped_at: Completed 05-03-PLAN.md
+last_updated: "2026-09-15T22:27:25.386Z"
+last_activity: "2026-09-15 — 04-04 executed (Phase 4 COMPLETE): Task 1 a17161b (client + formatter), Task 2 fb0484f (Queue screen + router + e2e), Task 3a 3c43a97 (table scroll-region + arch-spec narrowing + sign-in de-flake), Task 3b baac039 (signed docs/a11y/queue.md). 4 auto-fixed deviations (2×R1 own-code bugs, 1×R3 stale arch assertion, 1×R1 pre-existing flake 04-04 aggravated). test:all green."
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 31
-  completed_plans: 31
+  total_plans: 37
+  completed_plans: 32
   percent: 67
 ---
 
@@ -81,6 +82,7 @@ Progress: [███████░░░] 67%
 | Phase 04-the-receipt-ordered-queue P02 | 6 min | 3 tasks | 3 files |
 | Phase 04 P03 | 7 min | 3 tasks | 5 files |
 | Phase 04-the-receipt-ordered-queue P04 | 27 min | 3 tasks | 8 files |
+| Phase 05-ai-recommendation-as-an-un-applied-proposal P03 | 4 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -147,6 +149,7 @@ Recent decisions affecting current work:
 - [Phase 04-the-receipt-ordered-queue]: 04-02: F7 composition services — listQueue(pool) derives failure_summary from the first two findings in ascending rule_id order with an 'and N more' suffix using the authoritative findings_count (FR-7.6) and enforces a fixed 500-row truncation ceiling reachable through no parameter (FR-7.9/T-04-04); loadCase(pool, form, value) returns the FR-7.8 permitted_decisions matrix server-side (closed=[], OPEN+AVAILABLE=[APPROVE,EDIT_APPROVE,REJECT], OPEN+PENDING/UNAVAILABLE=[EDIT_APPROVE,REJECT]) and surfaces ENTRY_PASSED_VALIDATION/NOT_FOUND distinctly. Both read-only (no append, FR-7.10). Deviation: the 501-row truncation proof seeds through append() in ONE transaction, not a raw unnest bulk insert — the deferred coupling triggers refuse a bare cargo_entries/validation_results/exceptions insert at COMMIT. test:db 175/175 (+8), 0 regressions.
 - [Phase 04-the-receipt-ordered-queue]: 04-03: the two F7 endpoints are live as a thin HTTP translation over 04-02's listQueue/loadCase — GET /api/exceptions rejects any query string (FR-7.2) and serves the receipt-ordered queue; GET /api/exceptions/:idOrReference validates identifier FORM before loadCase and maps NOT_FOUND / ENTRY_PASSED_VALIDATION to two 404s sharing EXCEPTION_NOT_FOUND, distinguished only by message (FR-7.14). API_ROUTE_TABLE now seven implemented. Framework note: a mutating method on a parameterised /api path is 404 not 405 (app.ts keys 405 on route patterns vs concrete paths) — deferred to app.ts.
 - [Phase 04-the-receipt-ordered-queue]: 04-04: the F8 review-queue screen (web/src/screens/Queue.tsx) renders GET /api/exceptions in exact receipt order into one accessible USWDS table with per-row Link case activation (keyboard Enter + pointer), reusing Loading/Empty/ErrorState verbatim; api.getQueue/getCase are GET-only (no CSRF header, getEntry pattern); formatDateTime pins its own 3-letter month names because this runtime's Intl month:short renders 'Sept' not 'Sep'; the table sits in a focusable usa-table-container--scrollable region so the body never scrolls horizontally at 320px. receiptPaths.spec test 9 narrowed from 'client names no /api/exceptions' to 'no MUTATING method on an exception collection' (GET reads permitted). Phase 4 complete; test:all green (unit 218, db 175, api 124, arch 148, e2e 37).
+- [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-03: the F9 polling endpoint GET /api/exceptions/:exceptionId/recommendation is live and read-only, serving all three PENDING/AVAILABLE/UNAVAILABLE shapes off the always-present recommendation row with zero dependency on the AI generation job; loadRecommendationDetail uses resolveCaseIdentifier(UUID) as the existence probe (planned loadExceptionForGeneration does not exist) and duplicates caseRead's compose logic rather than importing it. API_ROUTE_TABLE now eight implemented; boot.spec asserts eight. Stable contract for plan 05-05.
 
 ### Pending Todos
 
@@ -163,6 +166,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T20:26:18.050Z
-Stopped at: Completed 04-04-PLAN.md
+Last session: 2026-09-15T22:27:18.134Z
+Stopped at: Completed 05-03-PLAN.md
 Resume file: None
