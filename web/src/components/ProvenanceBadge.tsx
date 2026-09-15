@@ -12,7 +12,9 @@
 //     in web/public/assets/img/sprite.svg), and
 //   - a distinct USWDS utility-token colour pair.
 // So the badge is legible in monochrome and through assistive technology by the
-// adjacent text alone; the icon's <title> makes its meaning available to AT too.
+// adjacent visible text alone. The icon is purely decorative — it carries
+// `aria-hidden` so AT ignores it, and consequently no <title> (which would be
+// inert under aria-hidden anyway); the visible label is the accessible name.
 //
 // ONLY USWDS design tokens are used for colour (FR-2.2; absence.spec.ts's scan
 // forbids a raw hex or px literal anywhere in web/src). bg-primary-darker /
@@ -32,7 +34,6 @@ export function ProvenanceBadge(props: {
   return (
     <span className={`usa-tag ${tokenClasses}`}>
       <svg className="usa-icon" aria-hidden="true" focusable="false">
-        <title>{label}</title>
         <use xlinkHref={`/assets/img/sprite.svg#${iconId}`} />
       </svg>{' '}
       {label}
