@@ -125,6 +125,95 @@ export interface ExceptionRef {
   readonly receipt_position: number;
 }
 
+// ---- queue / case-detail types (F7 FR-7.5, FR-7.7, FR-7.8) -----------------
+
+/** One row of the receipt-ordered queue. Exactly these seven fields (FR-7.5). */
+export interface RowSummaryDto {
+  readonly id: string;
+  readonly case_reference: string;
+  readonly receipt_position: number;
+  readonly received_at: string;
+  readonly entry_number: string | null;
+  readonly finding_count: number;
+  readonly failure_summary: string;
+}
+
+export interface QueueResponse {
+  readonly exceptions: readonly RowSummaryDto[];
+  readonly returned_count: number;
+  readonly truncated: boolean;
+}
+
+/** One AI-proposed value on a case's recommendation (F9 FR-9.7). */
+export interface RecommendationProposedValueDto {
+  readonly field_name: EntryFieldName;
+  readonly proposed_value: string;
+  readonly origin: 'AI';
+  readonly addresses_rule_ids: readonly string[];
+}
+
+/**
+ * The recommendation section of a case detail (FR-7.7). Fields beyond
+ * `status` are present ONLY for the matching status: AVAILABLE carries
+ * recommended_action/rationale/proposed_values/model_id/prompt_version/
+ * generated_at; UNAVAILABLE carries failure_reason/failed_at; PENDING carries
+ * requested_at. Every exception this phase reads has a PENDING recommendation
+ * (Phase 5 has not run yet) — that is normal, expected data, not a defect.
+ */
+export interface RecommendationDetailDto {
+  readonly status: RecommendationStatus;
+  readonly recommended_action?: string;
+  readonly rationale?: string;
+  readonly proposed_values?: readonly RecommendationProposedValueDto[];
+  readonly model_id?: string;
+  readonly prompt_version?: string;
+  readonly generated_at?: string;
+  readonly failure_reason?: RecommendationFailureReason;
+  readonly failed_at?: string;
+  readonly requested_at?: string;
+}
+
+/** One value on a recorded decision (FR-7.7). */
+export interface DecisionValueDto {
+  readonly field_name: EntryFieldName;
+  readonly value: string;
+  readonly origin: Origin;
+  readonly prior_value: string | null;
+  readonly prior_origin: Origin | null;
+}
+
+export interface DecisionDetailDto {
+  readonly decision_type: DecisionType;
+  readonly decided_at: string;
+  readonly decided_by: ActorRef;
+  readonly reason: string | null;
+  readonly resolution_values: readonly DecisionValueDto[];
+}
+
+/** The exception identity + lifecycle section of a case detail (FR-7.7). */
+export interface CaseExceptionRef {
+  readonly id: string;
+  readonly case_reference: string;
+  readonly state: ExceptionState;
+  readonly receipt_position: number;
+  readonly opened_at: string;
+  readonly closed_at: string | null;
+}
+
+/** The full case-detail read model (FR-7.7, FR-7.8). No exception this phase
+ * reads will ever have a non-null `decision` (Phase 6 has not run) — that is
+ * normal, expected data.
+ */
+export interface CaseDetailResponse {
+  readonly exception: CaseExceptionRef;
+  readonly entry: EntryDto;
+  readonly validation: ValidationDto;
+  readonly recommendation: RecommendationDetailDto;
+  readonly decision: DecisionDetailDto | null;
+  readonly is_closed: boolean;
+  readonly permitted_decisions: readonly DecisionType[];
+}
+
 export interface ReceiptResponse {
   readonly entry: EntryDto;
   readonly case_reference: string;
