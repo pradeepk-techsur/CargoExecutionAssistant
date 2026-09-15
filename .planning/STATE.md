@@ -2,15 +2,16 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-15T18:44:59.872Z"
-last_activity: "2026-09-15 — Phase 3 complete"
+status: executing
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-09-15T20:26:18.076Z"
+last_activity: "2026-09-15 — 04-04 executed (Phase 4 COMPLETE): api.getQueue/getCase + formatDateTime (Task 1, a17161b); Queue.tsx + router wiring + e2e/queue.spec.ts 8 scenarios (Task 2, fb0484f); table scroll-region + receiptPaths test-9 narrowing + sign-in de-flake (Task 3a, 3c43a97); docs/a11y/queue.md signed (Task 3b, baac039). test:all fully green — unit 218, db 175, api 124, arch 148, e2e 37; 0 failures/0 skipped. Deviations (4, all auto-fixed): [R1] formatDateTime pins 3-letter months (this ICU renders 'Sept'); [R1] queue table wrapped in usa-table-container--scrollable so body never scrolls at 320px; [R3] receiptPaths test 9 narrowed to 'no MUTATING method on an exception collection' (GET reads now legitimate); [R1] sign-in test 2 de-flaked (waited for /queue mount-fetch networkidle before clear-cookies/goto — the real queue's GET raced the next document, net::ERR_ABORTED)."
 progress:
   total_phases: 6
-  completed_phases: 3
-  total_plans: 27
-  completed_plans: 27
-  percent: 50
+  completed_phases: 4
+  total_plans: 31
+  completed_plans: 31
+  percent: 67
 ---
 
 # Project State
@@ -20,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 3 — Receive, Validate, Except
+**Current focus:** Phase 4 complete — ready for Phase 5 (Case detail + AI recommendation)
 
 ## Current Position
 
-Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
-Plan: 03-07 complete — the exception-derivation integrity evidence (test-only, no production code). Wave 1 (03-01/03-02/03-03) built the receipt persistence surface, the RIV-2026.09 rule set as data, and the API auth gate; 03-04 the F4 engine; 03-05 the atomic receipt transaction; 03-06 the two reachable F3 endpoints; 03-08 the shared web primitives. 03-07 EVIDENCES the phase's two (no screen) success criteria: criterion 4 (an exception exists only where a validation failure exists — no API shape, screen affordance or application-role SQL path can author one) by SQL + code/API/UI, and criterion 5 (a failed receipt saves nothing) by an eight-table census. Remaining phase-3 plan: 03-09 (/entries/new screen) — NOT YET WRITTEN (no 03-09-PLAN.md on disk; the 8 PLAN files 03-01..03-08 all have summaries, but the phase is not complete until 03-09 lands).
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (8 plans written 03-01..03-08, all with summaries; 03-09 still to be authored). 03-07 gates green — `npm run build:server`/`npm run typecheck` exit 0; `npm run test` 630/630 (unit 218 / db 160 / api 104 / arch 148), 0 skipped. `git diff --stat` for this plan touches only the three new test files — no production code changed. receiptPaths.spec.ts is a permanent R-L5 guard with documented allowlist seams for Phase 4 (read services join the caller set) and Phase 6 (decision.service.ts joins the UPDATE-exceptions allowlist). NOTE for 03-09: the UI-absence assertions in receiptPaths.spec.ts re-run green against web/src/screens/NewEntry.tsx once it exists (do not add a file input, drag-drop, template download, batch paste, draft/autosave store, or open/create-exception copy).
-Last activity: 2026-09-15 — 03-07 executed (test-only): exceptionBasis.spec.ts (14 cases), receiptAtomicity.spec.ts (12 cases), receiptPaths.spec.ts (11 groups). FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is not refused at the DB — basis/receipt-position immutability rests on the single write path (asserted architecturally, not at the DB). Assertions 1/4/5/8 of receiptPaths proven RED on planted violations. Commits 1bf7156 (Task 1), d704fd6 (Task 2), 3f87f34 (Task 3).
+Phase: 4 of 6 (The Receipt-Ordered Queue) — COMPLETE (4/4 plans)
+Plan: 04-04 complete — the F8 review-queue web UI, the phase's user-facing deliverable. `/queue` now serves `web/src/screens/Queue.tsx` (was NotBuiltYet): a single accessible USWDS `<table>` rendering `api.getQueue()` in EXACT API/receipt order (no client sort/regroup, FR-8.1), four plain `<th scope="col">` columns (Case / Received / Entry number / Why it is open), per-row `<Link to={/cases/:ref} aria-label="Open case …">` activatable by keyboard Enter and pointer (FR-8.5), a truncation notice (FR-8.12), an empty state and an ErrorState-with-Try-again reusing components/states.tsx verbatim (FR-8.7/8.8), an explicit Refresh button (FR-8.10) and polite/assertive FR-8.9 announcements. `api.getQueue()`/`api.getCase(idOrReference)` are GET-only reads (no CSRF header, getEntry pattern). `web/src/lib/formatDateTime.ts` is the one fixed-locale absolute date+time formatter (FR-8.14) — reused UNCHANGED by Phase 5/6 case-detail screens. The table lives in a focusable `usa-table-container--scrollable` region so the body never scrolls horizontally at 320px. No filter/sort/assign/priority/search affordance anywhere (criterion 4, proven by navigation.spec.ts + e2e test 2).
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored — its route still renders NotBuiltYet, which is why NotBuiltYet.tsx was correctly left in place this plan). Phase 4 COMPLETE (04-01..04-04): `npm run test:all` fully green — unit 218, db 175, api 124, arch 148, e2e 37; 0 failures, 0 skipped; `npm run build` + `npm run typecheck` exit 0. NOTE for Phase 5: `api.getCase(idOrReference)` and `formatDateTime` are ready and stable for the case-detail screen; `/cases/:caseReference` remains a NotBuiltYet placeholder (Phase 5's deliverable). ENV note: Playwright Chromium + Linux deps were installed this run (`npx playwright install chromium` + `install-deps chromium`) — required before any e2e tier can run in a fresh sandbox.
+Last activity: 2026-09-15 — 04-04 executed (Phase 4 COMPLETE): Task 1 a17161b (client + formatter), Task 2 fb0484f (Queue screen + router + e2e), Task 3a 3c43a97 (table scroll-region + arch-spec narrowing + sign-in de-flake), Task 3b baac039 (signed docs/a11y/queue.md). 4 auto-fixed deviations (2×R1 own-code bugs, 1×R3 stale arch assertion, 1×R1 pre-existing flake 04-04 aggravated). test:all green.
 
-Progress: [███░░░░░░░] 33%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -77,6 +78,10 @@ Progress: [███░░░░░░░] 33%
 | Phase 03-receive-validate-except P05 | 12 min | 2 tasks | 2 files |
 | Phase 03-receive-validate-except P06 | 8 min | 3 tasks | 4 files |
 | Phase 03 P07 | 12 min | 3 tasks | 3 files |
+| Phase 04-the-receipt-ordered-queue P01 | 6 min | 3 tasks | 6 files |
+| Phase 04-the-receipt-ordered-queue P02 | 6 min | 3 tasks | 3 files |
+| Phase 04 P03 | 7 min | 3 tasks | 5 files |
+| Phase 04-the-receipt-ordered-queue P04 | 27 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -139,6 +144,10 @@ Recent decisions affecting current work:
 - [Phase 03-receive-validate-except]: 03-06: the two F3 endpoints live in routes/entries.ts over receiveEntry. The route draws the structural-vs-required-information line: a .strict() zod schema (all 14 fields optional) makes an unknown property / client-supplied actor / skip-force flag a 422, while a required-information failure is a 201 with receipt_outcome EXCEPTION_OPENED and findings — no RIV code is ever an HTTP error. quantity '0' / negative declared value / calendrically-invalid arrival_date are 201s with RIV findings (F4's business), never 422s. API_ROUTE_TABLE is five-of-ten implemented (still ten rows); CSRF and the 405-on-unregistered-method both follow from the flag with no code change.
 - [Phase 03-receive-validate-except]: 03-06: a genuinely clean ocean entry provides THIRTEEN fields, not fourteen — RIV-073 forbids both a bill of lading and an air waybill, so field_origins has 13 HUMAN rows. Numeric byte-verbatim storage only holds at the column's scale (quantity numeric(14,3) / declared_value_usd numeric(14,2) reformat on the ::text read in loadEntryDetail), so the test submits numerics already at scale, matching 03-05's receipt.spec. requestId is read from res.locals['requestId'] (there is no req.requestId) and passed to receiveEntry for the audit request_id.
 - [Phase 03]: 03-07: criterion 4 evidenced by SQL (exceptions_basis_fk 23503, a foreign key not a P0001 trigger) + by code/API/UI (one write path, no authoring route, no authoring affordance) and criterion 5 by an eight-table census identical after forced mid-transaction failures. FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is NOT refused at the DB — basis/receipt-position immutability rests on the single write path, asserted architecturally. No production code changed.
+- [Phase 04-the-receipt-ordered-queue]: 04-01: the F7 read model is eight parameterised-SQL functions over Phase 1/3 tables — listOpenExceptions (parameterless, state='OPEN', LIMIT 501, ascending receipt_position), resolveCaseIdentifier (LEFT JOIN → FOUND/ENTRY_PASSED_VALIDATION/NOT_FOUND, value always bound ), loadExceptionDetail, loadFindingsByValidationResultIds (= ANY(::uuid[]) grouped), plus new read-only recommendations.ts/decisions.ts. No migration, no write path; closed cases stay reachable by identifier while filtered from the open queue.
+- [Phase 04-the-receipt-ordered-queue]: 04-02: F7 composition services — listQueue(pool) derives failure_summary from the first two findings in ascending rule_id order with an 'and N more' suffix using the authoritative findings_count (FR-7.6) and enforces a fixed 500-row truncation ceiling reachable through no parameter (FR-7.9/T-04-04); loadCase(pool, form, value) returns the FR-7.8 permitted_decisions matrix server-side (closed=[], OPEN+AVAILABLE=[APPROVE,EDIT_APPROVE,REJECT], OPEN+PENDING/UNAVAILABLE=[EDIT_APPROVE,REJECT]) and surfaces ENTRY_PASSED_VALIDATION/NOT_FOUND distinctly. Both read-only (no append, FR-7.10). Deviation: the 501-row truncation proof seeds through append() in ONE transaction, not a raw unnest bulk insert — the deferred coupling triggers refuse a bare cargo_entries/validation_results/exceptions insert at COMMIT. test:db 175/175 (+8), 0 regressions.
+- [Phase 04-the-receipt-ordered-queue]: 04-03: the two F7 endpoints are live as a thin HTTP translation over 04-02's listQueue/loadCase — GET /api/exceptions rejects any query string (FR-7.2) and serves the receipt-ordered queue; GET /api/exceptions/:idOrReference validates identifier FORM before loadCase and maps NOT_FOUND / ENTRY_PASSED_VALIDATION to two 404s sharing EXCEPTION_NOT_FOUND, distinguished only by message (FR-7.14). API_ROUTE_TABLE now seven implemented. Framework note: a mutating method on a parameterised /api path is 404 not 405 (app.ts keys 405 on route patterns vs concrete paths) — deferred to app.ts.
+- [Phase 04-the-receipt-ordered-queue]: 04-04: the F8 review-queue screen (web/src/screens/Queue.tsx) renders GET /api/exceptions in exact receipt order into one accessible USWDS table with per-row Link case activation (keyboard Enter + pointer), reusing Loading/Empty/ErrorState verbatim; api.getQueue/getCase are GET-only (no CSRF header, getEntry pattern); formatDateTime pins its own 3-letter month names because this runtime's Intl month:short renders 'Sept' not 'Sep'; the table sits in a focusable usa-table-container--scrollable region so the body never scrolls horizontally at 320px. receiptPaths.spec test 9 narrowed from 'client names no /api/exceptions' to 'no MUTATING method on an exception collection' (GET reads permitted). Phase 4 complete; test:all green (unit 218, db 175, api 124, arch 148, e2e 37).
 
 ### Pending Todos
 
@@ -155,6 +164,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T17:05:28.373Z
-Stopped at: Completed 03-07-PLAN.md
+Last session: 2026-09-15T20:26:18.050Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None

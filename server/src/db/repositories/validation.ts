@@ -1,4 +1,4 @@
-import type { FindingDto } from '@cargoexec/contract';
+import type { EntryFieldName, FindingDto } from '@cargoexec/contract';
 import type { Queryable } from './types.js';
 
 /**
@@ -141,4 +141,49 @@ export async function loadValidationByEntry(
       message: r.message,
     })),
   };
+}
+
+/**
+ * Load the findings for MANY validation results in one query, grouped by
+ * `validation_result_id` (F7 FR-7.6 — the queue's finding_count / failure_summary
+ * and the case detail both compose from these). Findings within each group are in
+ * ascending `rule_id` (F4 FR-4.8). Static SQL via `= ANY($1::uuid[])`; returns an
+ * empty map immediately with NO statement when `ids` is empty, matching the
+ * empty-array early-return convention in this file. READ-ONLY.
+ */
+export async function loadFindingsByValidationResultIds(
+  db: Queryable,
+  ids: readonly string[],
+): Promise<ReadonlyMap<string, readonly FindingDto[]>> {
+  const grouped = new Map<string, FindingDto[]>();
+  if (ids.length === 0) {
+    return grouped;
+  }
+  const res = await db.query<{
+    validation_result_id: string;
+    rule_id: string;
+    field_name: EntryFieldName;
+    failure_code: string;
+    message: string;
+  }>(
+    `SELECT validation_result_id, rule_id, field_name, failure_code, message
+       FROM validation_findings
+      WHERE validation_result_id = ANY($1::uuid[])
+      ORDER BY validation_result_id, rule_id`,
+    [ids as readonly string[]],
+  );
+  for (const r of res.rows) {
+    let bucket = grouped.get(r.validation_result_id);
+    if (bucket === undefined) {
+      bucket = [];
+      grouped.set(r.validation_result_id, bucket);
+    }
+    bucket.push({
+      rule_id: r.rule_id,
+      field_name: r.field_name,
+      failure_code: r.failure_code,
+      message: r.message,
+    });
+  }
+  return grouped;
 }

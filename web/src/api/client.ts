@@ -25,9 +25,11 @@
 import type {
   ApiErrorBody,
   ApiErrorDetail,
+  CaseDetailResponse,
   EntryCreateRequest,
   EntryDetailResponse,
   ErrorCode,
+  QueueResponse,
   ReceiptResponse,
   SessionDto,
   SessionRequest,
@@ -237,6 +239,29 @@ export const api = {
     return request<EntryDetailResponse>(
       'GET',
       `/api/entries/${encodeURIComponent(entryId)}`,
+      { expectBody: true },
+    );
+  },
+
+  /**
+   * Load the receipt-ordered review queue (F7 GET /api/exceptions). GET carries
+   * no CSRF header — it is not state-changing — following getEntry's pattern.
+   */
+  async getQueue(): Promise<QueueResponse> {
+    return request<QueueResponse>('GET', '/api/exceptions', {
+      expectBody: true,
+    });
+  },
+
+  /**
+   * Load one case's full detail by id or case reference (F7 GET
+   * /api/exceptions/:idOrReference). Consumed by Phase 5/6's case-detail
+   * screens; provided here so the queue's row link target is a real endpoint.
+   */
+  async getCase(idOrReference: string): Promise<CaseDetailResponse> {
+    return request<CaseDetailResponse>(
+      'GET',
+      `/api/exceptions/${encodeURIComponent(idOrReference)}`,
       { expectBody: true },
     );
   },

@@ -123,8 +123,15 @@ test.describe('sign-in walkthrough', () => {
     // From the email field, with the password pre-filled. Clear the session
     // first — otherwise /sign-in bounces an already-authenticated caller to
     // /queue (htmlRouteGuard), and the sign-in fields would not exist.
+    //
+    // Let /queue settle before navigating away: the real Review-queue screen
+    // fires GET /api/exceptions on mount, and clearing cookies + an immediate
+    // goto races that in-flight request — Chromium then aborts the NEW document
+    // request too (net::ERR_ABORTED). Waiting for the network to be idle removes
+    // the race deterministically.
+    await page.waitForLoadState('networkidle');
     await page.context().clearCookies();
-    await page.goto(`${BASE}/sign-in`);
+    await page.goto(`${BASE}/sign-in`, { waitUntil: 'domcontentloaded' });
     await typeInto(page, '#signin-password', PASSWORD);
     await typeInto(page, '#signin-email', EMAIL);
     await page.locator('#signin-email').focus();

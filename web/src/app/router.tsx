@@ -6,7 +6,7 @@
 //
 //   /sign-in                      reduced shell; the F1 sign-in screen (02-07).
 //   /                             redirect to /queue
-//   /queue                        NotBuiltYet "Review queue" (F8, Phase 4)
+//   /queue                        the F8 Review queue screen (Phase 4)
 //   /entries/new                  NotBuiltYet "New cargo entry" (F6, Phase 3)
 //   /cases/:caseReference         NotBuiltYet "Case" (F10, Phase 5)
 //   /cases/:caseReference/audit   NotBuiltYet "Case" (F14, Phase 6)
@@ -20,6 +20,7 @@ import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { Shell } from '../shell/Shell.js';
 import { NotBuiltYet } from '../screens/NotBuiltYet.js';
 import { NotFound } from '../screens/NotFound.js';
+import { Queue } from '../screens/Queue.js';
 import { SignIn } from '../screens/SignIn.js';
 import { SessionProvider, useSession } from '../session/SessionProvider.js';
 
@@ -70,7 +71,7 @@ export const router = createBrowserRouter([
         element: <AuthenticatedShell />,
         children: [
           { path: '/', element: <Navigate to="/queue" replace /> },
-          { path: '/queue', element: <NotBuiltYet title="Review queue" /> },
+          { path: '/queue', element: <Queue /> },
           {
             path: '/entries/new',
             element: <NotBuiltYet title="New cargo entry" />,
