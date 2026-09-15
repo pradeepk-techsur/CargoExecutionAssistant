@@ -1,0 +1,29 @@
+# Keep the build context small: a smaller context builds faster and cannot bake
+# a stale local artefact or a local .env secret into the image (T-02-51). The
+# runtime image gets its build output from the build stage's COPY --from=build,
+# never from a copy of the host's already-built directories.
+
+# Dependencies — reinstalled inside the image with `npm ci`.
+node_modules
+**/node_modules
+
+# Version control and planning/spec material — never needed to build or run.
+.git
+.gitignore
+.planning
+project_specs
+
+# Test output — not a build input.
+test-results
+playwright-report
+
+# Local build output — the image rebuilds these from source in the build stage.
+server/dist
+contract/dist
+web/dist
+web/public/assets
+**/*.tsbuildinfo
+
+# Local environment file — secrets reach the container through compose
+# `environment:`, never baked into the image.
+.env
