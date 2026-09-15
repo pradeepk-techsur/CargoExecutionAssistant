@@ -190,14 +190,43 @@ describe('architecture — no forbidden dependency (PRD §10, TechArch §6.2)', 
     { name: 'openid-client', exclusion: 'PRD §10 — no auth federation / SSO' },
   ];
 
+  // ⚠️ web/package.json MUST be here. Phase 1 had three workspaces (root /
+  // contract / server); plan 02-01 added a FOURTH, `web`. Every
+  // forbidden-dependency assertion below iterates PKG_PATHS, so until `web` is
+  // covered, an accessibility runner declared in web/package.json passes the
+  // build whose entire purpose is to fail it (§7.8: "'we added a quick axe check
+  // in CI' fails the build it was meant to join").
   const PKG_PATHS = [
     join(REPO_ROOT, 'package.json'),
     join(REPO_ROOT, 'contract', 'package.json'),
     join(REPO_ROOT, 'server', 'package.json'),
+    join(REPO_ROOT, 'web', 'package.json'),
   ];
 
   const declared = new Map<string, Set<string>>();
   for (const p of PKG_PATHS) declared.set(p, dependencyNames(p));
+
+  it('PKG_PATHS covers every workspace declared in the root package.json', () => {
+    // So the NEXT workspace anyone adds cannot silently escape the gate either:
+    // if `workspaces` grows, this fails until its package.json is added above.
+    const rootPkg = JSON.parse(
+      readFileSync(join(REPO_ROOT, 'package.json'), 'utf8'),
+    ) as { workspaces?: string[] };
+    const workspaceDirs = rootPkg.workspaces ?? [];
+    const covered = new Set(
+      PKG_PATHS.map((p) => relative(REPO_ROOT, p).split(sep).join('/')),
+    );
+    const missing: string[] = [];
+    for (const ws of workspaceDirs) {
+      const expected = `${ws}/package.json`;
+      if (!covered.has(expected)) missing.push(expected);
+    }
+    expect(
+      missing,
+      `Workspace(s) not covered by the forbidden-dependency gate: ${missing.join(', ')}. ` +
+        'Add each to PKG_PATHS so a forbidden dependency there fails the build.',
+    ).toEqual([]);
+  });
 
   for (const { name, exclusion } of FORBIDDEN) {
     it(`does not depend on ${name}`, () => {
@@ -241,14 +270,16 @@ describe('architecture — no forbidden dependency (PRD §10, TechArch §6.2)', 
     ).toEqual([]);
   });
 
-  // TODO(phase that completes the stack — the phase adding the final runtime
-  // and test-tooling dependencies, i.e. the UI + E2E phase): once express,
-  // helmet, zod, argon2, pino, react, @uswds/uswds, vite, supertest and
-  // @playwright/test are all present, add an assertion that the union of every
-  // workspace's dependency set EQUALS the TechArch §6.2 allowlist, so an
-  // unlisted package fails the build. It is deliberately NOT a skipped test
-  // here: phases 2–6 legitimately grow the set, and a skipped test reads as
-  // coverage it does not have.
+  // TODO(Phase 5 — the AI recommendation phase, the LAST to add a runtime
+  // dependency): the allowlist-equality assertion closes there. Phase 2 has now
+  // added express, helmet, zod, argon2, pino, react, react-dom,
+  // react-router-dom, @uswds/uswds, sass, vite, supertest and @playwright/test —
+  // so the set is complete EXCEPT for whatever Phases 3–4 add and the AI
+  // client's dependencies in Phase 5. Once Phase 5's runtime deps land, add an
+  // assertion that the union of every workspace's dependency set EQUALS the
+  // TechArch §6.2 allowlist, so an unlisted package fails the build. It is
+  // deliberately NOT a skipped test here: phases 3–5 legitimately grow the set,
+  // and a skipped test reads as coverage it does not have.
 });
 
 describe('architecture — no seed/ingest/export/rbac surface (TechArch §1A.1 "ABSENT BY DESIGN")', () => {
@@ -319,3 +350,113 @@ describe('architecture — migrations contain no domain data (TEST-ARCH-11, FR-0
     ).toEqual([]);
   });
 });
+
+// ─── web/src scope + external-network gates (§8.3, FR-2.2, FR-2.3) ────────────
+
+const WEB_SRC = join(REPO_ROOT, 'web', 'src');
+
+/** Recursively list source files under `root` matching an extension test. */
+function walkFiles(root: string, match: (name: string) => boolean): string[] {
+  const out: string[] = [];
+  const stack: string[] = [root];
+  while (stack.length > 0) {
+    const dir = stack.pop() as string;
+    let entries: import('node:fs').Dirent[];
+    try {
+      entries = readdirSync(dir, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const entry of entries) {
+      const full = join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+        stack.push(full);
+      } else if (entry.isFile() && match(entry.name)) {
+        out.push(full);
+      }
+    }
+  }
+  return out;
+}
+
+describe('architecture — no raw hex/px in screen styles (§8.3, FR-2.2)', () => {
+  // The USWDS design tokens are the ONLY source of colour and spacing (FR-2.2).
+  // A raw hex colour or a raw px length in a screen bypasses the token system and
+  // drifts from the federal palette/scale. Until now this was a one-off <verify>
+  // grep in plans 02-05/02-07 that checks once and leaves nothing behind; as a
+  // spec it is re-run by every later UI phase.
+  //
+  // web/styles/ is excluded: USWDS $theme-* Sass settings legitimately carry hex
+  // and px there. (The plan named web/styles/uswds.scss; the actual settings file
+  // is web/styles/app.scss — recorded as a deviation in the SUMMARY. We exclude
+  // the whole web/styles/ tree, which is broader and correct.)
+  it('no raw hex colour or raw px value in web/src/**/*.tsx', () => {
+    const offenders: string[] = [];
+    for (const file of walkFiles(WEB_SRC, (n) => n.endsWith('.tsx'))) {
+      const src = stripLineAndBlockComments(readFileSync(file, 'utf8'));
+      const hex = src.match(/#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?\b/g) ?? [];
+      const px = src.match(/\b\d+px\b/g) ?? [];
+      if (hex.length > 0 || px.length > 0) {
+        offenders.push(
+          `${relative(REPO_ROOT, file)}: ${[...hex, ...px].join(', ')}`,
+        );
+      }
+    }
+    expect(
+      offenders,
+      `Raw hex/px in screen source: ${offenders.join(' | ')}. Screens use USWDS ` +
+        'design tokens only (FR-2.2); colour/spacing never appears as a raw literal.',
+    ).toEqual([]);
+  });
+});
+
+describe('architecture — no report artefact from the e2e runner (PRD §10 #5)', () => {
+  // reports/ is already covered as a forbidden directory above; a Playwright HTML
+  // report or an outputDir named `reports` would collide with a name PRD §10
+  // excludes for a reason, and a report artefact is not a deliverable here.
+  it('playwright.config.ts configures no html reporter and no reports/ outputDir', () => {
+    const cfgPath = join(REPO_ROOT, 'playwright.config.ts');
+    if (!existsSync(cfgPath)) return; // no e2e runner configured → nothing to check
+    const cfg = readFileSync(cfgPath, 'utf8');
+    expect(
+      /reporter\s*:\s*\[[^\]]*['"]html['"]/.test(cfg),
+      'playwright.config.ts configures an html reporter — an HTML report directory ' +
+        'is a report artefact excluded by PRD §10 #5.',
+    ).toBe(false);
+    expect(
+      /outputDir\s*:\s*['"][^'"]*reports/.test(cfg),
+      'playwright.config.ts sets an outputDir under reports/ — the name is excluded ' +
+        'by PRD §10 #5. Use test-results/ instead.',
+    ).toBe(false);
+  });
+});
+
+describe('architecture — the demonstration reaches no external network (FR-2.3, FR-Y3.10)', () => {
+  // FR-2.3 requires the demonstration to render with NO external network access.
+  // A single stray CDN font or script link would break that silently — the
+  // preview would look fine until it ran offline. Assert no CDN host is
+  // referenced anywhere under web/ (source, HTML and styles alike).
+  it('no CDN host is referenced anywhere under web/', () => {
+    const CDN = /cdn\.|unpkg|jsdelivr|googleapis/i;
+    const offenders: string[] = [];
+    const webRoot = join(REPO_ROOT, 'web');
+    for (const file of walkFiles(
+      webRoot,
+      (n) => /\.(ts|tsx|html|scss|css)$/.test(n),
+    )) {
+      const src = readFileSync(file, 'utf8');
+      if (CDN.test(src)) offenders.push(relative(REPO_ROOT, file));
+    }
+    expect(
+      offenders,
+      `CDN host referenced in: ${offenders.join(', ')}. The demonstration must ` +
+        'render with no external network access (FR-2.3, FR-Y3.10).',
+    ).toEqual([]);
+  });
+});
+
+/** Strip // and block comments (used by the hex/px scan). */
+function stripLineAndBlockComments(src: string): string {
+  return src.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ');
+}
