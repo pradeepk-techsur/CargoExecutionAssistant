@@ -145,15 +145,20 @@ test.describe('case detail & recommendation', () => {
       page.getByRole('heading', { name: 'AI recommendation', level: 2 }),
     ).toHaveCount(1);
 
-    // Capture the active element BEFORE waiting for the transition: FR-10.7 says
-    // a poll-driven update MUST NOT steal focus. On load, useScreenFocus focuses
-    // the h1; record a stable signature of the active element.
+    // Let the completed navigation settle: FR-2.24 lands focus on the screen h1.
+    // Poll for it so the "before" reading is the settled destination, not a
+    // mid-transition sample. This is the baseline FR-10.7 must preserve.
+    await expect
+      .poll(() =>
+        page.evaluate(() => {
+          const a = document.activeElement;
+          return a?.tagName === 'H1';
+        }),
+      )
+      .toBe(true);
     const activeBefore = await page.evaluate(() => {
       const a = document.activeElement;
-      return {
-        tag: a?.tagName ?? '',
-        text: (a?.textContent ?? '').slice(0, 40),
-      };
+      return { tag: a?.tagName ?? '', text: (a?.textContent ?? '').slice(0, 40) };
     });
 
     // Whichever is observed first — the PENDING spinner or an already-resolved
@@ -177,16 +182,24 @@ test.describe('case detail & recommendation', () => {
       page.getByText(/Model:.*Prompt:.*Generated:/, { exact: false }),
     ).toBeVisible();
 
-    // Focus was NOT moved into the recommendation section by the transition.
+    // FR-10.7: the recommendation transition did NOT steal focus — it is still
+    // exactly where the completed navigation left it (the h1), and it is NOT on
+    // any element belonging to the recommendation content (the "Why the AI
+    // suggests this" h3 or any AI-suggested tag). There is no wrapping container
+    // for the recommendation, so scope the "inside recommendation" check to its
+    // actual rendered elements.
     const activeAfter = await page.evaluate(() => {
       const a = document.activeElement;
+      const h3 = Array.from(document.querySelectorAll('h3')).find(
+        (h) => (h.textContent ?? '').trim() === 'Why the AI suggests this',
+      );
+      const tags = Array.from(document.querySelectorAll('.usa-tag'));
+      const inRecommendation =
+        (h3?.contains(a) ?? false) || tags.some((t) => t.contains(a) || t === a);
       return {
         tag: a?.tagName ?? '',
         text: (a?.textContent ?? '').slice(0, 40),
-        inRecommendation:
-          document
-            .getElementById('ai-recommendation')
-            ?.parentElement?.contains(a) ?? false,
+        inRecommendation,
       };
     });
     expect(activeAfter.inRecommendation).toBe(false);

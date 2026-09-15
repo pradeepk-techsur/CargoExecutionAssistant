@@ -117,6 +117,23 @@ export function CaseDetail(): JSX.Element {
 
   const [state, setState] = useState<ScreenState>({ status: 'loading' });
 
+  // FR-2.24 focus contract: useScreenFocus moves focus to the h1 present at
+  // mount — but that is the LOADING-state h1, which React unmounts when the
+  // screen transitions to its terminal (loaded / not-found / error)
+  // presentation, dropping focus to <body>. So re-assert focus on the h1 once
+  // the terminal presentation has rendered. This is moment (1) of the focus
+  // discipline (a completed navigation lands on the screen h1), not a poll- or
+  // announcement-driven move — every terminal branch renders its own <h1
+  // tabIndex={-1} ref={h1Ref}>, so this lands on the heading the specialist
+  // should read first. It runs only on the loading→terminal edge (keyed on the
+  // status), never on the in-place recommendation transitions below.
+  const status = state.status;
+  useEffect(() => {
+    if (status === 'loading') return;
+    // After paint, the terminal-state h1 is mounted and focusable.
+    h1Ref.current?.focus();
+  }, [status]);
+
   // Fetch the case on mount (and whenever the identifier in the URL changes).
   // The route param may itself be a uuid (FR-10.13): api.getCase accepts either.
   useEffect(() => {
