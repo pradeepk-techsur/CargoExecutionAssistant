@@ -2,14 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-15T02:54:31.901Z"
-last_activity: "2026-09-15 — Phase 2 complete"
+status: executing
+stopped_at: Completed 03-07-PLAN.md
+last_updated: "2026-09-15T17:05:28.375Z"
+last_activity: "2026-09-15 — 03-07 executed (test-only, ZERO production code changed): three specs evidencing the phase's two (no screen) criteria. exceptionBasis.spec.ts (14 cases, cargoexec_app) — an exception on a PASS result is refused by exceptions_basis_fk (23503, a foreign key not a P0001 trigger), is-failure CHECK, NOT NULL basis, findings uniqueness, one-per-entry, receipt_position monotonic + uncompacted rollback gap, nine-column set, state CHECK. receiptAtomicity.spec.ts (12 cases) — forced real mid-transaction failures leave an eight-table census identical (incl. zero new cargo_entries), five whole-DB orphan/coupling invariants = 0, exact positive-control deltas, contiguous case_sequence. receiptPaths.spec.ts (11 groups) — one INSERT path (three repos), sole caller receipt.service.ts, no UPDATE/DELETE on the five immutable tables, no UPDATE exceptions, no authoring route/function/affordance, no ingestion/draft store; assertions 1/4/5/8 proven RED on planted violations. FINDING: HITL trigger guards only state<>OPEN, so basis/receipt_position UPDATE on an OPEN exception is not refused at the DB — immutability rests on the single write path (asserted architecturally). Gates: build:server + typecheck exit 0; test 630/630 (unit 218/db 160/api 104/arch 148), 0 skipped. Commits 1bf7156, d704fd6, 3f87f34."
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 27
+  completed_plans: 27
   percent: 33
 ---
 
@@ -20,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 2 — Identity and the Federal UI Foundation
+**Current focus:** Phase 3 — Receive, Validate, Except
 
 ## Current Position
 
-Phase: 2 of 6 (Identity and the Federal UI Foundation) — COMPLETE (9/9)
-Plan: 02-09 complete (exclusion & accessibility as artefacts). All nine Phase 2 plans have SUMMARY records; the phase is ready for transition/verification.
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). 02-09 gates green — `npm run test` unit 111 / db 114 / api 75 / arch 130 (was 67; +11 navigation, +48 headers, +4 absence) all pass 0 skipped; `npm run typecheck` and `npm run build` exit 0; `npx playwright test` 29 pass against the composed stack. Criterion 5 now evidenced by test (navigation.spec.ts: two nav items in data+DOM, exactly seven §3.17 routes, no excluded affordance outside the pinned footer, no RBAC identifier; proven red on a planted third nav item). Deviation D-1 evidenced by test (headers.spec.ts: no X-Frame-Options/COEP on any route or the SPA doc across three configs, loadConfig refusals, no dangerouslySetInnerHTML, no template-literal SQL). Forbidden-dependency gate now covers web/package.json + self-guards the workspaces array (proven red on a planted axe-core). Criterion 4 evidenced by artefact: docs/uswds-conformance-register.md + signed docs/a11y/shell.md and docs/a11y/sign-in.md (reviewer Pradeep K, 2026-09-15, AT walkthrough, no defects). CARRY-FORWARD (unchanged): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
-Last activity: 2026-09-15 — 02-09 executed: exclusion & accessibility made artefacts (2 new architecture specs + extended absence gate + register + 2 signed a11y records). No production code changed; no deviations affecting scope.
+Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
+Plan: 03-07 complete — the exception-derivation integrity evidence (test-only, no production code). Wave 1 (03-01/03-02/03-03) built the receipt persistence surface, the RIV-2026.09 rule set as data, and the API auth gate; 03-04 the F4 engine; 03-05 the atomic receipt transaction; 03-06 the two reachable F3 endpoints; 03-08 the shared web primitives. 03-07 EVIDENCES the phase's two (no screen) success criteria: criterion 4 (an exception exists only where a validation failure exists — no API shape, screen affordance or application-role SQL path can author one) by SQL + code/API/UI, and criterion 5 (a failed receipt saves nothing) by an eight-table census. Remaining phase-3 plan: 03-09 (/entries/new screen) — NOT YET WRITTEN (no 03-09-PLAN.md on disk; the 8 PLAN files 03-01..03-08 all have summaries, but the phase is not complete until 03-09 lands).
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (8 plans written 03-01..03-08, all with summaries; 03-09 still to be authored). 03-07 gates green — `npm run build:server`/`npm run typecheck` exit 0; `npm run test` 630/630 (unit 218 / db 160 / api 104 / arch 148), 0 skipped. `git diff --stat` for this plan touches only the three new test files — no production code changed. receiptPaths.spec.ts is a permanent R-L5 guard with documented allowlist seams for Phase 4 (read services join the caller set) and Phase 6 (decision.service.ts joins the UPDATE-exceptions allowlist). NOTE for 03-09: the UI-absence assertions in receiptPaths.spec.ts re-run green against web/src/screens/NewEntry.tsx once it exists (do not add a file input, drag-drop, template download, batch paste, draft/autosave store, or open/create-exception copy).
+Last activity: 2026-09-15 — 03-07 executed (test-only): exceptionBasis.spec.ts (14 cases), receiptAtomicity.spec.ts (12 cases), receiptPaths.spec.ts (11 groups). FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is not refused at the DB — basis/receipt-position immutability rests on the single write path (asserted architecturally, not at the DB). Assertions 1/4/5/8 of receiptPaths proven RED on planted violations. Commits 1bf7156 (Task 1), d704fd6 (Task 2), 3f87f34 (Task 3).
 
-Progress: [██████████] 100%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -69,6 +70,14 @@ Progress: [██████████] 100%
 | Phase 02 P07 | 62 min | 3 tasks | 10 files |
 | Phase 02 P08 | 6 min | 3 tasks | 6 files |
 | Phase 02-identity-and-the-federal-ui-foundation P09 | 22 min | 3 tasks | 6 files |
+| Phase 03-receive-validate-except P03 | 4 min | 2 tasks | 4 files |
+| Phase 03 P01 | 35 min | 3 tasks | 8 files |
+| Phase 03 P02 | 7 min | 2 tasks | 5 files |
+| Phase 03-receive-validate-except P08 | 5 min | 2 tasks | 2 files |
+| Phase 03-receive-validate-except P04 | 11 min | 3 tasks | 7 files |
+| Phase 03-receive-validate-except P05 | 12 min | 2 tasks | 2 files |
+| Phase 03-receive-validate-except P06 | 8 min | 3 tasks | 4 files |
+| Phase 03 P07 | 12 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -122,6 +131,15 @@ Recent decisions affecting current work:
 - [Phase 02]: 02-09: deviation D-1 is now a build constraint (headers.spec.ts) proven behaviourally over every API_ROUTE_TABLE path + SPA docs across governed±https and demo-iframe+https, and by source scan. The template-literal-SQL gate targets injection (caller data in query text); tx.ts SET LOCAL and writer.ts multi-row-INSERT placeholder scaffold are documented exclusions carrying no caller data.
 - [Phase 02]: 02-09: absence.spec.ts's forbidden-dependency gate now covers web/package.json and self-guards the root workspaces array (proven red on a planted axe-core in web) — previously the whole point of the gate leaked for the newest workspace. Added persistent gates: no raw hex/px in web/src/**/*.tsx (web/styles/ excluded), no Playwright html/reports artefact, no CDN host under web/. Allowlist-equality assertion deferred to Phase 5 (named in the TODO).
 - [Phase 02]: 02-09: accessibility enforcement = the signed §7.7 record, never a CI gate. docs/a11y/{shell,sign-in}.md carry the checklist (machine lines annotated with the proving test, human lines countersigned), the AT walkthrough, and reviewer Pradeep K / 2026-09-15 / no defects. docs/uswds-conformance-register.md maps every control to its USWDS basis and is append-only across phases.
+- [Phase 03-receive-validate-except]: 03-03: requireApiAuth mounted after sessionMiddleware, before csrfMiddleware — every /api/* except POST /api/session with no principal ⇒ 401 UNAUTHENTICATED via errorMapper, uniform across implemented/unimplemented/unknown paths. Closes the 02-06 carry-forward; Phase 2 criterion 2 now fully evidenced (guard.spec 77 api tests). The 404/405 distinction is reserved for authenticated callers.
+- [Phase 03-receive-validate-except]: VALIDATION_ENGINE_FAILURE is an application-level internal invariant code (rule predicate throws / out-of-set finding) — in INTERNAL_INVARIANT_CODES, never ERROR_CODES; surfaces only as generic 500 RECEIPT_FAILED. Receipt repositories are Queryable-first, static-SQL, bind-only; both multi-row inserts use unnest() keeping the template-literal-SQL exclusion list at two files. No migration added — schema.spec still pins thirteen tables.
+- [Phase 03]: 03-02: RIV-2026.09 built as data — 31-rule RULES registry with per-rule pure predicates, four frozen domain code lists, and normalisers; a rule/message/code change is a data change plus a RULE_SET_VERSION bump, never architectural (STATE.md instruction satisfied). Mechanism (gating/ordering/determinism/engine) deferred to 03-04. 71 unit cases pass identically under TZ=UTC and TZ=Pacific/Kiritimati.
+- [Phase 03-receive-validate-except]: 03-08: SelectField/TextAreaField/DateField/Fieldset added to the ONE form pattern via shared useFieldIds+FormGroup; Field markup byte-identical (29 e2e + navigation.spec green). Char count is React-rendered (aria-live=polite), not USWDS JS. DateField is type=text + YYYY-MM-DD hint, calendar init a guarded no-op — the installed @uswds build exposes only window.uswdsPresent, no imperative on() (deviation D-1). api.createEntry/getEntry route through request() so the rotated CSRF token attaches automatically; no retry/idempotency/coercion/401-casing added; DTO types from @cargoexec/contract.
+- [Phase 03-receive-validate-except]: 03-05: receipt.service.ts receiveEntry() is THE atomic receipt transaction and the sole writer of cargo_entries/cargo_entry_field_origins/validation_results/validation_findings/exceptions-insert. §1.5 steps 6–18 in one withTransaction: validate BEFORE the single INSERT (D-3) so receipt_outcome is final and written once (no cargo_entries UPDATE); three append(tx) audit entries (ENTRY_RECEIVED SPECIALIST, VALIDATION_COMPLETED/EXCEPTION_OPENED SYSTEM-on-behalf, no reason); the deferred coupling triggers turn a missing audit into a failed COMMIT → 500 RECEIPT_FAILED. EntryNumberDuplicateError (23505 on the NAMED constraint) carries the existing case_reference, resolved on the pool AFTER rollback. Invalid arrival_date stored NULL via a shallow copy + RIV-131 (never mutate submitted). AI dispatch is a post-commit, optional, never-awaited injected seam — no server/src/ai import. No skip/mode/force arg. NOTE for 03-06: the ROUTE owns raw-body normalisation into CanonicalEntryRecord + provided[]; this service is HTTP-free and testable at the db tier. NOTE: RIV-011 normalises with upperAlnum() before matching, so a lowercase entry_number PASSES the format rule while being stored byte-verbatim (03-05 plan's contrary claim was inaccurate; test corrected).
+- [Phase 03-receive-validate-except]: 03-04: F4 evaluation mechanism built over 03-02's rule data — pure evaluate(record, receivedAt) with declared requires_passed gating (never array position), no short-circuit, ascending rule_id findings, two-value PASS/FAIL, RULE_SET_VERSION stamp and no clock read; determinism PROVEN (two calls, two processes, advanced fake clock + converse received_at control). assertRuleRegistryValid() throws RULE_SET_INVALID before app.listen (not in createApp). validation.spec.ts makes purity/no-endpoint/no-bypass/no-grading/no-reference-table build constraints; purity assertion proven RED on a planted Date.now(). Deviation: purity regex narrowed to zero-arg new Date() so normalise.ts's deterministic argument-form date parse is allowed.
+- [Phase 03-receive-validate-except]: 03-06: the two F3 endpoints live in routes/entries.ts over receiveEntry. The route draws the structural-vs-required-information line: a .strict() zod schema (all 14 fields optional) makes an unknown property / client-supplied actor / skip-force flag a 422, while a required-information failure is a 201 with receipt_outcome EXCEPTION_OPENED and findings — no RIV code is ever an HTTP error. quantity '0' / negative declared value / calendrically-invalid arrival_date are 201s with RIV findings (F4's business), never 422s. API_ROUTE_TABLE is five-of-ten implemented (still ten rows); CSRF and the 405-on-unregistered-method both follow from the flag with no code change.
+- [Phase 03-receive-validate-except]: 03-06: a genuinely clean ocean entry provides THIRTEEN fields, not fourteen — RIV-073 forbids both a bill of lading and an air waybill, so field_origins has 13 HUMAN rows. Numeric byte-verbatim storage only holds at the column's scale (quantity numeric(14,3) / declared_value_usd numeric(14,2) reformat on the ::text read in loadEntryDetail), so the test submits numerics already at scale, matching 03-05's receipt.spec. requestId is read from res.locals['requestId'] (there is no req.requestId) and passed to receiveEntry for the audit request_id.
+- [Phase 03]: 03-07: criterion 4 evidenced by SQL (exceptions_basis_fk 23503, a foreign key not a P0001 trigger) + by code/API/UI (one write path, no authoring route, no authoring affordance) and criterion 5 by an eight-table census identical after forced mid-transaction failures. FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is NOT refused at the DB — basis/receipt-position immutability rests on the single write path, asserted architecturally. No production code changed.
 
 ### Pending Todos
 
@@ -133,10 +151,11 @@ None yet.
 
 - **Open assumption (REQUIREMENTS.md):** the 31 validation rules `RIV-010`–`RIV-132` are an implementation assumption open to CBP refinement. Build the Phase 3 rule registry so a rule change is a data change plus a `rule_set_version` bump — never an architectural one.
 - **Scope pressure is the named project risk (PRD R-2).** Every phase carries at least one criterion asserting an exclusion is structural. Do not let a plan add a filter, metric, export, role or ingestion path.
-- Criterion 2 partially unmet (02-06): the phase must_have 'all ten §3.1 pairs answer 401 unauthenticated' is not satisfied — 02-04 lacks an API auth gate. Fix in 02-04: add requireApiAuth (after sessionMiddleware, before csrfMiddleware) so any /api/* except POST /api/session with no principal ⇒ 401, then tighten guard.spec's 4 adjusted assertions back to 401. See 02-06-SUMMARY.md.
+- ~~Criterion 2 partially unmet (02-06)~~ **RESOLVED by 03-03:** requireApiAuth now runs after sessionMiddleware and before csrfMiddleware, so every /api/* except POST /api/session with no principal ⇒ 401 UNAUTHENTICATED (uniform across implemented/unimplemented/unknown paths). guard.spec tightened; api tier 77/77 green. Phase 2 criterion 2 is fully evidenced.
+- **Pre-existing unit failure (out of scope for 03-03, owner = 03-01):** `server/test/unit/scaffolding.spec.ts` expects 8 `INTERNAL_INVARIANT_CODES` but 03-01 (commit f12ed52) added a 9th (`VALIDATION_ENGINE_FAILURE`) without updating the spec. Logged in `.planning/phases/03-receive-validate-except/deferred-items.md`.
 
 ## Session Continuity
 
-Last session: 2026-09-15T00:44:30.585Z
-Stopped at: Completed 02-09-PLAN.md
+Last session: 2026-09-15T17:05:28.373Z
+Stopped at: Completed 03-07-PLAN.md
 Resume file: None

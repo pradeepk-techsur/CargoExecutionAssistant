@@ -8,30 +8,26 @@
 // cannot be added without entering this assertion.
 //
 // ─────────────────────────────────────────────────────────────────────────────
-// A DEPARTURE FROM THE PLAN'S PRESUMED IMPLEMENTATION, RECORDED HONESTLY.
+// IDENTIFICATION PRECEDES ROUTING — the uniform 401, now enforced by a gate.
 //
-// Plan 02-06's `must_haves` assume that "identification precedes routing": that
-// EVERY §3.1 pair except POST /api/session returns 401 UNAUTHENTICATED to a
-// caller with no session, including the seven not-yet-implemented ones. That
-// would be true if 02-04's middleware chain contained an API authentication gate
-// after session resolution. It does NOT. In 02-04 `sessionMiddleware` only
-// ATTACHES `req.principal` (it never rejects), and the 401 is emitted INSIDE each
-// session handler. So the real, current behaviour of the assembled app is:
+// Every §3.1 pair EXCEPT POST /api/session answers 401 UNAUTHENTICATED to a
+// caller with no session — the ten implemented and unimplemented alike, and an
+// unknown /api path too. This holds because `requireApiAuth` (plan 03-03) runs
+// AFTER `sessionMiddleware` (which attaches `req.principal` from the cookie
+// alone) and BEFORE `csrfMiddleware` and route matching. So:
 //
-//   GET    /api/session          no cookie → 401 UNAUTHENTICATED (handler)
-//   DELETE /api/session          no cookie → 403 CSRF_INVALID    (csrf runs first)
-//   the 7 unimplemented pairs     no cookie → 404 ENTRY_NOT_FOUND (no handler)
-//   GET    /api/unknown-path      no cookie → 404 ENTRY_NOT_FOUND
+//   GET    /api/session          no cookie → 401 UNAUTHENTICATED (gate)
+//   DELETE /api/session          no cookie → 401 UNAUTHENTICATED (gate, NOT 403)
+//   the 7 unimplemented pairs     no cookie → 401 UNAUTHENTICATED (gate, NOT 404)
+//   GET    /api/unknown-path      no cookie → 401 UNAUTHENTICATED (gate, NOT 404)
 //
-// The decision (recorded in this plan's SUMMARY) was to assert the behaviour the
-// owning module actually ships rather than restructure the normative middleware
-// chain from a test-only plan. This suite therefore evidences criterion 2 as it
-// is TRUE today: the ONE endpoint that answers 401 for a missing session does so
-// exactly, and every OTHER protected surface refuses an unauthenticated caller
-// with SOME non-2xx, non-3xx status carrying no case data — never a 200, never a
-// leak. The stronger "all ten answer 401" guarantee is called out below as an
-// UNMET must-have for the phase gate, so criterion 2 is only PARTIALLY evidenced
-// here. See the SUMMARY "Deviations / Unmet must-haves" section.
+// The uniform answer is DELIBERATE: an anonymous caller cannot probe which /api
+// paths exist by comparing a 404 against a 401. The 404/405 distinction survives
+// only for an AUTHENTICATED caller, to whom it discloses nothing.
+//
+// This closes the carry-forward recorded in 02-06-SUMMARY.md: the phase-2
+// must_have "all ten §3.1 pairs answer 401 unauthenticated" (Phase 2 criterion
+// 2) is now fully satisfied, so this suite evidences criterion 2 in full.
 // ─────────────────────────────────────────────────────────────────────────────
 //
 // supertest against the harness app (serveStatic: false) and a real migrated
@@ -119,88 +115,95 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
     for (const route of API_ROUTE_TABLE) {
       const path = concretePath(route.path);
       const isSignInPost = route.method === 'POST' && route.path === '/api/session';
-      const isGetSession = route.method === 'GET' && route.path === '/api/session';
 
       if (isSignInPost) {
-        it(`2. ${route.method} ${route.path} with no cookie is NOT refused for a missing session (the one unauthenticated-reachable endpoint)`, async () => {
+        it(`2. ${route.method} ${route.path} with no cookie stays reachable (never refused for a missing session)`, async () => {
           __resetThrottle();
           const res = await requestNoCookie(h.app, route.method, path)
             .set('Content-Type', 'application/json')
             .send({ email: 'nobody@cbp.example.gov', password: 'correct-horse-battery' });
           // Reachable unauthenticated: it may 401 AUTH_FAILED on the credential,
-          // but it is NEVER refused for lack of a session (UNAUTHENTICATED).
+          // but it is NEVER refused for lack of a session (UNAUTHENTICATED). A
+          // regression that gated sign-in cannot hide behind a 401 of a different
+          // flavour: a 401 here is only acceptable if it is AUTH_FAILED.
           expect(res.body?.error?.code).not.toBe('UNAUTHENTICATED');
+          expect(res.status !== 401 || res.body.error.code === 'AUTH_FAILED').toBe(true);
         });
         continue;
       }
 
-      if (isGetSession) {
-        it(`3. GET /api/session with no cookie ⇒ 401 UNAUTHENTICATED, exact envelope, no WWW-Authenticate, no Location, no data`, async () => {
-          __resetThrottle();
-          const res = await requestNoCookie(h.app, route.method, path);
-
-          expect(res.status).toBe(401);
-          // Exact Y2 §1 envelope: code + message verbatim, request_id present.
-          expect(res.body.error.code).toBe('UNAUTHENTICATED');
-          expect(res.body.error.message).toBe('Sign in to continue.');
-          expect(typeof res.body.error.request_id).toBe('string');
-          expect(res.body.error.request_id.length).toBeGreaterThan(0);
-          // No data of any kind beyond the envelope: top-level keys exactly ['error'].
-          expect(Object.keys(res.body)).toEqual(['error']);
-          expect(Object.keys(res.body.error).sort()).toEqual(['code', 'message', 'request_id']);
-          // An API request is never challenged and never redirected.
-          expect(res.headers['www-authenticate']).toBeUndefined();
-          expect(res.headers['location']).toBeUndefined();
-          // §3.2 conventions hold even on the refusal.
-          expect(res.headers['cache-control']).toBe('no-store');
-          expect(res.headers['x-request-id']).toBe(res.body.error.request_id);
-        });
-        continue;
-      }
-
-      // Every OTHER §3.1 pair (DELETE /api/session and the seven unimplemented
-      // pairs). 02-04 has no API auth gate, so an unauthenticated caller is NOT
-      // answered UNAUTHENTICATED here — it is refused by whatever stage answers
-      // first: CSRF (403) for the state-changing DELETE, or the /api 404 for a
-      // pair with no handler. The GUARANTEE this suite CAN prove for all of them:
-      // the surface is never OPEN — the response is non-2xx, non-3xx, carries no
-      // case data, and never leaks anything beyond the error envelope.
-      it(`4. ${route.method} ${route.path} with no cookie is refused (non-2xx, non-3xx, no case data, no Location)`, async () => {
+      // Every OTHER §3.1 pair — GET /api/session, DELETE /api/session, and the
+      // seven unimplemented pairs — answers the SAME thing to a caller with no
+      // cookie: 401 UNAUTHENTICATED, before CSRF and before route matching,
+      // because `requireApiAuth` runs there. Cases 3 and 4 asserted the same
+      // envelope; they are collapsed into this one shared branch.
+      it(`3+4. ${route.method} ${route.path} with no cookie ⇒ 401 UNAUTHENTICATED, exact envelope, no challenge, no redirect, no data`, async () => {
         __resetThrottle();
         const res = await requestNoCookie(h.app, route.method, path);
 
-        // Refused: neither a success nor a redirect. (Currently 403 for DELETE
-        // /api/session, 404 for the seven unimplemented pairs.)
-        expect(res.status).toBeGreaterThanOrEqual(400);
-        expect(res.status).toBeLessThan(500);
-        // An API request is never redirected.
-        expect(res.headers['location']).toBeUndefined();
-        // The body is the Y2 error envelope and nothing else — no case data.
-        expect(Object.keys(res.body)).toEqual(['error']);
-        expect(typeof res.body.error.code).toBe('string');
+        expect(res.status).toBe(401);
+        // Exact Y2 §1 envelope: code + message verbatim, request_id present.
+        expect(res.body.error.code).toBe('UNAUTHENTICATED');
+        expect(res.body.error.message).toBe('Sign in to continue.');
         expect(typeof res.body.error.request_id).toBe('string');
-        // §3.2 conventions hold on the refusal.
+        expect(res.body.error.request_id.length).toBeGreaterThan(0);
+        // No data of any kind beyond the envelope: top-level keys exactly ['error'],
+        // and the error object carries exactly {code, message, request_id} — no
+        // case data, no details.
+        expect(Object.keys(res.body)).toEqual(['error']);
+        expect(Object.keys(res.body.error).sort()).toEqual(['code', 'message', 'request_id']);
+        // An API request is never challenged and never redirected.
+        expect(res.headers['www-authenticate']).toBeUndefined();
+        expect(res.headers['location']).toBeUndefined();
+        // §3.2 conventions hold even on the refusal.
         expect(res.headers['cache-control']).toBe('no-store');
+        expect(res.headers['x-request-id']).toBe(res.body.error.request_id);
       });
     }
 
-    it('5. GET /api/unknown-path with no session is refused as a JSON envelope, never the SPA document and never a 2xx', async () => {
+    it('5. GET /api/unknown-path with no session ⇒ 401 UNAUTHENTICATED JSON, never the SPA document and never a path-existence oracle', async () => {
       __resetThrottle();
       const res = await supertest(h.app).get('/api/unknown-path');
-      // 02-04 answers an unknown /api path with the JSON 404 envelope (there is
-      // no anonymous-probe-returns-401 gate). The load-bearing facts: it is not
-      // a 2xx, not a redirect, and it is JSON — the API surface is never handed
-      // to an anonymous caller as the SPA document.
-      expect(res.status).toBe(404);
+      // The gate answers an unknown /api path with the SAME 401 as a known one:
+      // an anonymous caller cannot tell an implemented path from an unimplemented
+      // or unknown one. And the API surface is never handed to an anonymous
+      // caller as the SPA document — it is always the JSON error envelope.
+      expect(res.status).toBe(401);
+      expect(res.body.error.code).toBe('UNAUTHENTICATED');
       expect(res.headers['location']).toBeUndefined();
       expect(Object.keys(res.body)).toEqual(['error']);
       expect(res.headers['content-type']).toMatch(/application\/json/);
     });
 
+    // ── The ordering is the whole substance of the fix — prove it both ways ───
+
+    it('6. DELETE /api/session with no cookie and no CSRF header ⇒ 401, NOT 403 (the gate precedes CSRF)', async () => {
+      __resetThrottle();
+      // A missing session must never be reported as CSRF_INVALID. This is the
+      // assertion that fails if a future refactor moves requireApiAuth after
+      // csrfMiddleware.
+      const res = await supertest(h.app).delete('/api/session');
+      expect(res.status).toBe(401);
+      expect(res.body.error.code).toBe('UNAUTHENTICATED');
+      expect(res.body.error.code).not.toBe('CSRF_INVALID');
+    });
+
+    it('7. an authenticated DELETE /api/session with a missing CSRF header still ⇒ 403 CSRF_INVALID (the gate does not swallow the CSRF check)', async () => {
+      __resetThrottle();
+      // The gate must let a caller who DOES have a session through to CSRF. Sign
+      // in for a real cookie, then send the DELETE with no X-CSRF-Token.
+      const sp = await createTestSpecialist(h.db.appUrl);
+      const { cookie } = await h.signIn(sp.email, TEST_PASSWORD);
+
+      const res = await supertest(h.app).delete('/api/session').set('Cookie', cookie);
+      expect(res.status).toBe(403);
+      expect(res.body.error.code).toBe('CSRF_INVALID');
+    });
+
     // ── The HTML redirect contract (§4.2, US-1.2) ─────────────────────────────
 
     for (const uiPath of PROTECTED_UI_ROUTES) {
-      it(`6. document request to ${uiPath} with no session ⇒ 302 /sign-in?next=<percent-encoded path>`, async () => {
+      it(`8. document request to ${uiPath} with no session ⇒ 302 /sign-in?next=<percent-encoded path>`, async () => {
         const res = await supertest(h.app)
           .get(uiPath)
           .set('Accept', 'text/html,application/xhtml+xml');
@@ -210,7 +213,7 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
       });
     }
 
-    it('7. /queue specifically yields Location: /sign-in?next=%2Fqueue exactly (US-1.2 AC-2)', async () => {
+    it('9. /queue specifically yields Location: /sign-in?next=%2Fqueue exactly (US-1.2 AC-2)', async () => {
       const res = await supertest(h.app)
         .get('/queue')
         .set('Accept', 'text/html,application/xhtml+xml');
@@ -218,7 +221,7 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
       expect(res.headers['location']).toBe('/sign-in?next=%2Fqueue');
     });
 
-    it('8. GET /sign-in with a valid session ⇒ 302 /queue (§4.2 row 3, US-1.2 AC-4)', async () => {
+    it('10. GET /sign-in with a valid session ⇒ 302 /queue (§4.2 row 3, US-1.2 AC-4)', async () => {
       __resetThrottle();
       const sp = await createTestSpecialist(h.db.appUrl);
       const { cookie } = await h.signIn(sp.email, TEST_PASSWORD);
@@ -233,7 +236,7 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
       expect(res.headers['location']).toBe('/queue');
     });
 
-    it('9. GET /sign-in with no cookie ⇒ NOT a 3xx and no Location (the provable negative: no redirect loop)', async () => {
+    it('11. GET /sign-in with no cookie ⇒ NOT a 3xx and no Location (the provable negative: no redirect loop)', async () => {
       const res = await supertest(h.app)
         .get('/sign-in')
         .set('Accept', 'text/html,application/xhtml+xml');
@@ -252,7 +255,7 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
     // Driven through the HTTP surface: a hostile `next` on /sign-in, with a valid
     // session, redirects to /queue (the validated value), never the hostile one.
     for (const hostile of HOSTILE_NEXT) {
-      it(`10. hostile next through /sign-in is discarded for /queue: ${JSON.stringify(hostile).slice(0, 40)}`, async () => {
+      it(`12. hostile next through /sign-in is discarded for /queue: ${JSON.stringify(hostile).slice(0, 40)}`, async () => {
         __resetThrottle();
         const sp = await createTestSpecialist(h.db.appUrl);
         const { cookie } = await h.signIn(sp.email, TEST_PASSWORD);
@@ -270,13 +273,13 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
 
     // Driven directly as a table (unit-style) so the validation is asserted at
     // its own boundary, independent of where it is called from.
-    it('11. validateNextPath discards every hostile value for /queue', () => {
+    it('13. validateNextPath discards every hostile value for /queue', () => {
       for (const hostile of HOSTILE_NEXT) {
         expect(validateNextPath(hostile)).toBe('/queue');
       }
     });
 
-    it('12. validateNextPath preserves every legitimate same-origin path unchanged', () => {
+    it('14. validateNextPath preserves every legitimate same-origin path unchanged', () => {
       for (const legit of LEGITIMATE_NEXT) {
         expect(validateNextPath(legit)).toBe(legit);
       }

@@ -1,4 +1,5 @@
 import type { ErrorCode } from './errors.js';
+import type { EntryFieldName } from './fields.js';
 
 // ---- provenance (§3.9) -----------------------------------------------------
 
@@ -85,3 +86,69 @@ export interface ActorRef {
   readonly id: string;
   readonly display_name: string;
 }
+
+// ---- entry / validation / receipt types (§3.12) ----------------------------
+
+/** The submitted values, exactly as stored (trimmed only). */
+export type EntryValues = { readonly [K in EntryFieldName]: string | null };
+
+/** Origin map: present only for fields the specialist actually provided. */
+export type EntryFieldOrigins = { readonly [K in EntryFieldName]?: 'HUMAN' };
+
+export interface EntryDto {
+  readonly id: string;
+  readonly case_reference: string;
+  readonly received_at: string;
+  readonly created_by: ActorRef;
+  readonly values: EntryValues;
+  readonly field_origins: EntryFieldOrigins; // always 'HUMAN' by construction
+}
+
+export interface FindingDto {
+  readonly rule_id: string; // ^RIV-[0-9]{3}$
+  readonly field_name: EntryFieldName; // the rule's primary_field (C-2)
+  readonly failure_code: string;
+  readonly message: string; // plain language, imperative, no rule ids
+  // No severity, weight, score, or priority: findings are not graded.
+}
+
+export interface ValidationDto {
+  readonly outcome: ValidationOutcome;
+  readonly rule_set_version: string; // e.g. "RIV-2026.09"
+  readonly evaluated_at: string;
+  readonly findings: readonly FindingDto[]; // ascending rule_id, always
+}
+
+export interface ExceptionRef {
+  readonly id: string;
+  readonly state: ExceptionState;
+  readonly receipt_position: number;
+}
+
+export interface ReceiptResponse {
+  readonly entry: EntryDto;
+  readonly case_reference: string;
+  readonly receipt_outcome: ReceiptOutcome;
+  readonly validation: ValidationDto;
+  readonly exception: ExceptionRef | null;
+  readonly next: { readonly case_url: string | null; readonly queue_url: string };
+}
+
+export interface EntryDetailResponse {
+  readonly entry: EntryDto;
+  readonly receipt_outcome: ReceiptOutcome;
+  readonly validation: ValidationDto;
+  readonly exception: ExceptionRef | null;
+}
+
+/**
+ * The POST /api/entries body. EVERY field is optional at the transport layer
+ * (F3 §The Entry Field Set): an incomplete entry must be receivable, because an
+ * incomplete entry is exactly what the product exists to process. Completeness
+ * is F4's verdict, which produces findings and an exception — never a 422.
+ * Numbers are accepted as a JSON number OR a numeric string (F3 structural
+ * validation); the server keeps the submitted text.
+ */
+export type EntryCreateRequest = {
+  readonly [K in EntryFieldName]?: string | number | null;
+};
