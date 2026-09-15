@@ -67,6 +67,11 @@ export interface RouteDeps {
   pool: Pool;
   config: AppConfig;
   clock: Clock;
+  /**
+   * The post-commit AI dispatch seam (F9), threaded through to the entries
+   * route. Optional: omitted by the Phase 3/4 harnesses. Wired at boot.
+   */
+  dispatchRecommendation?: (exceptionId: string) => void;
 }
 
 /** One implemented route: method, path, handler. The pinnable array (§1A.3). */
@@ -91,6 +96,9 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
     pool: deps.pool,
     config: deps.config,
     clock: deps.clock,
+    ...(deps.dispatchRecommendation !== undefined
+      ? { dispatchRecommendation: deps.dispatchRecommendation }
+      : {}),
   });
   const exceptions = exceptionRoutes({
     pool: deps.pool,

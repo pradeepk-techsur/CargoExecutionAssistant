@@ -54,6 +54,12 @@ export interface EntryRouteDeps {
   pool: Pool;
   config: AppConfig;
   clock: Clock;
+  /**
+   * The post-commit AI dispatch seam (F9). Threaded into receiveEntry, which
+   * calls it AFTER commit and NEVER awaits it (FR-3.14). Omitted by the Phase
+   * 3/4 harnesses, where receipt then no-ops the dispatch.
+   */
+  dispatchRecommendation?: (exceptionId: string) => void;
 }
 
 // ── Structural schema (§4.6): shape only, every field optional ───────────────
@@ -167,6 +173,9 @@ function postEntry(deps: EntryRouteDeps): RequestHandler {
           pool: deps.pool,
           principal: { id: req.principal.id, display_name: req.principal.display_name },
           ...(requestId !== undefined ? { requestId } : {}),
+          ...(deps.dispatchRecommendation !== undefined
+            ? { dispatchRecommendation: deps.dispatchRecommendation }
+            : {}),
         },
         canonical,
         provided,
@@ -421,6 +430,9 @@ export function entryRoutes(deps: EntryRouteDeps): {
     pool: deps.pool,
     config: deps.config,
     clock: deps.clock ?? systemClock,
+    ...(deps.dispatchRecommendation !== undefined
+      ? { dispatchRecommendation: deps.dispatchRecommendation }
+      : {}),
   };
   return {
     post: postEntry(withClock),

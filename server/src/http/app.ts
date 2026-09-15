@@ -42,6 +42,12 @@ export interface CreateAppOptions {
   serveStatic?: boolean;
   /** Where the built web bundle lives, when serveStatic is true. */
   webDist?: string;
+  /**
+   * The post-commit AI dispatch seam (F9). Wired at boot to the real worker;
+   * omitted by the Phase 3/4 harnesses, whose receipt path then no-ops the
+   * dispatch. Never derived from request input.
+   */
+  dispatchRecommendation?: (exceptionId: string) => void;
 }
 
 /**
@@ -106,7 +112,14 @@ export function createApp(opts: CreateAppOptions): express.Express {
 
   // 7. The API routes, registered from the single ROUTES array.
   const apiRouter = express.Router();
-  registerRoutes(apiRouter, { pool, config, clock });
+  registerRoutes(apiRouter, {
+    pool,
+    config,
+    clock,
+    ...(opts.dispatchRecommendation !== undefined
+      ? { dispatchRecommendation: opts.dispatchRecommendation }
+      : {}),
+  });
   app.use(apiRouter);
 
   // 7a. Any /api path not answered above: 405 for a KNOWN path with an
