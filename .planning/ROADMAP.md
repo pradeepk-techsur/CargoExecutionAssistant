@@ -101,7 +101,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 4: The Receipt-Ordered Queue
 **Goal**: A cargo specialist sees every open exception as one receipt-ordered list and opens the next one in a single action, so she spends her attention deciding cases rather than deciding which case to decide.
-**Status**: In progress
+**Status**: Verified
 **Depends on**: Phase 3
 **Requirements**: F7, F8
 **Non-functional carried**: NFR-2 (this screen's sign-off), NFR-10
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
 | 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
 | 3. Receive, Validate, Except | 0/TBD | Complete | 2026-09-15 |
-| 4. The Receipt-Ordered Queue | 0/TBD | In progress | - |
+| 4. The Receipt-Ordered Queue | 0/TBD | Verified | - |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Not started | - |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Not started | - |
 
