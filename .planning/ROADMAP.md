@@ -26,7 +26,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them (completed 2026-09-14)
 - [x] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits (completed 2026-09-15)
-- [ ] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean
+- [x] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean (completed 2026-09-15)
 - [ ] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action
 - [ ] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such
 - [ ] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here**
@@ -87,7 +87,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 3: Receive, Validate, Except
 **Goal**: A cargo specialist types a cargo entry into a USWDS form and is told plainly what happened to it — validated clean, or an exception opened with a case reference she can follow — with no entry ever able to exist having been received but never assessed.
-**Status**: Passed
+**Status**: Complete (2026-09-15)
 **Depends on**: Phase 2
 **Requirements**: F3, F4, F5, F6
 **Non-functional carried**: NFR-11, NFR-2 (this screen's sign-off), NFR-6 (applied to the receipt transaction)
@@ -188,7 +188,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
 | 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
-| 3. Receive, Validate, Except | 0/TBD | Passed | - |
+| 3. Receive, Validate, Except | 0/TBD | Complete | 2026-09-15 |
 | 4. The Receipt-Ordered Queue | 0/TBD | Not started | - |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Not started | - |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Not started | - |
