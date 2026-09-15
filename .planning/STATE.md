@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-03-PLAN.md
-last_updated: "2026-09-15T20:11:22.353Z"
-last_activity: "2026-09-15 — 04-03 executed: routes/exceptions.ts (Task 1, b6fb4da), route-table flip + wiring + boot.spec (Task 2, 00d3c1e), exceptions.spec.ts (Task 3, 8bacd15). Full gate green. Deviation (1): plan expected 405 on a mutating method against the parameterised detail path; app.ts's apiNotFoundOr405 keys on route PATTERNS vs the concrete request path, so it answers 404 — framework-wide, pre-existing, logged in deferred-items.md (owner app.ts / 02-04-03-06); case 18 accepts either 4xx and still proves no mutation reaches an exception. receiptPaths.spec.ts left unchanged (the F7 services import listQueue/loadCase, none of the six insert functions, so the caller-set assertion passes as-is)."
+stopped_at: Completed 04-04-PLAN.md
+last_updated: "2026-09-15T20:26:18.076Z"
+last_activity: "2026-09-15 — 04-04 executed (Phase 4 COMPLETE): api.getQueue/getCase + formatDateTime (Task 1, a17161b); Queue.tsx + router wiring + e2e/queue.spec.ts 8 scenarios (Task 2, fb0484f); table scroll-region + receiptPaths test-9 narrowing + sign-in de-flake (Task 3a, 3c43a97); docs/a11y/queue.md signed (Task 3b, baac039). test:all fully green — unit 218, db 175, api 124, arch 148, e2e 37; 0 failures/0 skipped. Deviations (4, all auto-fixed): [R1] formatDateTime pins 3-letter months (this ICU renders 'Sept'); [R1] queue table wrapped in usa-table-container--scrollable so body never scrolls at 320px; [R3] receiptPaths test 9 narrowed to 'no MUTATING method on an exception collection' (GET reads now legitimate); [R1] sign-in test 2 de-flaked (waited for /queue mount-fetch networkidle before clear-cookies/goto — the real queue's GET raced the next document, net::ERR_ABORTED)."
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 31
-  completed_plans: 30
-  percent: 50
+  completed_plans: 31
+  percent: 67
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 4 — The Receipt-Ordered Queue
+**Current focus:** Phase 4 complete — ready for Phase 5 (Case detail + AI recommendation)
 
 ## Current Position
 
-Phase: 4 of 6 (The Receipt-Ordered Queue) — IN PROGRESS
-Plan: 04-03 complete — the F7 HTTP surface. `server/src/http/routes/exceptions.ts` (`exceptionRoutes(deps) -> { get, getOne }`) is a thin translation layer over 04-02's services: `GET /api/exceptions` rejects any query string (400 UNSUPPORTED_QUERY_PARAMETER naming the key, FR-7.2/T-04-06), re-checks auth, then serves `listQueue(pool)`; `GET /api/exceptions/:idOrReference` validates the identifier FORM (UUID_RE / CASE_REF_RE `^CE-[0-9]{4}-[0-9]{6}$`) BEFORE `loadCase` (T-04-05), 400 INVALID_IDENTIFIER for neither, and maps loadCase's three outcomes to HTTP — a CaseDetailResponse ⇒ 200, 'NOT_FOUND' ⇒ 404 EXCEPTION_NOT_FOUND (generic message), 'ENTRY_PASSED_VALIDATION' ⇒ 404 EXCEPTION_NOT_FOUND with the DISTINGUISHING "passed validation" message (same code, FR-7.14). GET-only (no mutating handler); Cache-Control: no-store is global. `routes/index.ts`: both F7 rows implemented:true, wired into buildRoutes/ROUTES (length 7, §3.1 order session→entries→exceptions). Remaining phase-4 plan: 04-04 (F8 web screen), which now builds against these LIVE endpoints.
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4: 04-01 + 04-02 + 04-03 gates green — full `npm run test` EXIT=0 (unit 218, db 175, api 124 incl. +20 exceptions.spec.ts, arch 148), 0 regressions; `npm run build:server` + `npm run typecheck` exit 0. NOTE for 04-04: the two endpoints answer exactly the contract shapes (QueueResponse: {exceptions, returned_count, truncated}; CaseDetailResponse: {exception, entry, validation, recommendation, decision, is_closed, permitted_decisions}); every /api response carries Cache-Control: no-store; a mutating method on a PARAMETERISED /api path returns 404 not 405 (framework-wide app.ts limitation, deferred-items.md). Env note: root node_modules present; server/node_modules absent but the root workspace install covers build/test (no reinstall needed).
-Last activity: 2026-09-15 — 04-03 executed: routes/exceptions.ts (Task 1, b6fb4da), route-table flip + wiring + boot.spec (Task 2, 00d3c1e), exceptions.spec.ts (Task 3, 8bacd15). Full gate green. Deviation (1): plan expected 405 on a mutating method against the parameterised detail path; app.ts's apiNotFoundOr405 keys on route PATTERNS vs the concrete request path, so it answers 404 — framework-wide, pre-existing, logged in deferred-items.md (owner app.ts / 02-04-03-06); case 18 accepts either 4xx and still proves no mutation reaches an exception. receiptPaths.spec.ts left unchanged (the F7 services import listQueue/loadCase, none of the six insert functions, so the caller-set assertion passes as-is).
+Phase: 4 of 6 (The Receipt-Ordered Queue) — COMPLETE (4/4 plans)
+Plan: 04-04 complete — the F8 review-queue web UI, the phase's user-facing deliverable. `/queue` now serves `web/src/screens/Queue.tsx` (was NotBuiltYet): a single accessible USWDS `<table>` rendering `api.getQueue()` in EXACT API/receipt order (no client sort/regroup, FR-8.1), four plain `<th scope="col">` columns (Case / Received / Entry number / Why it is open), per-row `<Link to={/cases/:ref} aria-label="Open case …">` activatable by keyboard Enter and pointer (FR-8.5), a truncation notice (FR-8.12), an empty state and an ErrorState-with-Try-again reusing components/states.tsx verbatim (FR-8.7/8.8), an explicit Refresh button (FR-8.10) and polite/assertive FR-8.9 announcements. `api.getQueue()`/`api.getCase(idOrReference)` are GET-only reads (no CSRF header, getEntry pattern). `web/src/lib/formatDateTime.ts` is the one fixed-locale absolute date+time formatter (FR-8.14) — reused UNCHANGED by Phase 5/6 case-detail screens. The table lives in a focusable `usa-table-container--scrollable` region so the body never scrolls horizontally at 320px. No filter/sort/assign/priority/search affordance anywhere (criterion 4, proven by navigation.spec.ts + e2e test 2).
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored — its route still renders NotBuiltYet, which is why NotBuiltYet.tsx was correctly left in place this plan). Phase 4 COMPLETE (04-01..04-04): `npm run test:all` fully green — unit 218, db 175, api 124, arch 148, e2e 37; 0 failures, 0 skipped; `npm run build` + `npm run typecheck` exit 0. NOTE for Phase 5: `api.getCase(idOrReference)` and `formatDateTime` are ready and stable for the case-detail screen; `/cases/:caseReference` remains a NotBuiltYet placeholder (Phase 5's deliverable). ENV note: Playwright Chromium + Linux deps were installed this run (`npx playwright install chromium` + `install-deps chromium`) — required before any e2e tier can run in a fresh sandbox.
+Last activity: 2026-09-15 — 04-04 executed (Phase 4 COMPLETE): Task 1 a17161b (client + formatter), Task 2 fb0484f (Queue screen + router + e2e), Task 3a 3c43a97 (table scroll-region + arch-spec narrowing + sign-in de-flake), Task 3b baac039 (signed docs/a11y/queue.md). 4 auto-fixed deviations (2×R1 own-code bugs, 1×R3 stale arch assertion, 1×R1 pre-existing flake 04-04 aggravated). test:all green.
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 67%
 
 ## Performance Metrics
 
@@ -81,6 +81,7 @@ Progress: [█████░░░░░] 50%
 | Phase 04-the-receipt-ordered-queue P01 | 6 min | 3 tasks | 6 files |
 | Phase 04-the-receipt-ordered-queue P02 | 6 min | 3 tasks | 3 files |
 | Phase 04 P03 | 7 min | 3 tasks | 5 files |
+| Phase 04-the-receipt-ordered-queue P04 | 27 min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -146,6 +147,7 @@ Recent decisions affecting current work:
 - [Phase 04-the-receipt-ordered-queue]: 04-01: the F7 read model is eight parameterised-SQL functions over Phase 1/3 tables — listOpenExceptions (parameterless, state='OPEN', LIMIT 501, ascending receipt_position), resolveCaseIdentifier (LEFT JOIN → FOUND/ENTRY_PASSED_VALIDATION/NOT_FOUND, value always bound ), loadExceptionDetail, loadFindingsByValidationResultIds (= ANY(::uuid[]) grouped), plus new read-only recommendations.ts/decisions.ts. No migration, no write path; closed cases stay reachable by identifier while filtered from the open queue.
 - [Phase 04-the-receipt-ordered-queue]: 04-02: F7 composition services — listQueue(pool) derives failure_summary from the first two findings in ascending rule_id order with an 'and N more' suffix using the authoritative findings_count (FR-7.6) and enforces a fixed 500-row truncation ceiling reachable through no parameter (FR-7.9/T-04-04); loadCase(pool, form, value) returns the FR-7.8 permitted_decisions matrix server-side (closed=[], OPEN+AVAILABLE=[APPROVE,EDIT_APPROVE,REJECT], OPEN+PENDING/UNAVAILABLE=[EDIT_APPROVE,REJECT]) and surfaces ENTRY_PASSED_VALIDATION/NOT_FOUND distinctly. Both read-only (no append, FR-7.10). Deviation: the 501-row truncation proof seeds through append() in ONE transaction, not a raw unnest bulk insert — the deferred coupling triggers refuse a bare cargo_entries/validation_results/exceptions insert at COMMIT. test:db 175/175 (+8), 0 regressions.
 - [Phase 04-the-receipt-ordered-queue]: 04-03: the two F7 endpoints are live as a thin HTTP translation over 04-02's listQueue/loadCase — GET /api/exceptions rejects any query string (FR-7.2) and serves the receipt-ordered queue; GET /api/exceptions/:idOrReference validates identifier FORM before loadCase and maps NOT_FOUND / ENTRY_PASSED_VALIDATION to two 404s sharing EXCEPTION_NOT_FOUND, distinguished only by message (FR-7.14). API_ROUTE_TABLE now seven implemented. Framework note: a mutating method on a parameterised /api path is 404 not 405 (app.ts keys 405 on route patterns vs concrete paths) — deferred to app.ts.
+- [Phase 04-the-receipt-ordered-queue]: 04-04: the F8 review-queue screen (web/src/screens/Queue.tsx) renders GET /api/exceptions in exact receipt order into one accessible USWDS table with per-row Link case activation (keyboard Enter + pointer), reusing Loading/Empty/ErrorState verbatim; api.getQueue/getCase are GET-only (no CSRF header, getEntry pattern); formatDateTime pins its own 3-letter month names because this runtime's Intl month:short renders 'Sept' not 'Sep'; the table sits in a focusable usa-table-container--scrollable region so the body never scrolls horizontally at 320px. receiptPaths.spec test 9 narrowed from 'client names no /api/exceptions' to 'no MUTATING method on an exception collection' (GET reads permitted). Phase 4 complete; test:all green (unit 218, db 175, api 124, arch 148, e2e 37).
 
 ### Pending Todos
 
@@ -162,6 +164,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T20:10:33.565Z
-Stopped at: Completed 04-03-PLAN.md
+Last session: 2026-09-15T20:26:18.050Z
+Stopped at: Completed 04-04-PLAN.md
 Resume file: None
