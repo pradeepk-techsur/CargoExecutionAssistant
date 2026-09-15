@@ -128,7 +128,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The recommendation sits on the case un-applied: no entry value and no exception state changed when it arrived, and the model identity, prompt version and generation time are recorded so "what did the AI say" is answerable exactly as it was said. *(no screen, in part)*
   4. Submitting an entry never waits on the AI — receipt completes on its own terms and the suggestion catches up, showing accessible in-progress status without freezing the interface or trapping her on the case.
   5. With the AI provider stopped, the entry is still received, the exception still opens, and the case still opens showing "no recommendation available" as a stated condition of the case — not an error, not a spinner that never ends, and not a reason to park the case.
-**Plans**: TBD
+**Plans**: 6 plans in 4 waves
+- [ ] 05-01-PLAN.md — RecommendationProvider abstraction, FR-9.7/9.8 output schema, prompt-manifest digest self-check, FakeProvider, config.ts AI self-checks (wave 1)
+- [ ] 05-02-PLAN.md — Recommendation write repositories (idempotent status transitions), AI-safe entry/exception reads, the cargoexec_ai privilege-wall proof (wave 1)
+- [ ] 05-03-PLAN.md — The F9 polling endpoint (GET .../recommendation), route-table wiring (wave 1)
+- [ ] 05-04-PLAN.md — The real HTTP provider adapter, the generation job + in-process worker, dispatch wiring, A-1 architecture proof (wave 2)
+- [ ] 05-05-PLAN.md — ProvenanceBadge, the F10 case-detail screen (header/findings/entry/recommendation + Phase-6 stubs), router wiring (wave 3)
+- [ ] 05-06-PLAN.md — Playwright end-to-end proof, NFR-2 accessibility sign-off, full phase verification (wave 4)
 
 *Criterion 5 covers the resilience promise as far as this phase can: the decision path itself is only present from Phase 6, so Phase 6 criterion 5 re-walks the degraded case through to a recorded resolution.*
 
