@@ -71,7 +71,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The actor on a request is the signed-in specialist as resolved by the server; a request that tries to name a different actor is rejected rather than honoured. *(no screen)*
   4. The whole sign-in and sign-out path completes by keyboard alone with visible focus, errors arrive in an announced, focus-managed summary, and the screen carries a written accessibility review sign-off including an assistive-technology walkthrough.
   5. Navigation offers only the two places this product has, so nothing on screen implies a dashboard, report, metric or second role the product deliberately does not have.
-**Plans**: 9 plans in 7 waves
+**Plans**: 10 plans in 8 waves
 - [ ] 02-01-PLAN.md — Web-tier workspace and pinned dependencies, the shared session contract and Y2 error union, config with its startup self-checks (wave 1)
 - [ ] 02-02-PLAN.md — Cross-cutting HTTP: redacting logger, request correlation, the §4.5 CSP with no frame-blocking header, cookie helper, errorMapper (wave 2)
 - [ ] 02-03-PLAN.md — Identity below HTTP: specialists/sessions repositories, Argon2id session service with throttle, the create-specialist CLI, the DB suite (wave 2)
@@ -81,6 +81,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] 02-07-PLAN.md — The sign-in screen on the reduced shell, the inherited form + error-summary pattern, the typed API client, keyboard-only and in-iframe e2e (wave 5)
 - [ ] 02-08-PLAN.md — Multi-stage Dockerfile and the compose web service: migrate → idempotent account bootstrap → serve, out-of-band liveness, demonstration README (wave 6)
 - [ ] 02-09-PLAN.md — Criterion-5 and D-1 architecture assertions, the USWDS conformance register, and the signed accessibility reviews with an AT walkthrough (wave 7)
+- [ ] 02-10-PLAN.md — GAP CLOSURE (UAT ref 1): the self-resolving `auto` cookie profile as the shipped default, so the session survives the cross-site HTTPS preview iframe without breaking the plain-HTTP localhost demo (wave 8)
 
 *Criterion 3 is a structural property with no screen: it is asserted by driving every reachable attempt to name a different actor — body property, header, second cookie, query parameter — and watching each be rejected or ignored, the Phase 2 analogue of Phase 1's refusal suites. Criterion 4's deliverable is a signed record at `docs/a11y/{screen}.md` including an assistive-technology walkthrough, because NFR-2 excludes an automated accessibility gate and the review is therefore the only enforcement mechanism there is.*
 
