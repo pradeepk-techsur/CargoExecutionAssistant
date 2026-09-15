@@ -66,22 +66,29 @@ export interface EntryRouteDeps {
 // here; the semantic parse (scale, notation) happens after the schema.
 const numericish = z.union([z.string(), z.number()]);
 
+// A structural text field: TRIM before the `.max()` gate so the length limit
+// measures the same string the DB stores (cargo_entries_len_chk measures the
+// trimmed stored value, and FR-3.8 makes leading/trailing whitespace
+// insignificant). Without the trim, " AAA…A" (leading space + 20 chars = 21)
+// is a spurious 422 even though the stored value is a legal 20 chars.
+const text = (max: number) => z.string().transform((s) => s.trim()).pipe(z.string().max(max));
+
 const EntryBody = z
   .object({
-    entry_number: z.string().max(20).nullish(),
-    importer_of_record_id: z.string().max(20).nullish(),
-    port_of_entry_code: z.string().max(8).nullish(),
-    mode_of_transport: z.string().max(16).nullish(),
-    carrier_code: z.string().max(8).nullish(),
-    conveyance_name: z.string().max(100).nullish(),
-    bill_of_lading_number: z.string().max(40).nullish(),
-    air_waybill_number: z.string().max(20).nullish(),
-    country_of_origin_code: z.string().max(4).nullish(),
-    goods_description: z.string().max(2000).nullish(),
+    entry_number: text(20).nullish(),
+    importer_of_record_id: text(20).nullish(),
+    port_of_entry_code: text(8).nullish(),
+    mode_of_transport: text(16).nullish(),
+    carrier_code: text(8).nullish(),
+    conveyance_name: text(100).nullish(),
+    bill_of_lading_number: text(40).nullish(),
+    air_waybill_number: text(20).nullish(),
+    country_of_origin_code: text(4).nullish(),
+    goods_description: text(2000).nullish(),
     quantity: numericish.nullish(),
-    quantity_uom: z.string().max(8).nullish(),
+    quantity_uom: text(8).nullish(),
     declared_value_usd: numericish.nullish(),
-    arrival_date: z.string().max(10).nullish(),
+    arrival_date: text(10).nullish(),
   })
   .strict();
 
