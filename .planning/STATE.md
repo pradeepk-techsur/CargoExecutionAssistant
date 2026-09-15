@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-09-15T22:28:01.716Z"
-last_activity: "2026-09-15 — 04-04 executed (Phase 4 COMPLETE): Task 1 a17161b (client + formatter), Task 2 fb0484f (Queue screen + router + e2e), Task 3a 3c43a97 (table scroll-region + arch-spec narrowing + sign-in de-flake), Task 3b baac039 (signed docs/a11y/queue.md). 4 auto-fixed deviations (2×R1 own-code bugs, 1×R3 stale arch assertion, 1×R1 pre-existing flake 04-04 aggravated). test:all green."
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-09-15T22:30:36.852Z"
+last_activity: "2026-09-15 — 05-02 executed: Task 1 b928058 (AI-safe reads), Task 2 12d53fb (write functions + headers exclusion), Task 3 ad6fb2b (DB-tier proof: idempotence, audit coupling ×2, cargoexec_ai privilege wall, 8 tests). 2 auto-fixed R3-Blocking deviations (deps install, vitest --reporter=list unsupported → default reporter), no source deviation. test:db 183/183."
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 33
+  completed_plans: 34
   percent: 67
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 5 (AI recommendation as an un-applied proposal) — in progress; 05-02 complete
+**Current focus:** Phase 5 (AI recommendation as an un-applied proposal) — in progress; 05-01 and 05-02 complete
 
 ## Current Position
 
 Phase: 5 of 6 (AI recommendation as an un-applied proposal) — IN PROGRESS
-Plan: 05-02 complete — the WRITE side of `recommendations`/`recommendation_values` plus the two AI-safe reads the F9 generation job (05-04) needs. Three new write functions in `server/src/db/repositories/recommendations.ts`: `markRecommendationAvailable`/`markRecommendationUnavailable` (idempotent PENDING→terminal transitions whose ENTIRE guard is `WHERE id=$1 AND status='PENDING' RETURNING id`; `{updated:true}` on rowCount 1, `{updated:false}` no-op on 0) and `insertRecommendationValues` (multi-row bind-only insert, per-row `$n::text[]` scaffold — a third documented exclusion added to headers.spec.ts's template-literal-SQL gate). Two AI-safe reads: `loadExceptionForGeneration` (exceptions.ts — entry_id+validation_result_id, no join) and `loadEntryValuesForRecommendation` (entries.ts — the 14 field values, DELIBERATELY not reusing loadEntryDetail's `specialists` join, FR-9.16). The terminal write runs over `cargoexec_app` (append()'s case-anchor FOR UPDATE needs UPDATE on cargo_entries, denied to cargoexec_ai per 0011); the job uses `cargoexec_ai` only for its OWN reads.
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 COMPLETE (04-01..04-04). Phase 5 in progress: 05-02 done; 05-01 work is present but UNCOMMITTED in the working tree (config.ts/logger.ts/package.json/boot.spec.ts modified, server/src/ai/** + recommendation.spec.ts untracked) — 05-02 touched none of it. `npm run test:db` green at 183 (+8 from the new recommendationWrite.repo.spec.ts, 0 regressions); `npm run typecheck` + `npm run build:server` exit 0; headers.spec.ts 48/48. ENV note: `npm install --include=dev` was required in this fresh sandbox before any build/test.
-Last activity: 2026-09-15 — 05-02 executed: Task 1 b928058 (AI-safe reads), Task 2 12d53fb (write functions + headers exclusion), Task 3 ad6fb2b (DB-tier proof: idempotence, audit coupling ×2, cargoexec_ai privilege wall, 8 tests). 2 auto-fixed R3-Blocking deviations (deps install, vitest --reporter=list unsupported → default reporter), no source deviation. test:db 183/183.
+Plan: 05-01 complete — the pure no-DB no-network CORE of F9. `server/src/ai/provider.ts` is now the SOLE AI type surface (FR-9.15): RecommendationProvider/ProviderRequest/ProviderResult, PROVIDER_FAILURE_REASONS type-asserted equal to the contract's seven-value union (anti-drift). `server/src/ai/outputSchema.ts::validateProviderResponse(raw, knownRuleIds)` is the FR-9.7/9.8/9.9 closed gate — a `.strict()` zod schema rejects EVERY excluded determination (hts_code/duty/tariff/classification/admissibility/penalty/risk_score) structurally, not by denylist; post-parse it rejects duplicate field_name, an addresses_rule_ids entry outside this exception's findings, and a rule id leaked into the rationale (non-anchored /RIV-\d{3}/ scan). `server/src/ai/fakeProvider.ts::createFakeProvider` is the deterministic no-network provider producing all 8 outcome branches (7 sentinel-driven FAILUREs via FAKE_AI_TRIGGERS + AVAILABLE success). `server/src/ai/promptManifest.ts` + `prompt/2026.09.1.md` + `prompt/manifest.json` are the addition-A-2 trust anchor: config.ts refuses boot if PROMPT_VERSION is unknown or the shipped template's SHA-256 no longer matches the manifest (proven end-to-end). Prompt files ship into `dist/ai/prompt` via `copy-prompt-assets.mjs` wired into build:server (the runtime image copies server/dist). config.ts now has SIX mandatory AI self-checks (AI_PROVIDER_URL https-or-`fake:deterministic`, AI_MODEL_ID, PROMPT_VERSION+digest, AI_API_KEY https-only, AI_TIMEOUT_MS=20000, AI_WORKER_CONCURRENCY=2), messages naming the key never the value (§4.7). AI_PROVIDER_URL=`fake:deterministic` is the named non-production posture that wires createFakeProvider — the default provider in all tests + the 05-06 e2e demo. Also complete: 05-02 (the WRITE side of recommendations/recommendation_values + the two AI-safe reads — see below), which builds on this interface.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 COMPLETE (04-01..04-04). Phase 5 in progress: 05-01 COMMITTED (e786730 provider+validator, e212e58 prompt/config/fake, 3f34390 arch/api fixture fix) and 05-02 done. NOTE: extending AppConfig with the six AI fields made AI keys mandatory everywhere loadConfig/AppConfig is constructed — the fake-posture keys were added to headers.spec.ts (arch), appHarness.ts TEST_CONFIG (api) and logger.ts's fallback config. Full suite green: unit 283, db 183, api 134, arch 148; `npm run build` (server+web) + `npm run typecheck` exit 0. 05-02's WRITE side: markRecommendationAvailable/Unavailable (idempotent PENDING→terminal, guard `WHERE id=$1 AND status='PENDING' RETURNING id`) + insertRecommendationValues; AI-safe reads loadExceptionForGeneration/loadEntryValuesForRecommendation (no specialists join, FR-9.16). ENV note: `npm install --include=dev` needed in a fresh sandbox before build/test.
+Last activity: 2026-09-15 — 05-01 executed: Task 1 e786730 (RecommendationProvider interface + FR-9.7/9.8/9.9 validator), Task 2 e212e58 (prompt digest self-check + FakeProvider + six AI config self-checks), fixture fix 3f34390 (arch+api config fixtures for mandatory AI keys). 3 auto-fixed deviations (R1 own-code anchored-regex missed embedded rule id in rationale; R3 logger fallback config; R1 arch/api fixtures broke on mandatory AI keys). Full suite green.
 
 Progress: [███████░░░] 67%
 
@@ -84,6 +84,7 @@ Progress: [███████░░░] 67%
 | Phase 04-the-receipt-ordered-queue P04 | 27 min | 3 tasks | 8 files |
 | Phase 05-ai-recommendation-as-an-un-applied-proposal P03 | 4 min | 3 tasks | 5 files |
 | Phase 05-ai-recommendation-as-an-un-applied-proposal P02 | 12 min | 3 tasks | 5 files |
+| Phase 05-ai-recommendation-as-an-un-applied-proposal P01 | 8 min | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -152,6 +153,9 @@ Recent decisions affecting current work:
 - [Phase 04-the-receipt-ordered-queue]: 04-04: the F8 review-queue screen (web/src/screens/Queue.tsx) renders GET /api/exceptions in exact receipt order into one accessible USWDS table with per-row Link case activation (keyboard Enter + pointer), reusing Loading/Empty/ErrorState verbatim; api.getQueue/getCase are GET-only (no CSRF header, getEntry pattern); formatDateTime pins its own 3-letter month names because this runtime's Intl month:short renders 'Sept' not 'Sep'; the table sits in a focusable usa-table-container--scrollable region so the body never scrolls horizontally at 320px. receiptPaths.spec test 9 narrowed from 'client names no /api/exceptions' to 'no MUTATING method on an exception collection' (GET reads permitted). Phase 4 complete; test:all green (unit 218, db 175, api 124, arch 148, e2e 37).
 - [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-03: the F9 polling endpoint GET /api/exceptions/:exceptionId/recommendation is live and read-only, serving all three PENDING/AVAILABLE/UNAVAILABLE shapes off the always-present recommendation row with zero dependency on the AI generation job; loadRecommendationDetail uses resolveCaseIdentifier(UUID) as the existence probe (planned loadExceptionForGeneration does not exist) and duplicates caseRead's compose logic rather than importing it. API_ROUTE_TABLE now eight implemented; boot.spec asserts eight. Stable contract for plan 05-05.
 - [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-02: the recommendation terminal write (markRecommendationAvailable/Unavailable + insertRecommendationValues) runs over cargoexec_app because append()'s case-anchor FOR UPDATE lock needs UPDATE on cargo_entries, denied to cargoexec_ai (0011). Idempotence is the WHERE status='PENDING' guard alone (rowCount 1=fired, 0=no-op). loadEntryValuesForRecommendation deliberately avoids loadEntryDetail's specialists join (FR-9.16). Proven at DB tier with the plan's own functions; test:db 183/183.
+- [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-01: RecommendationProvider (server/src/ai/provider.ts) is the sole AI type surface (FR-9.15); PROVIDER_FAILURE_REASONS is type-asserted equal to the contract union so the two never drift. Consumers import only from provider.ts.
+- [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-01: validateProviderResponse (outputSchema.ts) is the FR-9.7/9.8/9.9 closed gate — .strict() zod rejects excluded determinations structurally (no denylist); it takes knownRuleIds so addresses_rule_ids cross-checks this exception's findings, rejects duplicate field_name, and rejects a rule id leaked into the rationale (non-anchored scan).
+- [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-01: prompt templates ship into dist/ai/prompt via copy-prompt-assets.mjs (wired into build:server); promptManifest.ts resolves via import.meta.url not cwd. config.ts gained six mandatory AI self-checks (AI_PROVIDER_URL https-or-fake:deterministic, AI_MODEL_ID, PROMPT_VERSION+SHA-256 digest boot check, AI_API_KEY https-only, AI_TIMEOUT_MS=20000, AI_WORKER_CONCURRENCY=2). fake:deterministic wires createFakeProvider — the default provider in all tests + the e2e demo.
 
 ### Pending Todos
 
@@ -168,6 +172,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T22:27:53.597Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-09-15T22:30:28.393Z
+Stopped at: Completed 05-01-PLAN.md
 Resume file: None
