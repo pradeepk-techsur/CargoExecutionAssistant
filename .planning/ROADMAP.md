@@ -110,7 +110,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. A decided case leaves the list while remaining reachable by its case reference, so what is listed is exactly what still needs a decision.
   4. There is nothing to choose: no filter, sort, assignment, priority or aging control appears on screen, and the API rejects any query string outright rather than silently ignoring it. *(no screen, in part)*
   5. An empty queue states plainly that there is nothing to work and offers the route to create an entry.
-**Plans**: TBD
+**Plans**: 4 plans in 4 waves
+- [ ] 04-01-PLAN.md — Contract DTOs + read-only repositories for the queue and case-detail projections (wave 1)
+- [ ] 04-02-PLAN.md — queue.service.ts and caseRead.service.ts: failure-summary derivation, truncation, permitted_decisions matrix (wave 2)
+- [ ] 04-03-PLAN.md — The two F7 routes, route-table wiring, and the architecture/boot/API regression suites (wave 3)
+- [ ] 04-04-PLAN.md — The F8 review-queue screen, its Playwright proof, and the NFR-2 accessibility sign-off (wave 4)
 
 ### Phase 5: AI Recommendation as an Un-Applied Proposal
 **Goal**: A cargo specialist reads why the case is open, what the AI recommends and why, with every machine-proposed value marked as the machine's at the moment she is deciding — and the case remains readable and workable when the AI does not answer at all.
