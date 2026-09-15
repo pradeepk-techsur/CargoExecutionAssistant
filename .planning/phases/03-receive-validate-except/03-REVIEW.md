@@ -1,6 +1,6 @@
 ---
 phase: 3
-status: issues_found
+status: fixed
 blockers: 1
 warnings: 2
 files_reviewed: 18
@@ -74,6 +74,12 @@ refutation as a BLOCKER: a structurally-plausible numeric input overflows the
   detail — i.e. bound the integer part to the column's `precision − scale`, not
   just the combined total. (Or treat over-precision as F4 business only if the
   column widened; it has not, so the 422 guard is the correct fix here.)
+- **Resolution:** fixed (307ead5) — bound the integer digit count to
+  `MAX_TOTAL_DIGITS − maxDecimals` (11 for quantity, 12 for declared_value) in
+  `coerceNumerics`, refusing an over-precision value with a 422
+  `too_many_decimals`. Leading zeros are stripped before the count so a legal
+  zero-padded value is not spuriously rejected. Verified: tsc clean; api
+  entries.spec case 10 green.
 
 ## WARNINGs
 
@@ -94,6 +100,11 @@ refutation as a BLOCKER: a structurally-plausible numeric input overflows the
   ahead of `.max()`, or move the `.max()` bound onto the canonical value), so the
   structural length gate and the stored-value length constraint measure the same
   string.
+- **Resolution:** fixed (69c0da8) — introduced a `text(max)` schema helper that
+  `.transform(s => s.trim())` before `.pipe(z.string().max(max))`, applied to all
+  twelve structural text fields. The length gate now measures the trimmed value,
+  matching `cargo_entries_len_chk`. Verified: tsc clean; api entries.spec (27)
+  and unit canonical.spec (19) green.
 
 ### W2: `receipt_position` / bigint sequence coerced through `Number()` loses precision past 2^53
 - **File:** server/src/db/repositories/exceptions.ts:46,86
@@ -105,6 +116,12 @@ refutation as a BLOCKER: a structurally-plausible numeric input overflows the
   and the contract types `receipt_position` as `number` (dto.ts:125), meaning a
   future high-volume deployment would truncate without any error. Stated
   uncertainty: within phase-3 scope this is genuinely non-blocking.
+- **Resolution:** fixed (6ed1686) — centralised the bigint→number coercion in a
+  `toReceiptPosition()` helper used by both `insertException` and
+  `loadExceptionRefByEntry`; it throws when the value is not a safe integer,
+  turning a silent past-2^53 truncation into a loud internal-invariant breach.
+  The contract type (`number`) is left intact per scope. Verified: tsc clean; db
+  exceptionBasis.spec (14) and receipt.spec (16) green.
 
 ## Cross-file seams checked
 - POST/GET /api/entries (routes/index.ts) ↔ API_ROUTE_TABLE `implemented: true` + app.ts 405/404 map — OK (five implemented rows, boot asserts five).
