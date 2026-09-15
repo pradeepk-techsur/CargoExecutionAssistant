@@ -52,15 +52,18 @@ describe('context boot', () => {
       });
     });
 
-    it('registers exactly the five implemented routes and no more', async () => {
-      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly five are implemented
-      // (the three F1 session pairs and the two F3 entry pairs).
+    it('registers exactly the seven implemented routes and no more', async () => {
+      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly seven are
+      // implemented (the three F1 session pairs, the two F3 entry pairs, and the
+      // two F7 exception pairs).
       const implemented = API_ROUTE_TABLE.filter((r) => r.implemented);
-      expect(implemented).toHaveLength(5);
-      expect(ROUTES).toHaveLength(5);
+      expect(implemented).toHaveLength(7);
+      expect(ROUTES).toHaveLength(7);
       expect(implemented.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
         'DELETE /api/session',
         'GET /api/entries/:entryId',
+        'GET /api/exceptions',
+        'GET /api/exceptions/:idOrReference',
         'GET /api/session',
         'POST /api/entries',
         'POST /api/session',
@@ -83,12 +86,13 @@ describe('context boot', () => {
         .sort();
       expect(registeredSet).toEqual(implementedSet);
 
-      // Behavioural proof that an UNIMPLEMENTED route is still not registered: an
-      // unauthenticated GET /api/exceptions is not answered by a route-level
-      // success — it is a 4xx (the session middleware ran, no route handled it).
+      // Behavioural proof that an IMPLEMENTED route still refuses an anonymous
+      // caller: GET /api/exceptions is now registered (F7, 04-03), but with no
+      // session cookie requireApiAuth answers 401 UNAUTHENTICATED before the
+      // handler runs — a 4xx, never a route-level success.
       const res = await supertest(h.app).get('/api/exceptions');
-      expect(res.status).toBeGreaterThanOrEqual(400);
-      expect(res.status).toBeLessThan(500);
+      expect(res.status).toBe(401);
+      expect(res.body?.error?.code).toBe('UNAUTHENTICATED');
     });
   });
 });

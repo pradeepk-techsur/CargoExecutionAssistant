@@ -3,8 +3,8 @@
 // Two exported data structures, and one function that registers routes from
 // them:
 //
-//   API_ROUTE_TABLE  — the FULL ten method/path pairs of §3.1, as data. Five
-//                      are not yet implemented (phases 4–6); they are listed so
+//   API_ROUTE_TABLE  — the FULL ten method/path pairs of §3.1, as data. Three
+//                      are not yet implemented (phases 5–6); they are listed so
 //                      the auth matrix in plan 02-06 can assert 401 across ALL
 //                      ten (which it can, because sessionMiddleware runs before
 //                      route matching), and so the phase that completes each has
@@ -12,12 +12,12 @@
 //                      exist" (§3.1). Adding an eleventh row requires a feature
 //                      requirement in the FRD — that friction is the point.
 //
-//   ROUTES           — the concrete handlers for the five IMPLEMENTED rows,
+//   ROUTES           — the concrete handlers for the seven IMPLEMENTED rows,
 //                      the single array an architecture test can pin. Route
 //                      registration is data-driven from one array (§1A.3).
 //
 // registerRoutes registers ONLY the implemented rows. There is deliberately no
-// placeholder handler for the five unimplemented pairs: an endpoint that exists
+// placeholder handler for the three unimplemented pairs: an endpoint that exists
 // and returns 501 is still an endpoint, and 501 is not in the Y2 catalogue. An
 // unmatched /api path is answered by the JSON 404 envelope in app.ts.
 
@@ -27,14 +27,15 @@ import type { Clock } from '../../clock.js';
 import type { AppConfig } from '../../config.js';
 import { sessionRoutes } from './session.js';
 import { entryRoutes } from './entries.js';
+import { exceptionRoutes } from './exceptions.js';
 
 export type HttpMethod = 'get' | 'post' | 'delete';
 
 /**
  * The full ten method/path pairs of TechArch §3.1, as data. `implemented`
- * marks the five now registered (the three F1 session pairs and the two F3
- * entry pairs); the other five belong to the feature that owns them. Adding a
- * row requires an FRD requirement (FR-Y1.1).
+ * marks the seven now registered (the three F1 session pairs, the two F3
+ * entry pairs, and the two F7 exception pairs); the other three belong to the
+ * feature that owns them. Adding a row requires an FRD requirement (FR-Y1.1).
  */
 export const API_ROUTE_TABLE = [
   { method: 'POST', path: '/api/session', feature: 'F1', implemented: true },
@@ -42,8 +43,8 @@ export const API_ROUTE_TABLE = [
   { method: 'DELETE', path: '/api/session', feature: 'F1', implemented: true },
   { method: 'POST', path: '/api/entries', feature: 'F3', implemented: true },
   { method: 'GET', path: '/api/entries/:entryId', feature: 'F3', implemented: true },
-  { method: 'GET', path: '/api/exceptions', feature: 'F7', implemented: false },
-  { method: 'GET', path: '/api/exceptions/:idOrReference', feature: 'F7', implemented: false },
+  { method: 'GET', path: '/api/exceptions', feature: 'F7', implemented: true },
+  { method: 'GET', path: '/api/exceptions/:idOrReference', feature: 'F7', implemented: true },
   {
     method: 'GET',
     path: '/api/exceptions/:exceptionId/recommendation',
@@ -89,16 +90,25 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
     config: deps.config,
     clock: deps.clock,
   });
+  const exceptions = exceptionRoutes({
+    pool: deps.pool,
+    config: deps.config,
+    clock: deps.clock,
+  });
   // Registration order follows §3.1: the session routes first, then the entries
-  // routes. The parameterised GET /api/entries/:entryId does not collide with
-  // the flat /api/entries POST, and keeping it after the session routes lets the
-  // array read in §3.1 order.
+  // routes, then the exceptions routes. The parameterised GET
+  // /api/entries/:entryId does not collide with the flat /api/entries POST, and
+  // keeping it after the session routes lets the array read in §3.1 order. The
+  // two F7 read routes append after the entries pair (session, entries, then
+  // exceptions).
   return [
     { method: 'post', path: '/api/session', handler: session.post },
     { method: 'get', path: '/api/session', handler: session.get },
     { method: 'delete', path: '/api/session', handler: session.delete },
     { method: 'post', path: '/api/entries', handler: entries.post },
     { method: 'get', path: '/api/entries/:entryId', handler: entries.get },
+    { method: 'get', path: '/api/exceptions', handler: exceptions.get },
+    { method: 'get', path: '/api/exceptions/:idOrReference', handler: exceptions.getOne },
   ];
 }
 
@@ -114,7 +124,7 @@ export function registerRoutes(router: Router, deps: RouteDeps): void {
   }
 }
 
-/** Also exported for the boot test, which asserts exactly five are registered. */
+/** Also exported for the boot test, which asserts exactly seven are registered. */
 export const ROUTES = API_ROUTE_TABLE.filter((r) => r.implemented);
 
 /**
