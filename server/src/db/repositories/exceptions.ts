@@ -258,3 +258,37 @@ export async function loadExceptionDetail(
     closed_at: r.closed_at === null ? null : r.closed_at.toISOString(),
   };
 }
+
+// ---- AI-safe read for the F9 generation job (plan 05-04) -------------------
+//
+// The function below is READ-ONLY and is the ONLY one this module exposes that
+// is DELIBERATELY safe to run over the `cargoexec_ai` role: it selects no
+// specialist identity and joins nothing. `ai/job.ts` (plan 05-04) uses it,
+// alongside `entries.ts`'s `loadEntryValuesForRecommendation`, to compose the
+// provider request. It is separate from the receipt/queue readers above
+// because those may (via other repositories) touch tables the AI role holds no
+// privilege on.
+
+/** entry_id + validation_result_id for an exception — no join, safe for cargoexec_ai. */
+export type ExceptionForGeneration = { entry_id: string; validation_result_id: string };
+
+/**
+ * Load the two ids the F9 generation job needs to compose its request
+ * (FR-9.16: reads no specialist identity, no join to cargo_entries beyond the
+ * FK columns already ON this table). Both columns live directly on
+ * `exceptions`; no JOIN is needed. Returns `null` if the exception does not
+ * exist (the job logs and exits without effect — F5's derivation guarantee
+ * means this should not happen for a dispatched id, but the job must not
+ * crash if it does).
+ */
+export async function loadExceptionForGeneration(
+  db: Queryable,
+  exceptionId: string,
+): Promise<ExceptionForGeneration | null> {
+  const res = await db.query<{ entry_id: string; validation_result_id: string }>(
+    `SELECT entry_id, validation_result_id FROM exceptions WHERE id = $1`,
+    [exceptionId],
+  );
+  const r = res.rows[0];
+  return r === undefined ? null : { entry_id: r.entry_id, validation_result_id: r.validation_result_id };
+}
