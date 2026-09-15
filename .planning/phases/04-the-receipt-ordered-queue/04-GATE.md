@@ -2403,3 +2403,51 @@ Warning: useLayoutEffect does nothing on the server, because its effect cannot b
 ## Phase gate
 
 **final gate: inherited wave 4 result** — the code-review gate made zero source commits (0 BLOCKERs, no fixer run), and no commit touching `server/`, `web/`, or `contract/` landed after the wave 4 gate (980dc14). The final tree is byte-identical to the tree the wave 4 gate compiled and ran green (build pass, `npm test` pass: unit 218 / db 175 / api 124 / arch 148; e2e 37 via `test:all` at plan 04-04). This stands as the phase-level regression statement — the entire suite ran green on the final tree.
+
+## Backend pre-push gate
+
+- Status: passed
+- Result marker + failing output tail:
+```
+__GATE__ build_exit=0 test_exit=0 build_cmd=[npm run build] test_cmd=[npm test] head=bc4322cd66aa369445823e7e88ec1e46c012aecf test_files=47 skip_marks=0 shadow_files=0
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 26[2mms[22m[39m
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 14[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 61[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 84[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m148 passed[39m[22m[90m (148)[39m
+[2m   Start at [22m 20:35:46
+[2m   Duration [22m 718ms[2m (transform 140ms, setup 0ms, collect 342ms, tests 283ms, environment 0ms, prepare 23ms)[22m
+
+```
