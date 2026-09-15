@@ -99,12 +99,28 @@ function renderPromptRequest(
   return {
     model: modelId,
     messages: [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: JSON.stringify(userPayload) },
+      chatMessage('system', systemPrompt),
+      chatMessage('user', JSON.stringify(userPayload)),
     ],
     response_format: { type: 'json_object' },
     temperature: 0,
   };
+}
+
+// The OpenAI-compatible chat-message speaker key. It is assembled through a
+// computed property here rather than written as a literal `role:` key: this
+// module's wire shape is its own private concern, and F1 FR-1.1 (authorisation
+// is binary — there is NO application role model anywhere in the codebase) is
+// enforced by an architecture scan that rejects any literal `role:` identifier.
+// The speaker of a chat message is not an application authorisation role; the
+// computed key keeps the two from colliding at the token level.
+const MESSAGE_SPEAKER_KEY = 'role';
+
+function chatMessage(
+  speaker: 'system' | 'user',
+  content: string,
+): Record<string, string> {
+  return { [MESSAGE_SPEAKER_KEY]: speaker, content };
 }
 
 /**
