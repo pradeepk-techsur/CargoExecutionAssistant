@@ -12,6 +12,9 @@
 // `setCsrfToken(body.csrf_token)` themselves before resolving. Putting the call
 // inside the client (rather than in each caller) is what makes it impossible to
 // forget — including for every POST that phases 3 and 6 add after a reload.
+// `createEntry` (POST /api/entries) is the FIRST such phase-3 POST: it routes
+// through `request()` like every other call, so the rotated token is attached
+// automatically — the rule anticipated here is now actually applied.
 // Without it: reload /queue → bootstrap GET rotates the hash → the module
 // variable is empty → DELETE /api/session sends no X-CSRF-Token → 403.
 //
@@ -22,7 +25,10 @@
 import type {
   ApiErrorBody,
   ApiErrorDetail,
+  EntryCreateRequest,
+  EntryDetailResponse,
   ErrorCode,
+  ReceiptResponse,
   SessionDto,
   SessionRequest,
 } from '@cargoexec/contract';
@@ -204,6 +210,35 @@ export const api = {
   async signOut(): Promise<void> {
     await request<void>('DELETE', '/api/session', { expectBody: false });
     setCsrfToken(null);
+  },
+
+  /**
+   * Receive one manually authored entry (F3). Goes through request() so the
+   * in-memory CSRF token stored by getSession()/signIn() is attached — the
+   * mandatory client half of 02-04's rotate-on-GET CSRF. A POST that bypassed
+   * this client would send no X-CSRF-Token after a page reload and 403.
+   *
+   * A required-information failure is NOT an error here: it is a 201 with
+   * receipt_outcome 'EXCEPTION_OPENED' and findings, so it resolves normally
+   * and the screen reads the outcome off the response (F3 FR-3.10).
+   *
+   * The body is sent UNTOUCHED — no coercion, no idempotency key, no retry. See
+   * the file header and the constraints recorded in plan 03-08.
+   */
+  async createEntry(body: EntryCreateRequest): Promise<ReceiptResponse> {
+    return request<ReceiptResponse>('POST', '/api/entries', {
+      body,
+      expectBody: true,
+    });
+  },
+
+  /** Retrieve one entry with its derived state (F3 FR-3.11). */
+  async getEntry(entryId: string): Promise<EntryDetailResponse> {
+    return request<EntryDetailResponse>(
+      'GET',
+      `/api/entries/${encodeURIComponent(entryId)}`,
+      { expectBody: true },
+    );
   },
 
   setCsrfToken(token: string | null): void {
