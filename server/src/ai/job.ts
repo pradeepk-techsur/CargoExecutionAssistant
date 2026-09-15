@@ -24,7 +24,7 @@
 import type { Pool } from 'pg';
 import { ENTRY_FIELDS, type EntryFieldName } from '@cargoexec/contract';
 import { withTransaction } from '../db/tx.js';
-import { append } from '../services/audit/writer.js';
+import { append, AuditWriteError } from '../services/audit/writer.js';
 import { loadExceptionForGeneration } from '../db/repositories/exceptions.js';
 import { loadEntryValuesForRecommendation } from '../db/repositories/entries.js';
 import { loadValidationByEntry } from '../db/repositories/validation.js';
@@ -34,7 +34,7 @@ import {
   markRecommendationUnavailable,
   insertRecommendationValues,
 } from '../db/repositories/recommendations.js';
-import type { RecommendationProvider } from './provider.js';
+import type { ProviderFailureReason, RecommendationProvider } from './provider.js';
 import { logger } from '../http/logger.js';
 
 export interface GenerationJobDeps {
@@ -111,66 +111,87 @@ export async function runGenerationJob(
         (v): v is typeof v & { field_name: EntryFieldName } =>
           (ENTRY_FIELDS as readonly string[]).includes(v.field_name),
       );
-      await withTransaction(deps.appPool, async (tx) => {
-        const { updated } = await markRecommendationAvailable(tx, {
-          recommendation_id: current.id,
-          recommended_action: result.recommended_action,
-          rationale: result.rationale,
-          model_id: deps.modelId,
-          prompt_version: deps.promptVersion,
-          latency_ms: latencyMs,
-        });
-        // Already resolved by a concurrent/duplicate dispatch (FR-9.17): the
-        // conditional UPDATE matched zero rows, so write nothing further —
-        // NOT even the audit entry, which would otherwise be an orphan.
-        if (!updated) return;
-        await insertRecommendationValues(
-          tx,
-          current.id,
-          proposedValues.map((v) => ({
-            field_name: v.field_name,
-            proposed_value: v.proposed_value,
-            addresses_rule_ids: v.addresses_rule_ids,
-          })),
-        );
-        await append(tx, {
-          case_id: ex.entry_id,
-          exception_id: exceptionId,
-          recommendation_id: current.id,
-          action_type: 'RECOMMENDATION_GENERATED',
-          actor: { type: 'AI' },
-          before_state: 'PENDING',
-          after_state: 'AVAILABLE',
-          values: proposedValues.map((v) => {
-            const before = entryValues[v.field_name] ?? null;
-            return {
+      try {
+        await withTransaction(deps.appPool, async (tx) => {
+          const { updated } = await markRecommendationAvailable(tx, {
+            recommendation_id: current.id,
+            recommended_action: result.recommended_action,
+            rationale: result.rationale,
+            model_id: deps.modelId,
+            prompt_version: deps.promptVersion,
+            latency_ms: latencyMs,
+          });
+          // Already resolved by a concurrent/duplicate dispatch (FR-9.17): the
+          // conditional UPDATE matched zero rows, so write nothing further —
+          // NOT even the audit entry, which would otherwise be an orphan.
+          if (!updated) return;
+          await insertRecommendationValues(
+            tx,
+            current.id,
+            proposedValues.map((v) => ({
               field_name: v.field_name,
-              before_value: before,
-              before_origin: before !== null ? ('HUMAN' as const) : null,
-              after_value: v.proposed_value,
-              after_origin: 'AI' as const,
-            };
-          }),
+              proposed_value: v.proposed_value,
+              addresses_rule_ids: v.addresses_rule_ids,
+            })),
+          );
+          await append(tx, {
+            case_id: ex.entry_id,
+            exception_id: exceptionId,
+            recommendation_id: current.id,
+            action_type: 'RECOMMENDATION_GENERATED',
+            actor: { type: 'AI' },
+            before_state: 'PENDING',
+            after_state: 'AVAILABLE',
+            values: proposedValues.map((v) => {
+              const before = entryValues[v.field_name] ?? null;
+              return {
+                field_name: v.field_name,
+                before_value: before,
+                before_origin: before !== null ? ('HUMAN' as const) : null,
+                after_value: v.proposed_value,
+                after_origin: 'AI' as const,
+              };
+            }),
+          });
         });
-      });
+      } catch (err) {
+        // The audit writer's secret-VALUE denylist (writer.ts SECRET_VALUE_RES)
+        // refuses to persist a proposed value whose text is shaped like a bearer
+        // token / API key / JWT, throwing AUDIT_WRITE_FORBIDDEN_CONTENT and
+        // rolling back the whole AVAILABLE write. We must NOT weaken that
+        // denylist. But letting the throw propagate to the outer catch would
+        // leave the recommendation PENDING forever (F10 polls 60s then shows the
+        // stale "no recommendation" condition with no trace). Degrade cleanly
+        // instead: record a TERMINAL UNAVAILABLE(CONTENT_FILTERED) outcome — the
+        // content was filtered out, which is exactly what CONTENT_FILTERED means
+        // — so the case reaches a stable, auditable end state. Any other error
+        // (transient DB, sequence conflict) propagates unchanged to the outer
+        // catch, which correctly leaves it PENDING for a future dispatch.
+        if (
+          err instanceof AuditWriteError &&
+          err.code === 'AUDIT_WRITE_FORBIDDEN_CONTENT'
+        ) {
+          logger.warn(
+            { exception_id: exceptionId },
+            'generation job: a proposed value tripped the secret-value denylist; ' +
+              'recording UNAVAILABLE(CONTENT_FILTERED) rather than hanging PENDING',
+          );
+          await writeUnavailable(deps, {
+            recommendationId: current.id,
+            caseId: ex.entry_id,
+            exceptionId,
+            failureReason: 'CONTENT_FILTERED',
+          });
+          return;
+        }
+        throw err;
+      }
     } else {
-      await withTransaction(deps.appPool, async (tx) => {
-        const { updated } = await markRecommendationUnavailable(tx, {
-          recommendation_id: current.id,
-          failure_reason: result.failure_reason,
-          model_id: deps.modelId,
-          prompt_version: deps.promptVersion,
-        });
-        if (!updated) return;
-        await append(tx, {
-          case_id: ex.entry_id,
-          exception_id: exceptionId,
-          recommendation_id: current.id,
-          action_type: 'RECOMMENDATION_UNAVAILABLE',
-          actor: { type: 'AI' },
-          before_state: 'PENDING',
-          after_state: 'UNAVAILABLE',
-        });
+      await writeUnavailable(deps, {
+        recommendationId: current.id,
+        caseId: ex.entry_id,
+        exceptionId,
+        failureReason: result.failure_reason,
       });
     }
   } catch (err) {
@@ -187,4 +208,42 @@ export async function runGenerationJob(
       'generation job failed unexpectedly; recommendation remains PENDING',
     );
   }
+}
+
+/**
+ * Write a TERMINAL UNAVAILABLE outcome plus its coupled audit entry over the app
+ * pool inside one transaction. Shared by the provider-FAILURE branch and the
+ * SUCCESS branch's secret-value fallback (a proposed value the audit writer
+ * refuses to persist becomes CONTENT_FILTERED here) so both reach an identical,
+ * auditable end state. The conditional UPDATE (`WHERE status='PENDING'`) inside
+ * markRecommendationUnavailable remains the authoritative idempotence guard: a
+ * concurrent/duplicate dispatch matches zero rows and writes no audit entry.
+ */
+async function writeUnavailable(
+  deps: GenerationJobDeps,
+  args: {
+    recommendationId: string;
+    caseId: string;
+    exceptionId: string;
+    failureReason: ProviderFailureReason;
+  },
+): Promise<void> {
+  await withTransaction(deps.appPool, async (tx) => {
+    const { updated } = await markRecommendationUnavailable(tx, {
+      recommendation_id: args.recommendationId,
+      failure_reason: args.failureReason,
+      model_id: deps.modelId,
+      prompt_version: deps.promptVersion,
+    });
+    if (!updated) return;
+    await append(tx, {
+      case_id: args.caseId,
+      exception_id: args.exceptionId,
+      recommendation_id: args.recommendationId,
+      action_type: 'RECOMMENDATION_UNAVAILABLE',
+      actor: { type: 'AI' },
+      before_state: 'PENDING',
+      after_state: 'UNAVAILABLE',
+    });
+  });
 }
