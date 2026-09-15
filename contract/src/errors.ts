@@ -7,6 +7,11 @@ export const INTERNAL_INVARIANT_CODES = [
   'AUDIT_SEQUENCE_CONFLICT',
   'AUDIT_WRITE_INVALID',
   'AUDIT_WRITE_FORBIDDEN_CONTENT',
+  // F4 §Error States: a rule predicate that throws, or a finding naming a field
+  // outside the entry field set, aborts the receipt and surfaces as the generic
+  // 500 RECEIPT_FAILED. Logged against request_id, NEVER returned to the client
+  // — hence it lives here and is DELIBERATELY absent from ERROR_CODES.
+  'VALIDATION_ENGINE_FAILURE',
 ] as const;
 
 export type InternalInvariantCode = (typeof INTERNAL_INVARIANT_CODES)[number];
