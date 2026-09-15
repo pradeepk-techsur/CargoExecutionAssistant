@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-09-15T19:50:52.625Z"
-last_activity: "2026-09-15 — 03-07 executed (test-only): exceptionBasis.spec.ts (14 cases), receiptAtomicity.spec.ts (12 cases), receiptPaths.spec.ts (11 groups). FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is not refused at the DB — basis/receipt-position immutability rests on the single write path (asserted architecturally, not at the DB). Assertions 1/4/5/8 of receiptPaths proven RED on planted violations. Commits 1bf7156 (Task 1), d704fd6 (Task 2), 3f87f34 (Task 3)."
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-09-15T20:00:23.630Z"
+last_activity: "2026-09-15 — 04-01 executed: contract DTOs (Task 1, df95cbb), five read repositories (Task 2, 5747fe5), DB-tier proof suite (Task 3, 80b6297). Two test-harness fixes caught by the real DB during Task 3: a clean-entry insert must go through append() (coupling trigger refuses a bare cargo_entries insert) and a case close must UPDATE the existing PENDING recommendation to AVAILABLE (uq_recommendations_exception). No production repository change resulted. Deviation: `npm install --include=dev` (Rule 3, blocking — toolchain absent)."
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 31
-  completed_plans: 28
-  percent: 33
+  completed_plans: 29
+  percent: 50
 ---
 
 # Project State
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 4 of 6 (The Receipt-Ordered Queue) — IN PROGRESS
-Plan: 04-01 complete — the F7 read-only data layer. It is eight parameterised-SQL functions over Phase 1/3 tables plus the contract DTOs both the server and SPA import; no migration, no new table, no write path. `contract/src/dto.ts` gains RowSummaryDto/QueueResponse (queue) and CaseExceptionRef/RecommendationDetailDto/RecommendationProposedValueDto/DecisionDetailDto/DecisionValueDto/CaseDetailResponse (case detail). `exceptions.ts` gains listOpenExceptions (parameterless, state='OPEN', ORDER BY receipt_position ASC, LIMIT 501), resolveCaseIdentifier (LEFT JOIN → FOUND/ENTRY_PASSED_VALIDATION/NOT_FOUND; value always bound $1, safe on unvalidated input per T-04-01), loadExceptionDetail. `validation.ts` gains loadFindingsByValidationResultIds (= ANY($1::uuid[]) grouped ascending by rule_id, []-short-circuit). New read-only recommendations.ts (loadRecommendationByException/Values) and decisions.ts (loadDecisionByException joins specialists / loadDecisionValues). Remaining phase-4 plans: 04-02 (F7 services), 04-03 (routes), 04-04 (F8 web screen) — status unknown to this run.
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 started: 04-01 gates green — `npm run build:server`/`npm run typecheck` exit 0; `npm run test:db` 167/167 (was 160, +7 new queueRead.repo.spec.ts), 0 regressions; receiptPaths.spec.ts 11/11 unmodified (the Phase 4 read services join its caller allowlist without deleting the test). NOTE for 04-02: compose these repositories in queue.service.ts / caseRead.service.ts — none of the eight functions writes, so the R-L5 guard stays green; the queue read takes NO filter/sort/paging bind (FR-7.2/7.3), only the fixed LIMIT 501 truncation ceiling. Env note: node_modules was absent on the fresh workspace — `npm install --include=dev` is the first command before any build/test.
-Last activity: 2026-09-15 — 04-01 executed: contract DTOs (Task 1, df95cbb), five read repositories (Task 2, 5747fe5), DB-tier proof suite (Task 3, 80b6297). Two test-harness fixes caught by the real DB during Task 3: a clean-entry insert must go through append() (coupling trigger refuses a bare cargo_entries insert) and a case close must UPDATE the existing PENDING recommendation to AVAILABLE (uq_recommendations_exception). No production repository change resulted. Deviation: `npm install --include=dev` (Rule 3, blocking — toolchain absent).
+Plan: 04-02 complete — the F7 composition services. Two read-only services over 04-01's repositories: `server/src/services/queue.service.ts` (`listQueue(pool) -> QueueResponse`) composes listOpenExceptions + loadFindingsByValidationResultIds, deriving each row's `failure_summary` from the first two findings in ascending rule_id "server order" with an "and N more" suffix off the authoritative findings_count (FR-7.6), and applying the fixed 500-row truncation ceiling — no filter/sort/paging parameter is reachable through the signature (FR-7.2/7.3, T-04-04). `server/src/services/caseRead.service.ts` (`loadCase(pool, form, value)`) composes exception/entry/validation/recommendation/decision reads into CaseDetailResponse, surfaces ENTRY_PASSED_VALIDATION/NOT_FOUND distinctly (FR-7.14), emits only status-appropriate recommendation fields (FR-7.7, no leakage), and declares the FR-7.8 permitted_decisions matrix server-side (closed=[], OPEN+AVAILABLE=[APPROVE,EDIT_APPROVE,REJECT], OPEN+PENDING/UNAVAILABLE=[EDIT_APPROVE,REJECT]). Both write nothing and call no append() (FR-7.10). Remaining phase-4 plans: 04-03 (routes call these services), 04-04 (F8 web screen).
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4: 04-01 + 04-02 gates green — `npm run build:server` exit 0; `npm run test:db` 175/175 (was 167, +8 new queueService.spec.ts), 0 regressions. NOTE for 04-03: import listQueue/loadCase directly from the two services; the route stays a thin HTTP translation layer (map 'ENTRY_PASSED_VALIDATION'/'NOT_FOUND' to HTTP, validate identifier FORM before calling loadCase). A CASE_READ_INVARIANT: Error from loadCase is an internal-500 (T-04-03), not a client shape. Env note: root node_modules present on this workspace; server/node_modules absent but the root workspace install covers the build/test (no reinstall needed this run).
+Last activity: 2026-09-15 — 04-02 executed: queue.service.ts (Task 1, 9a2665e), caseRead.service.ts (Task 2, 9dae847), DB-tier proof suite (Task 3, 8c2c318). Deviation (Rule 3, blocking): the 501-row truncation test could not use the plan's raw unnest() bulk insert — migration 0009's deferred coupling triggers refuse a bare cargo_entries/validation_results/exceptions insert at COMMIT; seeded 501 governed cases through append() in ONE transaction instead (fast: ~0.8s). Also fixed an exactOptionalPropertyTypes build error by composing optional recommendation-DTO keys via conditional assignment (omit rather than assign undefined) — caught by build:server before any commit. No production behaviour changed by either.
 
 Progress: [█████░░░░░] 50%
 
@@ -79,6 +79,7 @@ Progress: [█████░░░░░] 50%
 | Phase 03-receive-validate-except P06 | 8 min | 3 tasks | 4 files |
 | Phase 03 P07 | 12 min | 3 tasks | 3 files |
 | Phase 04-the-receipt-ordered-queue P01 | 6 min | 3 tasks | 6 files |
+| Phase 04-the-receipt-ordered-queue P02 | 6 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -142,6 +143,7 @@ Recent decisions affecting current work:
 - [Phase 03-receive-validate-except]: 03-06: a genuinely clean ocean entry provides THIRTEEN fields, not fourteen — RIV-073 forbids both a bill of lading and an air waybill, so field_origins has 13 HUMAN rows. Numeric byte-verbatim storage only holds at the column's scale (quantity numeric(14,3) / declared_value_usd numeric(14,2) reformat on the ::text read in loadEntryDetail), so the test submits numerics already at scale, matching 03-05's receipt.spec. requestId is read from res.locals['requestId'] (there is no req.requestId) and passed to receiveEntry for the audit request_id.
 - [Phase 03]: 03-07: criterion 4 evidenced by SQL (exceptions_basis_fk 23503, a foreign key not a P0001 trigger) + by code/API/UI (one write path, no authoring route, no authoring affordance) and criterion 5 by an eight-table census identical after forced mid-transaction failures. FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is NOT refused at the DB — basis/receipt-position immutability rests on the single write path, asserted architecturally. No production code changed.
 - [Phase 04-the-receipt-ordered-queue]: 04-01: the F7 read model is eight parameterised-SQL functions over Phase 1/3 tables — listOpenExceptions (parameterless, state='OPEN', LIMIT 501, ascending receipt_position), resolveCaseIdentifier (LEFT JOIN → FOUND/ENTRY_PASSED_VALIDATION/NOT_FOUND, value always bound ), loadExceptionDetail, loadFindingsByValidationResultIds (= ANY(::uuid[]) grouped), plus new read-only recommendations.ts/decisions.ts. No migration, no write path; closed cases stay reachable by identifier while filtered from the open queue.
+- [Phase 04-the-receipt-ordered-queue]: 04-02: F7 composition services — listQueue(pool) derives failure_summary from the first two findings in ascending rule_id order with an 'and N more' suffix using the authoritative findings_count (FR-7.6) and enforces a fixed 500-row truncation ceiling reachable through no parameter (FR-7.9/T-04-04); loadCase(pool, form, value) returns the FR-7.8 permitted_decisions matrix server-side (closed=[], OPEN+AVAILABLE=[APPROVE,EDIT_APPROVE,REJECT], OPEN+PENDING/UNAVAILABLE=[EDIT_APPROVE,REJECT]) and surfaces ENTRY_PASSED_VALIDATION/NOT_FOUND distinctly. Both read-only (no append, FR-7.10). Deviation: the 501-row truncation proof seeds through append() in ONE transaction, not a raw unnest bulk insert — the deferred coupling triggers refuse a bare cargo_entries/validation_results/exceptions insert at COMMIT. test:db 175/175 (+8), 0 regressions.
 
 ### Pending Todos
 
@@ -158,6 +160,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T19:50:52.623Z
-Stopped at: Completed 04-01-PLAN.md
+Last session: 2026-09-15T20:00:23.628Z
+Stopped at: Completed 04-02-PLAN.md
 Resume file: None
