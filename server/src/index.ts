@@ -14,6 +14,7 @@ import { loadConfig } from './config.js';
 import { createLogger } from './http/logger.js';
 import { createApp } from './http/app.js';
 import { getAppPool, closeAppPool } from './db/pool.app.js';
+import { assertRuleRegistryValid } from './services/validation/index.js';
 
 // ── Serving mode ─────────────────────────────────────────────────────────────
 //
@@ -30,6 +31,11 @@ import { getAppPool, closeAppPool } from './db/pool.app.js';
 async function main(): Promise<void> {
   // 1. Config + self-checks. Throws here, BEFORE listen (§8.7 step 6).
   const config = loadConfig();
+  // 1a. Rule registry integrity (F4 §Error States: RULE_SET_INVALID). An
+  //     inconsistent rule set must fail the deployment, not validate entries
+  //     inconsistently — so this runs before the server can accept a request.
+  //     A throw here reaches main().catch, which exits non-zero.
+  assertRuleRegistryValid();
   const logger = createLogger(config);
 
   // 2. §4.8 reduced-posture warning on a non-HTTPS origin: the session cookie
