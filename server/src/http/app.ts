@@ -1,15 +1,18 @@
 // Express application assembly (TechArch §1A.3, §4.6, §6.5).
 //
-// The middleware order below is NORMATIVE (§1A.3). The one ordering with a
-// security consequence is `session` BEFORE `csrf`: the CSRF check compares the
-// presented token against the session's stored hash, so it must run after the
-// session is resolved. `errorMapper` is registered LAST, as Express's error
+// The middleware order below is NORMATIVE (§1A.3). Two orderings carry a
+// security consequence. `session` runs BEFORE `csrf`: the CSRF check compares
+// the presented token against the session's stored hash, so it must run after
+// the session is resolved. And `requireApiAuth` runs AFTER `session` (it reads
+// the principal that middleware attached) and BEFORE `csrf`: a caller with no
+// session must be answered 401 UNAUTHENTICATED, not masked as 403 CSRF_INVALID
+// (F1 FR-1.7, §4.2). `errorMapper` is registered LAST, as Express's error
 // middleware. `htmlRouteGuard` runs AFTER the API routes so an unmatched
 // `/api/...` produces a JSON 404 envelope rather than the SPA document (§6.5).
 //
-//   requestId → headers → bodyLimit(64KB) → [static] → session → csrf
-//             → routes (+ /api 404, +405) → htmlRouteGuard → [SPA fallback]
-//             → errorMapper
+//   requestId → headers → bodyLimit(64KB) → [static] → session → requireApiAuth
+//             → csrf → routes (+ /api 404, +405) → htmlRouteGuard
+//             → [SPA fallback] → errorMapper
 //
 // createApp constructs NOTHING at import time and takes the pool as a parameter,
 // so an API test can hand it a per-suite database — which is also what makes the
@@ -24,6 +27,7 @@ import { requestId } from './requestId.js';
 import { securityHeaders } from './headers.js';
 import { errorMapper, ApiError } from './errorMapper.js';
 import { sessionMiddleware } from './session.middleware.js';
+import { requireApiAuth } from './requireApiAuth.js';
 import { csrfMiddleware } from './csrf.middleware.js';
 import { htmlRouteGuard } from './htmlRouteGuard.js';
 import { registerRoutes, API_ROUTE_TABLE } from './routes/index.js';
@@ -45,7 +49,8 @@ export interface CreateAppOptions {
  *
  * Middleware order is normative (TechArch §1A.3):
  *  requestId -> headers -> bodyLimit(64KB) -> cookies -> static
- *  -> session -> csrf -> routes -> htmlRouteGuard -> errorMapper
+ *  -> session -> requireApiAuth -> csrf -> routes -> htmlRouteGuard
+ *  -> errorMapper
  */
 export function createApp(opts: CreateAppOptions): express.Express {
   const { config, pool } = opts;
@@ -86,6 +91,15 @@ export function createApp(opts: CreateAppOptions): express.Express {
 
   // 5. Session resolution (attaches req.principal from the cookie alone).
   app.use(sessionMiddleware({ pool, clock }));
+
+  // 5a. API authentication gate. Runs AFTER session (reads the principal it
+  //     attached) and BEFORE csrf: any /api/* request except POST /api/session
+  //     with no principal is refused 401 UNAUTHENTICATED here, uniformly across
+  //     implemented, unimplemented and unknown paths, so a missing session is
+  //     never masked as 403 CSRF_INVALID and no path-existence oracle leaks
+  //     (F1 FR-1.7, §4.2). Static assets and HTML documents (not under /api)
+  //     pass through — the sign-in SPA bundle must reach an anonymous browser.
+  app.use(requireApiAuth());
 
   // 6. CSRF (double-submit) on every state-changing request bar POST /api/session.
   app.use(csrfMiddleware());
