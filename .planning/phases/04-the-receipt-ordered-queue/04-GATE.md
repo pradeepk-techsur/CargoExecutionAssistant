@@ -2398,3 +2398,7 @@ Warning: useLayoutEffect does nothing on the server, because its effect cannot b
 [2m   Duration [22m 675ms[2m (transform 150ms, setup 0ms, collect 297ms, tests 289ms, environment 0ms, prepare 22ms)[22m
 ```
 
+
+## Phase gate
+
+**final gate: inherited wave 4 result** — the code-review gate made zero source commits (0 BLOCKERs, no fixer run), and no commit touching `server/`, `web/`, or `contract/` landed after the wave 4 gate (980dc14). The final tree is byte-identical to the tree the wave 4 gate compiled and ran green (build pass, `npm test` pass: unit 218 / db 175 / api 124 / arch 148; e2e 37 via `test:all` at plan 04-04). This stands as the phase-level regression statement — the entire suite ran green on the final tree.
