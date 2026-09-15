@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-09-15T16:20:16.956Z"
-last_activity: "2026-09-15 — 03-02 executed: RIV-2026.09 rule set built as data (31-rule registry + 4 frozen domain code lists + pure normalisers + 71-case unit spec, TZ-stable). Commits a79339c (Task 1), 0ba8b34 (Task 2 RED), 0b17e94 (Task 2 GREEN), cae513d (SUMMARY). Runs parallel to 03-01/03-03 on phase-3."
+stopped_at: Completed 03-08-PLAN.md
+last_updated: "2026-09-15T16:29:58.340Z"
+last_activity: "2026-09-15 — 03-08 executed: the cargo-entry form primitives + client calls. SelectField/TextAreaField/DateField/Fieldset added to the ONE form pattern (shared useFieldIds+FormGroup, Field markup byte-identical), and api.createEntry/getEntry on the typed client (through request(), CSRF auto-attached). Commits 33c5e50 (Task 1), 922a361 (Task 2). Build 0, test:arch 130/130, sign-in+shell e2e 29/29."
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 27
-  completed_plans: 22
+  completed_plans: 23
   percent: 33
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
-Plan: 03-02 complete (RIV-2026.09 required-information rule set as DATA). Wave 1 plans 03-01/03-02/03-03 all executed (parallel on phase-3 branch); 03-01 delivered the receipt persistence surface (§3.12 contract types + entries/validation/exceptions repositories + db-tier proof) and 03-03 the API auth gate.
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress. 03-02 gates green — `npm run typecheck` and `npm run build:server` exit 0; `npm run test:unit` 189/189 (incl. validation.rules.spec.ts 71/71, TZ-stable under UTC and Pacific/Kiritimati), `npm run test:arch` 130/130 unchanged (no dep/route/table/UI added). RULE_SET_VERSION='RIV-2026.09' is the single refinement anchor; RULES is 31 entries, ascending, unique ids/codes, verbatim FRD F4 messages, DECLARED gating; content in rules.ts/domain.ts, mechanism (engine/gating/ordering/determinism/registry self-check + R-L10 architecture assertion) deferred to 03-04. Wider phase state (from parallel 03-01/03-03): test:db 123/123, test:api 77/77, contract carries the §3.12 wire types, INTERNAL_INVARIANT_CODES=9 (VALIDATION_ENGINE_FAILURE added), scaffolding.spec length pin fixed (341e032). Deviation D-2 (this plan): a transient minimal entries.ts stub unblocked the type-only import during parallel wave 1; superseded byte-compatibly by 03-01's full entries.ts (git merged clean, CanonicalEntryRecord unchanged).
-Last activity: 2026-09-15 — 03-02 executed: RIV-2026.09 rule set as data — 31-rule registry + 4 frozen domain code lists + pure normalisers + 71-case unit spec. Commits a79339c (Task 1), 0ba8b34 (RED), 0b17e94 (GREEN), cae513d (SUMMARY).
+Plan: 03-08 complete (cargo-entry web primitives + client calls, wave 2). Wave 1 (03-01/03-02/03-03) executed earlier — receipt persistence surface, RIV-2026.09 rule set as data, and the API auth gate. 03-08 extends the shared web primitives F6 needs so plan 03-09 can spend its context on the /entries/new screen itself.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (23/27 plans). 03-08 gates green — `npm run typecheck` and `npm run build` exit 0; `npm run test:arch` 130/130 unchanged; the 29 Phase 2 Playwright tests (sign-in 13 + shell 16) still pass, proving the refactor of Field's shared internals (into useFieldIds + FormGroup) left its certified markup byte-identical. UswdsForm.tsx now exports Field, SelectField, TextAreaField, DateField, Fieldset, SubmitButton, UswdsForm — one label/hint/error/aria-describedby/aria-invalid contract across all five controls. api/client.ts gains createEntry (POST /api/entries) and getEntry (GET /api/entries/{id}), both through request() so the rotate-on-GET CSRF token attaches automatically; no retry/idempotency/coercion/401-special-casing added. Deviation D-1 (this plan): DateField renders a plain usa-input (type=text) + YYYY-MM-DD hint — the installed @uswds/uswds build exposes only window.uswdsPresent, no imperative usa-date-picker.on(), so calendar init is a plan-sanctioned guarded no-op; the text input alone is authoritative and keyboard-operable (Screen-01). Playwright chromium + OS deps were installed in-sandbox (blocking env fix, no source impact).
+Last activity: 2026-09-15 — 03-08 executed: cargo-entry form primitives + client calls. Commits 33c5e50 (Task 1), 922a361 (Task 2).
 
 Progress: [███░░░░░░░] 33%
 
@@ -73,6 +73,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03-receive-validate-except P03 | 4 min | 2 tasks | 4 files |
 | Phase 03 P01 | 35 min | 3 tasks | 8 files |
 | Phase 03 P02 | 7 min | 2 tasks | 5 files |
+| Phase 03-receive-validate-except P08 | 5 min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,7 @@ Recent decisions affecting current work:
 - [Phase 03-receive-validate-except]: 03-03: requireApiAuth mounted after sessionMiddleware, before csrfMiddleware — every /api/* except POST /api/session with no principal ⇒ 401 UNAUTHENTICATED via errorMapper, uniform across implemented/unimplemented/unknown paths. Closes the 02-06 carry-forward; Phase 2 criterion 2 now fully evidenced (guard.spec 77 api tests). The 404/405 distinction is reserved for authenticated callers.
 - [Phase 03-receive-validate-except]: VALIDATION_ENGINE_FAILURE is an application-level internal invariant code (rule predicate throws / out-of-set finding) — in INTERNAL_INVARIANT_CODES, never ERROR_CODES; surfaces only as generic 500 RECEIPT_FAILED. Receipt repositories are Queryable-first, static-SQL, bind-only; both multi-row inserts use unnest() keeping the template-literal-SQL exclusion list at two files. No migration added — schema.spec still pins thirteen tables.
 - [Phase 03]: 03-02: RIV-2026.09 built as data — 31-rule RULES registry with per-rule pure predicates, four frozen domain code lists, and normalisers; a rule/message/code change is a data change plus a RULE_SET_VERSION bump, never architectural (STATE.md instruction satisfied). Mechanism (gating/ordering/determinism/engine) deferred to 03-04. 71 unit cases pass identically under TZ=UTC and TZ=Pacific/Kiritimati.
+- [Phase 03-receive-validate-except]: 03-08: SelectField/TextAreaField/DateField/Fieldset added to the ONE form pattern via shared useFieldIds+FormGroup; Field markup byte-identical (29 e2e + navigation.spec green). Char count is React-rendered (aria-live=polite), not USWDS JS. DateField is type=text + YYYY-MM-DD hint, calendar init a guarded no-op — the installed @uswds build exposes only window.uswdsPresent, no imperative on() (deviation D-1). api.createEntry/getEntry route through request() so the rotated CSRF token attaches automatically; no retry/idempotency/coercion/401-casing added; DTO types from @cargoexec/contract.
 
 ### Pending Todos
 
@@ -145,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T16:20:16.955Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-09-15T16:29:52.106Z
+Stopped at: Completed 03-08-PLAN.md
 Resume file: None
