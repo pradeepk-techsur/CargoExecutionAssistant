@@ -2,10 +2,9 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 04-04-PLAN.md
-last_updated: "2026-09-15T20:26:18.076Z"
-last_activity: "2026-09-15 — 04-04 executed (Phase 4 COMPLETE): api.getQueue/getCase + formatDateTime (Task 1, a17161b); Queue.tsx + router wiring + e2e/queue.spec.ts 8 scenarios (Task 2, fb0484f); table scroll-region + receiptPaths test-9 narrowing + sign-in de-flake (Task 3a, 3c43a97); docs/a11y/queue.md signed (Task 3b, baac039). test:all fully green — unit 218, db 175, api 124, arch 148, e2e 37; 0 failures/0 skipped. Deviations (4, all auto-fixed): [R1] formatDateTime pins 3-letter months (this ICU renders 'Sept'); [R1] queue table wrapped in usa-table-container--scrollable so body never scrolls at 320px; [R3] receiptPaths test 9 narrowed to 'no MUTATING method on an exception collection' (GET reads now legitimate); [R1] sign-in test 2 de-flaked (waited for /queue mount-fetch networkidle before clear-cookies/goto — the real queue's GET raced the next document, net::ERR_ABORTED)."
+status: planning
+last_updated: "2026-09-15T21:25:39.760Z"
+last_activity: "2026-09-15 — Phase 4 complete"
 progress:
   total_phases: 6
   completed_phases: 4
