@@ -3,9 +3,9 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-09-15T16:19:42.872Z"
-last_activity: "2026-09-15 — 03-01 executed: §3.12 contract types + three receipt repositories (entries/validation/exceptions) + nine-case db-tier proof; VALIDATION_ENGINE_FAILURE added to INTERNAL_INVARIANT_CODES. Commits f12ed52 (Task 1), a79339c (Task 2 code, mislabelled 03-02 by parallel run), 4e00dc2 (Task 3), 341e032 (fix scaffolding spec)."
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-09-15T16:20:16.956Z"
+last_activity: "2026-09-15 — 03-02 executed: RIV-2026.09 rule set built as data (31-rule registry + 4 frozen domain code lists + pure normalisers + 71-case unit spec, TZ-stable). Commits a79339c (Task 1), 0ba8b34 (Task 2 RED), 0b17e94 (Task 2 GREEN), cae513d (SUMMARY). Runs parallel to 03-01/03-03 on phase-3."
 progress:
   total_phases: 6
   completed_phases: 2
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
-Plan: 03-01 complete (receipt persistence surface: §3.12 contract types + entries/validation/exceptions repositories + db-tier proof). Wave 1 plans 03-01/03-02/03-03 all executed (parallel on phase-3 branch).
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress. 03-01 gates green — `npm run build:server` and `npm run typecheck` exit 0; `npm run test:unit` 189/189 (was 188; scaffolding.spec fixed for the 9th internal code), `npm run test:db` 123/123 (incl. entries.repo.spec.ts 9/9), `npm run test:api` 77/77, `npm run test:arch` 130/130 — schema.spec still pins thirteen tables (NO migration added). Contract now carries the eight §3.12 wire types + EntryCreateRequest; VALIDATION_ENGINE_FAILURE is in INTERNAL_INVARIANT_CODES (9 total), disjoint from ERROR_CODES. DEFERRED ITEM CLOSED: the scaffolding.spec length-8 pin that 03-03 logged for 03-01 is now fixed (commit 341e032). NOTE: Task 2's entries.ts diff was swept into a parallel 03-02-labelled commit (a79339c) on the shared branch — code correct at HEAD, cosmetic attribution only.
-Last activity: 2026-09-15 — 03-01 executed: §3.12 contract types + three receipt repositories (entries/validation/exceptions) + nine-case db-tier proof; VALIDATION_ENGINE_FAILURE added to INTERNAL_INVARIANT_CODES. Commits f12ed52 (Task 1), a79339c (Task 2 code, mislabelled 03-02 by parallel run), 4e00dc2 (Task 3), 341e032 (fix scaffolding spec).
+Plan: 03-02 complete (RIV-2026.09 required-information rule set as DATA). Wave 1 plans 03-01/03-02/03-03 all executed (parallel on phase-3 branch); 03-01 delivered the receipt persistence surface (§3.12 contract types + entries/validation/exceptions repositories + db-tier proof) and 03-03 the API auth gate.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress. 03-02 gates green — `npm run typecheck` and `npm run build:server` exit 0; `npm run test:unit` 189/189 (incl. validation.rules.spec.ts 71/71, TZ-stable under UTC and Pacific/Kiritimati), `npm run test:arch` 130/130 unchanged (no dep/route/table/UI added). RULE_SET_VERSION='RIV-2026.09' is the single refinement anchor; RULES is 31 entries, ascending, unique ids/codes, verbatim FRD F4 messages, DECLARED gating; content in rules.ts/domain.ts, mechanism (engine/gating/ordering/determinism/registry self-check + R-L10 architecture assertion) deferred to 03-04. Wider phase state (from parallel 03-01/03-03): test:db 123/123, test:api 77/77, contract carries the §3.12 wire types, INTERNAL_INVARIANT_CODES=9 (VALIDATION_ENGINE_FAILURE added), scaffolding.spec length pin fixed (341e032). Deviation D-2 (this plan): a transient minimal entries.ts stub unblocked the type-only import during parallel wave 1; superseded byte-compatibly by 03-01's full entries.ts (git merged clean, CanonicalEntryRecord unchanged).
+Last activity: 2026-09-15 — 03-02 executed: RIV-2026.09 rule set as data — 31-rule registry + 4 frozen domain code lists + pure normalisers + 71-case unit spec. Commits a79339c (Task 1), 0ba8b34 (RED), 0b17e94 (GREEN), cae513d (SUMMARY).
 
 Progress: [███░░░░░░░] 33%
 
@@ -72,6 +72,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 02-identity-and-the-federal-ui-foundation P09 | 22 min | 3 tasks | 6 files |
 | Phase 03-receive-validate-except P03 | 4 min | 2 tasks | 4 files |
 | Phase 03 P01 | 35 min | 3 tasks | 8 files |
+| Phase 03 P02 | 7 min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,7 @@ Recent decisions affecting current work:
 - [Phase 02]: 02-09: accessibility enforcement = the signed §7.7 record, never a CI gate. docs/a11y/{shell,sign-in}.md carry the checklist (machine lines annotated with the proving test, human lines countersigned), the AT walkthrough, and reviewer Pradeep K / 2026-09-15 / no defects. docs/uswds-conformance-register.md maps every control to its USWDS basis and is append-only across phases.
 - [Phase 03-receive-validate-except]: 03-03: requireApiAuth mounted after sessionMiddleware, before csrfMiddleware — every /api/* except POST /api/session with no principal ⇒ 401 UNAUTHENTICATED via errorMapper, uniform across implemented/unimplemented/unknown paths. Closes the 02-06 carry-forward; Phase 2 criterion 2 now fully evidenced (guard.spec 77 api tests). The 404/405 distinction is reserved for authenticated callers.
 - [Phase 03-receive-validate-except]: VALIDATION_ENGINE_FAILURE is an application-level internal invariant code (rule predicate throws / out-of-set finding) — in INTERNAL_INVARIANT_CODES, never ERROR_CODES; surfaces only as generic 500 RECEIPT_FAILED. Receipt repositories are Queryable-first, static-SQL, bind-only; both multi-row inserts use unnest() keeping the template-literal-SQL exclusion list at two files. No migration added — schema.spec still pins thirteen tables.
+- [Phase 03]: 03-02: RIV-2026.09 built as data — 31-rule RULES registry with per-rule pure predicates, four frozen domain code lists, and normalisers; a rule/message/code change is a data change plus a RULE_SET_VERSION bump, never architectural (STATE.md instruction satisfied). Mechanism (gating/ordering/determinism/engine) deferred to 03-04. 71 unit cases pass identically under TZ=UTC and TZ=Pacific/Kiritimati.
 
 ### Pending Todos
 
@@ -143,6 +145,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T16:19:03.737Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-09-15T16:20:16.955Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
