@@ -2,14 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-15T02:54:31.901Z"
-last_activity: "2026-09-15 — Phase 2 complete"
+status: executing
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-09-15T16:18:03.859Z"
+last_activity: "2026-09-15 — 03-03 executed: requireApiAuth gate added between session and CSRF; guard.spec tightened to the uniform 401; session.spec case 11 authenticates first. 2 commits (4b004b7 feat, bcc55e2 test)."
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 19
-  completed_plans: 19
+  total_plans: 27
+  completed_plans: 20
   percent: 33
 ---
 
@@ -20,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 2 — Identity and the Federal UI Foundation
+**Current focus:** Phase 3 — Receive, Validate, Except
 
 ## Current Position
 
-Phase: 2 of 6 (Identity and the Federal UI Foundation) — COMPLETE (9/9)
-Plan: 02-09 complete (exclusion & accessibility as artefacts). All nine Phase 2 plans have SUMMARY records; the phase is ready for transition/verification.
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). 02-09 gates green — `npm run test` unit 111 / db 114 / api 75 / arch 130 (was 67; +11 navigation, +48 headers, +4 absence) all pass 0 skipped; `npm run typecheck` and `npm run build` exit 0; `npx playwright test` 29 pass against the composed stack. Criterion 5 now evidenced by test (navigation.spec.ts: two nav items in data+DOM, exactly seven §3.17 routes, no excluded affordance outside the pinned footer, no RBAC identifier; proven red on a planted third nav item). Deviation D-1 evidenced by test (headers.spec.ts: no X-Frame-Options/COEP on any route or the SPA doc across three configs, loadConfig refusals, no dangerouslySetInnerHTML, no template-literal SQL). Forbidden-dependency gate now covers web/package.json + self-guards the workspaces array (proven red on a planted axe-core). Criterion 4 evidenced by artefact: docs/uswds-conformance-register.md + signed docs/a11y/shell.md and docs/a11y/sign-in.md (reviewer Pradeep K, 2026-09-15, AT walkthrough, no defects). CARRY-FORWARD (unchanged): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
-Last activity: 2026-09-15 — 02-09 executed: exclusion & accessibility made artefacts (2 new architecture specs + extended absence gate + register + 2 signed a11y records). No production code changed; no deviations affecting scope.
+Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
+Plan: 03-03 complete (API authentication gate). requireApiAuth is now mounted after sessionMiddleware and before csrfMiddleware.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress. 03-03 gates green for the tiers it owns — `npm run test:api` 77/77 (was 75; +2 gate-ordering cases 6 & 7), `npm run test:arch` 130/130, `npm run typecheck` and `npm run build` exit 0. CARRY-FORWARD CLOSED: Phase 2 criterion 2 ("all ten §3.1 pairs answer 401 unauthenticated") is now FULLY evidenced — requireApiAuth (server/src/http/requireApiAuth.ts) refuses every /api/* except POST /api/session with no principal at 401 UNAUTHENTICATED (uniform across implemented/unimplemented/unknown paths; guard.spec cases 3+4/5/6/7). NOTE: one out-of-scope pre-existing unit failure remains — scaffolding.spec expects 8 INTERNAL_INVARIANT_CODES but 03-01 added a 9th (VALIDATION_ENGINE_FAILURE); logged in phases/03-.../deferred-items.md for 03-01 to fix, unrelated to 03-03's files.
+Last activity: 2026-09-15 — 03-03 executed: requireApiAuth gate added between session and CSRF; guard.spec tightened to the uniform 401; session.spec case 11 authenticates first. 2 commits (4b004b7 feat, bcc55e2 test).
 
-Progress: [██████████] 100%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -69,6 +70,7 @@ Progress: [██████████] 100%
 | Phase 02 P07 | 62 min | 3 tasks | 10 files |
 | Phase 02 P08 | 6 min | 3 tasks | 6 files |
 | Phase 02-identity-and-the-federal-ui-foundation P09 | 22 min | 3 tasks | 6 files |
+| Phase 03-receive-validate-except P03 | 4 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -122,6 +124,7 @@ Recent decisions affecting current work:
 - [Phase 02]: 02-09: deviation D-1 is now a build constraint (headers.spec.ts) proven behaviourally over every API_ROUTE_TABLE path + SPA docs across governed±https and demo-iframe+https, and by source scan. The template-literal-SQL gate targets injection (caller data in query text); tx.ts SET LOCAL and writer.ts multi-row-INSERT placeholder scaffold are documented exclusions carrying no caller data.
 - [Phase 02]: 02-09: absence.spec.ts's forbidden-dependency gate now covers web/package.json and self-guards the root workspaces array (proven red on a planted axe-core in web) — previously the whole point of the gate leaked for the newest workspace. Added persistent gates: no raw hex/px in web/src/**/*.tsx (web/styles/ excluded), no Playwright html/reports artefact, no CDN host under web/. Allowlist-equality assertion deferred to Phase 5 (named in the TODO).
 - [Phase 02]: 02-09: accessibility enforcement = the signed §7.7 record, never a CI gate. docs/a11y/{shell,sign-in}.md carry the checklist (machine lines annotated with the proving test, human lines countersigned), the AT walkthrough, and reviewer Pradeep K / 2026-09-15 / no defects. docs/uswds-conformance-register.md maps every control to its USWDS basis and is append-only across phases.
+- [Phase 03-receive-validate-except]: 03-03: requireApiAuth mounted after sessionMiddleware, before csrfMiddleware — every /api/* except POST /api/session with no principal ⇒ 401 UNAUTHENTICATED via errorMapper, uniform across implemented/unimplemented/unknown paths. Closes the 02-06 carry-forward; Phase 2 criterion 2 now fully evidenced (guard.spec 77 api tests). The 404/405 distinction is reserved for authenticated callers.
 
 ### Pending Todos
 
@@ -133,10 +136,11 @@ None yet.
 
 - **Open assumption (REQUIREMENTS.md):** the 31 validation rules `RIV-010`–`RIV-132` are an implementation assumption open to CBP refinement. Build the Phase 3 rule registry so a rule change is a data change plus a `rule_set_version` bump — never an architectural one.
 - **Scope pressure is the named project risk (PRD R-2).** Every phase carries at least one criterion asserting an exclusion is structural. Do not let a plan add a filter, metric, export, role or ingestion path.
-- Criterion 2 partially unmet (02-06): the phase must_have 'all ten §3.1 pairs answer 401 unauthenticated' is not satisfied — 02-04 lacks an API auth gate. Fix in 02-04: add requireApiAuth (after sessionMiddleware, before csrfMiddleware) so any /api/* except POST /api/session with no principal ⇒ 401, then tighten guard.spec's 4 adjusted assertions back to 401. See 02-06-SUMMARY.md.
+- ~~Criterion 2 partially unmet (02-06)~~ **RESOLVED by 03-03:** requireApiAuth now runs after sessionMiddleware and before csrfMiddleware, so every /api/* except POST /api/session with no principal ⇒ 401 UNAUTHENTICATED (uniform across implemented/unimplemented/unknown paths). guard.spec tightened; api tier 77/77 green. Phase 2 criterion 2 is fully evidenced.
+- **Pre-existing unit failure (out of scope for 03-03, owner = 03-01):** `server/test/unit/scaffolding.spec.ts` expects 8 `INTERNAL_INVARIANT_CODES` but 03-01 (commit f12ed52) added a 9th (`VALIDATION_ENGINE_FAILURE`) without updating the spec. Logged in `.planning/phases/03-receive-validate-except/deferred-items.md`.
 
 ## Session Continuity
 
-Last session: 2026-09-15T00:44:30.585Z
-Stopped at: Completed 02-09-PLAN.md
+Last session: 2026-09-15T16:18:03.857Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None
