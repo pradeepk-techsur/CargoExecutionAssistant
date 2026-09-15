@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-07-PLAN.md
-last_updated: "2026-09-15T00:01:57.177Z"
-last_activity: "2026-09-14 — 02-07 executed: F1 accessible USWDS sign-in on the reduced shell + typed CSRF-aware client + inherited form/error-summary pattern + SessionProvider + browser walkthrough. Deviations: router restructured to host SessionProvider (blocking); live-region announcement-ordering bug fixed (Rule 1)."
+stopped_at: Completed 02-08-PLAN.md
+last_updated: "2026-09-15T00:12:54.158Z"
+last_activity: "2026-09-15 — 02-08 executed: the application runs. Multi-stage Dockerfile, compose web service (migrate → idempotent specialist bootstrap → serve on 0.0.0.0:3000), out-of-band ping.js liveness, demonstration README. No deviations."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 17
-  percent: 89
+  completed_plans: 18
+  percent: 94
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
-Plan: 02-07 complete (the F1 sign-in screen — the screen the phase is named for). Plans 02-01…02-07 executed; the phase's UI foundation now lands identity end-to-end in a browser.
-Status: Phase 1 complete (10/10). Phase 2: 02-01…02-07 executed. 02-07 gates green — npm run test 367 (unit 111, db 114, api 75, arch 67), typecheck + full build clean, CI=1 npx playwright test 29 passed (16 shell + 13 sign-in), 0 skipped. A specialist signs in keyboard-only, lands on /queue holding a session, and signs out — including after a page reload (the CSRF-rotation regression captured from the actual DELETE 204). UswdsForm/ErrorSummary are the single inherited pattern for F6/F12. NOTE (carry-forward from 02-06): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
-Last activity: 2026-09-14 — 02-07 executed: F1 accessible USWDS sign-in on the reduced shell + typed CSRF-aware client + inherited form/error-summary pattern + SessionProvider + browser walkthrough. Deviations: router restructured to host SessionProvider (blocking); live-region announcement-ordering bug fixed (Rule 1).
+Plan: 02-08 complete (the application runs). Plans 02-01…02-08 executed; the phase's UI foundation now boots as a container and is signed into against the real deployment, not only a test runner.
+Status: Phase 1 complete (10/10). Phase 2: 02-01…02-08 executed. 02-08 gates green — `docker compose up -d --build` brings db + web to Up (healthy); /sign-in 200 on port 3000, no X-Frame-Options, POST /api/session with the bootstrap account → 201 (Set-Cookie cargoexec_sid). Boot command runs migrate → create-specialist --from-env --if-absent → serve, all idempotent (restart against persisted volume: nothing to migrate, account already exists). Liveness is out-of-band `node server/dist/cli/ping.js` (SELECT 1), NOT an 11th HTTP route (§8.6). Both Playwright suites (29 = 16 shell + 13 sign-in) pass against the composed stack with E2E_BASE_URL=http://localhost:3000, 0 skipped; npm run test (111/114/75/67) + typecheck exit 0; no .github/seeds/fixtures. NOTE (carry-forward from 02-06/07): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
+Last activity: 2026-09-15 — 02-08 executed: the application runs. Multi-stage Dockerfile, compose web service (migrate → idempotent specialist bootstrap → serve on 0.0.0.0:3000), out-of-band ping.js liveness, demonstration README. No deviations.
 
-Progress: [█████████░] 89%
+Progress: [█████████░] 94%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [█████████░] 89%
 | Phase 02-identity-and-the-federal-ui-foundation P04 | 10 min | 3 tasks | 15 files |
 | Phase 02-identity-and-the-federal-ui-foundation P06 | 13 min | 3 tasks | 3 files |
 | Phase 02 P07 | 62 min | 3 tasks | 10 files |
+| Phase 02 P08 | 6 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,9 @@ Recent decisions affecting current work:
 - [Phase 02-identity-and-the-federal-ui-foundation]: Criterion 2 is only PARTIALLY evidenced: 02-04 has no API auth gate, so only GET /api/session returns 401 unauthenticated (DELETE⇒403, the 7 unimplemented pairs⇒404, /api/unknown⇒404). Follow-up in owning module 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware would restore uniform 401.
 - [Phase 02-identity-and-the-federal-ui-foundation]: 02-07: the CSRF token lives only in a module variable in api/client.ts and is re-stored inside getSession()/signIn() — the client half of 02-04's rotate-on-GET, so a page reload never leaves a dead token (proven by the sign-out-after-reload 204 regression test)
 - [Phase 02-identity-and-the-federal-ui-foundation]: 02-07: sign-in is the deliberate exception to the error pattern — one generic ERROR_MESSAGES.AUTH_FAILED item and NO aria-invalid on either input; unknown email and wrong password render an identical screen (asserted in e2e). SessionProvider became the router root layout (needs useNavigate/useAnnounce); old app/session.ts removed
+- [Phase 02]: [Phase 02]: The app runs via its own docker-compose.yml — web service command is migrate → create-specialist --from-env --if-absent → serve, every step idempotent (schema_migrations forward-only, ON CONFLICT DO NOTHING); connection strings address the db service name, never localhost. This is the deployment path 02-04's e2e webServer already mirrored.
+- [Phase 02]: [Phase 02]: Liveness is out-of-band (node server/dist/cli/ping.js, SELECT 1 on DATABASE_URL_APP, exit 0/1, never prints the connection string) with the §8.6 justification in the file header, so no future reader adds an eleventh HTTP health route past the exhaustive-at-ten inventory.
+- [Phase 02]: [Phase 02]: The runtime Docker stage uses npm ci --omit=dev (not a node_modules copy from build); argon2's prebuild re-resolves cleanly in the slim runtime image, so the documented fallback was unnecessary. The bootstrap specialist is the FR-1.13 operational account path (one row in specialists), not seed data — distinction documented in compose/.env.example/README.
 
 ### Pending Todos
 
@@ -129,6 +133,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T00:01:57.175Z
-Stopped at: Completed 02-07-PLAN.md
+Last session: 2026-09-15T00:12:18.718Z
+Stopped at: Completed 02-08-PLAN.md
 Resume file: None
