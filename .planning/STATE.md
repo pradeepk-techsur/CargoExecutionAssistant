@@ -2,15 +2,16 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-15T18:44:59.872Z"
-last_activity: "2026-09-15 — Phase 3 complete"
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-09-15T19:50:52.625Z"
+last_activity: "2026-09-15 — 03-07 executed (test-only): exceptionBasis.spec.ts (14 cases), receiptAtomicity.spec.ts (12 cases), receiptPaths.spec.ts (11 groups). FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is not refused at the DB — basis/receipt-position immutability rests on the single write path (asserted architecturally, not at the DB). Assertions 1/4/5/8 of receiptPaths proven RED on planted violations. Commits 1bf7156 (Task 1), d704fd6 (Task 2), 3f87f34 (Task 3)."
 progress:
   total_phases: 6
   completed_phases: 3
-  total_plans: 27
-  completed_plans: 27
-  percent: 50
+  total_plans: 31
+  completed_plans: 28
+  percent: 33
 ---
 
 # Project State
@@ -20,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 3 — Receive, Validate, Except
+**Current focus:** Phase 4 — The Receipt-Ordered Queue
 
 ## Current Position
 
-Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
-Plan: 03-07 complete — the exception-derivation integrity evidence (test-only, no production code). Wave 1 (03-01/03-02/03-03) built the receipt persistence surface, the RIV-2026.09 rule set as data, and the API auth gate; 03-04 the F4 engine; 03-05 the atomic receipt transaction; 03-06 the two reachable F3 endpoints; 03-08 the shared web primitives. 03-07 EVIDENCES the phase's two (no screen) success criteria: criterion 4 (an exception exists only where a validation failure exists — no API shape, screen affordance or application-role SQL path can author one) by SQL + code/API/UI, and criterion 5 (a failed receipt saves nothing) by an eight-table census. Remaining phase-3 plan: 03-09 (/entries/new screen) — NOT YET WRITTEN (no 03-09-PLAN.md on disk; the 8 PLAN files 03-01..03-08 all have summaries, but the phase is not complete until 03-09 lands).
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (8 plans written 03-01..03-08, all with summaries; 03-09 still to be authored). 03-07 gates green — `npm run build:server`/`npm run typecheck` exit 0; `npm run test` 630/630 (unit 218 / db 160 / api 104 / arch 148), 0 skipped. `git diff --stat` for this plan touches only the three new test files — no production code changed. receiptPaths.spec.ts is a permanent R-L5 guard with documented allowlist seams for Phase 4 (read services join the caller set) and Phase 6 (decision.service.ts joins the UPDATE-exceptions allowlist). NOTE for 03-09: the UI-absence assertions in receiptPaths.spec.ts re-run green against web/src/screens/NewEntry.tsx once it exists (do not add a file input, drag-drop, template download, batch paste, draft/autosave store, or open/create-exception copy).
-Last activity: 2026-09-15 — 03-07 executed (test-only): exceptionBasis.spec.ts (14 cases), receiptAtomicity.spec.ts (12 cases), receiptPaths.spec.ts (11 groups). FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is not refused at the DB — basis/receipt-position immutability rests on the single write path (asserted architecturally, not at the DB). Assertions 1/4/5/8 of receiptPaths proven RED on planted violations. Commits 1bf7156 (Task 1), d704fd6 (Task 2), 3f87f34 (Task 3).
+Phase: 4 of 6 (The Receipt-Ordered Queue) — IN PROGRESS
+Plan: 04-01 complete — the F7 read-only data layer. It is eight parameterised-SQL functions over Phase 1/3 tables plus the contract DTOs both the server and SPA import; no migration, no new table, no write path. `contract/src/dto.ts` gains RowSummaryDto/QueueResponse (queue) and CaseExceptionRef/RecommendationDetailDto/RecommendationProposedValueDto/DecisionDetailDto/DecisionValueDto/CaseDetailResponse (case detail). `exceptions.ts` gains listOpenExceptions (parameterless, state='OPEN', ORDER BY receipt_position ASC, LIMIT 501), resolveCaseIdentifier (LEFT JOIN → FOUND/ENTRY_PASSED_VALIDATION/NOT_FOUND; value always bound $1, safe on unvalidated input per T-04-01), loadExceptionDetail. `validation.ts` gains loadFindingsByValidationResultIds (= ANY($1::uuid[]) grouped ascending by rule_id, []-short-circuit). New read-only recommendations.ts (loadRecommendationByException/Values) and decisions.ts (loadDecisionByException joins specialists / loadDecisionValues). Remaining phase-4 plans: 04-02 (F7 services), 04-03 (routes), 04-04 (F8 web screen) — status unknown to this run.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 started: 04-01 gates green — `npm run build:server`/`npm run typecheck` exit 0; `npm run test:db` 167/167 (was 160, +7 new queueRead.repo.spec.ts), 0 regressions; receiptPaths.spec.ts 11/11 unmodified (the Phase 4 read services join its caller allowlist without deleting the test). NOTE for 04-02: compose these repositories in queue.service.ts / caseRead.service.ts — none of the eight functions writes, so the R-L5 guard stays green; the queue read takes NO filter/sort/paging bind (FR-7.2/7.3), only the fixed LIMIT 501 truncation ceiling. Env note: node_modules was absent on the fresh workspace — `npm install --include=dev` is the first command before any build/test.
+Last activity: 2026-09-15 — 04-01 executed: contract DTOs (Task 1, df95cbb), five read repositories (Task 2, 5747fe5), DB-tier proof suite (Task 3, 80b6297). Two test-harness fixes caught by the real DB during Task 3: a clean-entry insert must go through append() (coupling trigger refuses a bare cargo_entries insert) and a case close must UPDATE the existing PENDING recommendation to AVAILABLE (uq_recommendations_exception). No production repository change resulted. Deviation: `npm install --include=dev` (Rule 3, blocking — toolchain absent).
 
-Progress: [███░░░░░░░] 33%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -77,6 +78,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03-receive-validate-except P05 | 12 min | 2 tasks | 2 files |
 | Phase 03-receive-validate-except P06 | 8 min | 3 tasks | 4 files |
 | Phase 03 P07 | 12 min | 3 tasks | 3 files |
+| Phase 04-the-receipt-ordered-queue P01 | 6 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -139,6 +141,7 @@ Recent decisions affecting current work:
 - [Phase 03-receive-validate-except]: 03-06: the two F3 endpoints live in routes/entries.ts over receiveEntry. The route draws the structural-vs-required-information line: a .strict() zod schema (all 14 fields optional) makes an unknown property / client-supplied actor / skip-force flag a 422, while a required-information failure is a 201 with receipt_outcome EXCEPTION_OPENED and findings — no RIV code is ever an HTTP error. quantity '0' / negative declared value / calendrically-invalid arrival_date are 201s with RIV findings (F4's business), never 422s. API_ROUTE_TABLE is five-of-ten implemented (still ten rows); CSRF and the 405-on-unregistered-method both follow from the flag with no code change.
 - [Phase 03-receive-validate-except]: 03-06: a genuinely clean ocean entry provides THIRTEEN fields, not fourteen — RIV-073 forbids both a bill of lading and an air waybill, so field_origins has 13 HUMAN rows. Numeric byte-verbatim storage only holds at the column's scale (quantity numeric(14,3) / declared_value_usd numeric(14,2) reformat on the ::text read in loadEntryDetail), so the test submits numerics already at scale, matching 03-05's receipt.spec. requestId is read from res.locals['requestId'] (there is no req.requestId) and passed to receiveEntry for the audit request_id.
 - [Phase 03]: 03-07: criterion 4 evidenced by SQL (exceptions_basis_fk 23503, a foreign key not a P0001 trigger) + by code/API/UI (one write path, no authoring route, no authoring affordance) and criterion 5 by an eight-table census identical after forced mid-transaction failures. FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is NOT refused at the DB — basis/receipt-position immutability rests on the single write path, asserted architecturally. No production code changed.
+- [Phase 04-the-receipt-ordered-queue]: 04-01: the F7 read model is eight parameterised-SQL functions over Phase 1/3 tables — listOpenExceptions (parameterless, state='OPEN', LIMIT 501, ascending receipt_position), resolveCaseIdentifier (LEFT JOIN → FOUND/ENTRY_PASSED_VALIDATION/NOT_FOUND, value always bound ), loadExceptionDetail, loadFindingsByValidationResultIds (= ANY(::uuid[]) grouped), plus new read-only recommendations.ts/decisions.ts. No migration, no write path; closed cases stay reachable by identifier while filtered from the open queue.
 
 ### Pending Todos
 
@@ -155,6 +158,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T17:05:28.373Z
-Stopped at: Completed 03-07-PLAN.md
+Last session: 2026-09-15T19:50:52.623Z
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
