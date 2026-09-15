@@ -260,6 +260,12 @@ describe('headers — D-1 source guarantees', () => {
       DATABASE_URL_APP: 'postgres://stub',
       NODE_ENV: 'test',
       HOST: '0.0.0.0',
+      // The AI environment is mandatory since plan 05-01; the fake posture keeps
+      // this header/host-focused check's positive control valid without a real
+      // provider or API key.
+      AI_PROVIDER_URL: 'fake:deterministic',
+      AI_MODEL_ID: 'test-model',
+      PROMPT_VERSION: '2026.09.1',
     };
     expect(() => loadConfig({ ...base, FRAME_ANCESTORS: "'none'" })).toThrow();
     expect(() => loadConfig({ ...base, FRAME_ANCESTORS: 'none' })).toThrow();
