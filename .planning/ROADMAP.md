@@ -27,7 +27,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them (completed 2026-09-14)
 - [x] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits (completed 2026-09-15)
 - [x] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean (completed 2026-09-15)
-- [ ] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action
+- [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2026-09-15)
 - [ ] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such
 - [ ] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here**
 
@@ -101,7 +101,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 4: The Receipt-Ordered Queue
 **Goal**: A cargo specialist sees every open exception as one receipt-ordered list and opens the next one in a single action, so she spends her attention deciding cases rather than deciding which case to decide.
-**Status**: Passed
+**Status**: Complete (2026-09-15)
 **Depends on**: Phase 3
 **Requirements**: F7, F8
 **Non-functional carried**: NFR-2 (this screen's sign-off), NFR-10
@@ -194,7 +194,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
 | 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
 | 3. Receive, Validate, Except | 0/TBD | Complete | 2026-09-15 |
-| 4. The Receipt-Ordered Queue | 0/TBD | Passed | - |
+| 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2026-09-15 |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Not started | - |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Not started | - |
 
