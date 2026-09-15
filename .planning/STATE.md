@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-08-PLAN.md
-last_updated: "2026-09-15T16:29:58.340Z"
-last_activity: "2026-09-15 — 03-08 executed: the cargo-entry form primitives + client calls. SelectField/TextAreaField/DateField/Fieldset added to the ONE form pattern (shared useFieldIds+FormGroup, Field markup byte-identical), and api.createEntry/getEntry on the typed client (through request(), CSRF auto-attached). Commits 33c5e50 (Task 1), 922a361 (Task 2). Build 0, test:arch 130/130, sign-in+shell e2e 29/29."
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-09-15T16:32:11.615Z"
+last_activity: "2026-09-15 — 03-04 executed: F4 evaluation mechanism — pure evaluate() with declared gating, no short-circuit, ascending rule_id, two-value outcome; assertRuleRegistryValid() boot self-check; determinism proven three ways; validation.spec.ts build constraints. Commits 45963bb (Task 1), 770ed58 (Task 2), 5339613 (Task 3)."
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 27
-  completed_plans: 23
+  completed_plans: 25
   percent: 33
 ---
 
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
 Plan: 03-08 complete (cargo-entry web primitives + client calls, wave 2). Wave 1 (03-01/03-02/03-03) executed earlier — receipt persistence surface, RIV-2026.09 rule set as data, and the API auth gate. 03-08 extends the shared web primitives F6 needs so plan 03-09 can spend its context on the /entries/new screen itself.
 Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (23/27 plans). 03-08 gates green — `npm run typecheck` and `npm run build` exit 0; `npm run test:arch` 130/130 unchanged; the 29 Phase 2 Playwright tests (sign-in 13 + shell 16) still pass, proving the refactor of Field's shared internals (into useFieldIds + FormGroup) left its certified markup byte-identical. UswdsForm.tsx now exports Field, SelectField, TextAreaField, DateField, Fieldset, SubmitButton, UswdsForm — one label/hint/error/aria-describedby/aria-invalid contract across all five controls. api/client.ts gains createEntry (POST /api/entries) and getEntry (GET /api/entries/{id}), both through request() so the rotate-on-GET CSRF token attaches automatically; no retry/idempotency/coercion/401-special-casing added. Deviation D-1 (this plan): DateField renders a plain usa-input (type=text) + YYYY-MM-DD hint — the installed @uswds/uswds build exposes only window.uswdsPresent, no imperative usa-date-picker.on(), so calendar init is a plan-sanctioned guarded no-op; the text input alone is authoritative and keyboard-operable (Screen-01). Playwright chromium + OS deps were installed in-sandbox (blocking env fix, no source impact).
-Last activity: 2026-09-15 — 03-08 executed: cargo-entry form primitives + client calls. Commits 33c5e50 (Task 1), 922a361 (Task 2).
+Last activity: 2026-09-15 — 03-04 executed: F4 evaluation mechanism over 03-02's rule data. engine.ts evaluate(record, receivedAt) — declared requires_passed gating (never array position), no short-circuit, ascending rule_id findings, two-value PASS/FAIL, RULE_SET_VERSION stamp, no clock read; ValidationEngineError aborts (never partial). selfCheck.ts assertRuleRegistryValid() throws RULE_SET_INVALID before app.listen (not in createApp). index.ts is the directory's only public surface. Determinism PROVEN (two calls, two Node processes byte-identical, advanced fake clock + converse received_at control). validation.spec.ts makes purity(R-L10)/no-endpoint(FR-4.2)/no-bypass(FR-3.4)/no-grading(FR-4.9)/no-reference-table(FR-4.1) permanent build constraints; purity assertion proven RED on a planted Date.now(). Gates: typecheck/build:server exit 0, test:unit 218/218 (incl. 29 new engine+registry cases, TZ-stable), test:arch 137/137 (validation.spec 7/7, API_ROUTE_TABLE still 10). Deviation D-1: purity regex narrowed to zero-arg new Date() so normalise.ts's deterministic argument-form parse is allowed. Commits 45963bb (Task 1), 770ed58 (Task 2 RED tests), 5339613 (Task 3). [Runs parallel to 03-08 on phase-3; STATE frontmatter counter shared across the parallel wave.]
 
 Progress: [███░░░░░░░] 33%
 
@@ -74,6 +74,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03 P01 | 35 min | 3 tasks | 8 files |
 | Phase 03 P02 | 7 min | 2 tasks | 5 files |
 | Phase 03-receive-validate-except P08 | 5 min | 2 tasks | 2 files |
+| Phase 03-receive-validate-except P04 | 11 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,7 @@ Recent decisions affecting current work:
 - [Phase 03-receive-validate-except]: VALIDATION_ENGINE_FAILURE is an application-level internal invariant code (rule predicate throws / out-of-set finding) — in INTERNAL_INVARIANT_CODES, never ERROR_CODES; surfaces only as generic 500 RECEIPT_FAILED. Receipt repositories are Queryable-first, static-SQL, bind-only; both multi-row inserts use unnest() keeping the template-literal-SQL exclusion list at two files. No migration added — schema.spec still pins thirteen tables.
 - [Phase 03]: 03-02: RIV-2026.09 built as data — 31-rule RULES registry with per-rule pure predicates, four frozen domain code lists, and normalisers; a rule/message/code change is a data change plus a RULE_SET_VERSION bump, never architectural (STATE.md instruction satisfied). Mechanism (gating/ordering/determinism/engine) deferred to 03-04. 71 unit cases pass identically under TZ=UTC and TZ=Pacific/Kiritimati.
 - [Phase 03-receive-validate-except]: 03-08: SelectField/TextAreaField/DateField/Fieldset added to the ONE form pattern via shared useFieldIds+FormGroup; Field markup byte-identical (29 e2e + navigation.spec green). Char count is React-rendered (aria-live=polite), not USWDS JS. DateField is type=text + YYYY-MM-DD hint, calendar init a guarded no-op — the installed @uswds build exposes only window.uswdsPresent, no imperative on() (deviation D-1). api.createEntry/getEntry route through request() so the rotated CSRF token attaches automatically; no retry/idempotency/coercion/401-casing added; DTO types from @cargoexec/contract.
+- [Phase 03-receive-validate-except]: 03-04: F4 evaluation mechanism built over 03-02's rule data — pure evaluate(record, receivedAt) with declared requires_passed gating (never array position), no short-circuit, ascending rule_id findings, two-value PASS/FAIL, RULE_SET_VERSION stamp and no clock read; determinism PROVEN (two calls, two processes, advanced fake clock + converse received_at control). assertRuleRegistryValid() throws RULE_SET_INVALID before app.listen (not in createApp). validation.spec.ts makes purity/no-endpoint/no-bypass/no-grading/no-reference-table build constraints; purity assertion proven RED on a planted Date.now(). Deviation: purity regex narrowed to zero-arg new Date() so normalise.ts's deterministic argument-form date parse is allowed.
 
 ### Pending Todos
 
@@ -147,6 +149,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T16:29:52.106Z
-Stopped at: Completed 03-08-PLAN.md
+Last session: 2026-09-15T16:32:11.613Z
+Stopped at: Completed 03-04-PLAN.md
 Resume file: None
