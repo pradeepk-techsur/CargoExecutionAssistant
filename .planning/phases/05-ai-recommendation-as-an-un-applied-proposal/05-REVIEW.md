@@ -84,6 +84,13 @@ None.
   secret-value screen so it does not apply to AI proposed-value rows whose
   field_name is a known non-secret entry field. Do not weaken the denylist for
   human-authored audit values.
+- **Resolution:** fixed (1fa5736) — job.ts SUCCESS branch now catches
+  `AuditWriteError` with code `AUDIT_WRITE_FORBIDDEN_CONTENT` (thrown when a
+  proposed value trips `SECRET_VALUE_RES`) and records a terminal
+  UNAVAILABLE(CONTENT_FILTERED) outcome via a shared `writeUnavailable` helper,
+  so the case degrades cleanly instead of hanging PENDING. The denylist is left
+  intact; unrelated errors still propagate to the outer catch (PENDING as
+  before). Verified: typecheck clean, `generation.job.spec.ts` (all pass).
 
 ### W2: `loadRecommendationDetail`'s defensive PENDING branch omits `requested_at`, degrading F10's stale-clock accuracy
 - **File:** server/src/services/recommendationRead.service.ts:53
@@ -103,6 +110,10 @@ None.
   instead of fabricating a PENDING, matching the "loudly refuse rather than
   fabricate" posture used in `job.ts`), or explicitly document that the stale
   clock falls back to mount time here.
+- **Resolution:** fixed (27aa415) — the `row === null` branch now returns
+  `'NOT_FOUND'` (the route answers 404) rather than fabricating a `PENDING`
+  without `requested_at`, adopting the "loudly refuse rather than fabricate"
+  posture. Verified: typecheck clean, `recommendation.spec.ts` (all pass).
 
 ### W3: ProvenanceBadge's icon `<title>` is inert under `aria-hidden`, so the sprite adds no AT semantics
 - **File:** web/src/components/ProvenanceBadge.tsx:34-37
@@ -120,6 +131,10 @@ None.
 - **Fix direction:** Remove the now-inert `<title>` (the visible text is the
   accessible name) or drop `aria-hidden` if the icon is meant to be announced
   independently — pick one so the code matches its documented intent.
+- **Resolution:** fixed (66dbee0) — removed the inert `<title>`; the icon stays
+  `aria-hidden` (decorative), and the visible label remains the accessible name.
+  The file-header comment was corrected to no longer claim the `<title>` conveys
+  meaning to AT. Verified: build + typecheck clean, arch a11y specs pass.
 
 ## Cross-file seams checked
 
