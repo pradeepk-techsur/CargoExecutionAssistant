@@ -48,9 +48,13 @@ export async function loadRecommendationDetail(
 
   const row = await loadRecommendationByException(pool, exceptionId);
   if (row === null) {
-    // Should not happen — every exception gets a PENDING placeholder at
-    // receipt (F5 FR-5.12) — but compose defensively rather than throw.
-    return { status: 'PENDING' };
+    // Should not happen — every exception gets a PENDING placeholder at receipt
+    // (F5 FR-5.12). With no row we cannot supply a real `requested_at`, and
+    // fabricating a PENDING with a wrong/absent origin would silently skew F10's
+    // stale clock (CaseDetail seeds its 60s budget from requested_at). Loudly
+    // refuse rather than fabricate — match job.ts's posture and return NOT_FOUND
+    // so the route answers 404 rather than a hollow PENDING.
+    return 'NOT_FOUND';
   }
 
   if (row.status === 'AVAILABLE') {
