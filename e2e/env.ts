@@ -42,4 +42,24 @@ export const E2E_ENV = {
     'BOOTSTRAP_SPECIALIST_PASSWORD',
     'cargoexec-local-demo-password',
   ),
+
+  // ── The AI recommendation environment (§6.6; plan 05-01's required keys) ────
+  // loadConfig now makes these mandatory (AI code exists as of Phase 5), so the
+  // e2e web server aborts at boot without them — exactly like DATABASE_URL_APP.
+  // The whole object is handed to the webServer child process, so a PARTIAL
+  // addition would fail the AI self-checks and take every Phase 5 e2e suite down.
+  //
+  // AI_PROVIDER_URL=fake:deterministic wires createFakeProvider (config.ts §6.6
+  // / index.ts): the full generation pipeline runs with NO network dependency
+  // and NO real API key, so the browser suite proves genuine PENDING→AVAILABLE
+  // and PENDING→UNAVAILABLE transitions deterministically. AI_API_KEY is NOT
+  // needed for the fake posture (config.ts only requires it for a real https://
+  // provider). PROMPT_VERSION MUST be byte-identical to the version shipped in
+  // plan 05-01 (server/src/ai/prompt/manifest.json → '2026.09.1'); a mismatch
+  // fails the boot digest self-check.
+  AI_PROVIDER_URL: pick('AI_PROVIDER_URL', 'fake:deterministic'),
+  AI_MODEL_ID: pick('AI_MODEL_ID', 'e2e-fake-model'),
+  PROMPT_VERSION: pick('PROMPT_VERSION', '2026.09.1'),
+  AI_TIMEOUT_MS: pick('AI_TIMEOUT_MS', '20000'),
+  AI_WORKER_CONCURRENCY: pick('AI_WORKER_CONCURRENCY', '2'),
 } as const;
