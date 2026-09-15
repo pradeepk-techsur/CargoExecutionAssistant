@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-06-PLAN.md
-last_updated: "2026-09-14T22:46:12.467Z"
-last_activity: "2026-09-14 — 02-06 executed: three supertest suites (60 tests) on the withApi harness proving the unauthenticated matrix (criterion 2), the server-resolved actor across four naming vectors + a source scan (criterion 3), and idle/absolute/sign-out expiry recorded on the sessions row with a fixedClock (criterion 1). Test-only plan — no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than restructure the chain."
+stopped_at: Completed 02-07-PLAN.md
+last_updated: "2026-09-15T00:01:57.177Z"
+last_activity: "2026-09-14 — 02-07 executed: F1 accessible USWDS sign-in on the reduced shell + typed CSRF-aware client + inherited form/error-summary pattern + SessionProvider + browser walkthrough. Deviations: router restructured to host SessionProvider (blocking); live-region announcement-ordering bug fixed (Rule 1)."
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 19
-  completed_plans: 15
-  percent: 79
+  completed_plans: 17
+  percent: 89
 ---
 
 # Project State
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
-Plan: 02-06 complete (the governance suites: guard.spec, actor.spec, expiry.spec — the executable form of phase criteria 2, 3, 1). Plans 02-01/02/03/04/05/06 executed; 02-07 (the SPA calling the session endpoints) is next.
-Status: Phase 1 complete (10/10). Phase 2: 02-01…02-06 executed. 02-06 gates green — full npm run test 0 (unit 111, db 114, api 75, arch 67 = 367), typecheck clean, no skipped tests under server/test/api. The three governance criteria are now permanent regression assets. NOTE: criterion 2 is only PARTIALLY evidenced — 02-04 has no API auth gate, so only GET /api/session answers 401 unauthenticated; DELETE⇒403, unimplemented pairs⇒404. Recommended follow-up (owning module 02-04): a requireApiAuth middleware after sessionMiddleware/before csrfMiddleware. See 02-06-SUMMARY.md "Unmet must-haves".
-Last activity: 2026-09-14 — 02-06 executed: three supertest suites (60 tests) on the withApi harness proving the unauthenticated matrix (criterion 2), the server-resolved actor across four naming vectors + a source scan (criterion 3), and idle/absolute/sign-out expiry recorded on the sessions row with a fixedClock (criterion 1). Test-only plan — no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than restructure the chain.
+Plan: 02-07 complete (the F1 sign-in screen — the screen the phase is named for). Plans 02-01…02-07 executed; the phase's UI foundation now lands identity end-to-end in a browser.
+Status: Phase 1 complete (10/10). Phase 2: 02-01…02-07 executed. 02-07 gates green — npm run test 367 (unit 111, db 114, api 75, arch 67), typecheck + full build clean, CI=1 npx playwright test 29 passed (16 shell + 13 sign-in), 0 skipped. A specialist signs in keyboard-only, lands on /queue holding a session, and signs out — including after a page reload (the CSRF-rotation regression captured from the actual DELETE 204). UswdsForm/ErrorSummary are the single inherited pattern for F6/F12. NOTE (carry-forward from 02-06): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
+Last activity: 2026-09-14 — 02-07 executed: F1 accessible USWDS sign-in on the reduced shell + typed CSRF-aware client + inherited form/error-summary pattern + SessionProvider + browser walkthrough. Deviations: router restructured to host SessionProvider (blocking); live-region announcement-ordering bug fixed (Rule 1).
 
-Progress: [███████░░░] 79%
+Progress: [█████████░] 89%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [███████░░░] 79%
 | Phase 02-identity-and-the-federal-ui-foundation P03 | 9 min | 3 tasks | 9 files |
 | Phase 02-identity-and-the-federal-ui-foundation P04 | 10 min | 3 tasks | 15 files |
 | Phase 02-identity-and-the-federal-ui-foundation P06 | 13 min | 3 tasks | 3 files |
+| Phase 02 P07 | 62 min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,8 @@ Recent decisions affecting current work:
 - [Phase 02-identity-and-the-federal-ui-foundation]: csrfMiddleware lets a state-changing method with no implemented route pass so PUT /api/session answers 405, not a masking 403; pool.app/ai.ts converted to pg interop-default import for native ESM boot
 - [Phase 02-identity-and-the-federal-ui-foundation]: 02-06 governance suites (guard/actor/expiry.spec, 60 tests) evidence phase criteria 2/3/1 as permanent regression assets; test-only, no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than add an API auth gate.
 - [Phase 02-identity-and-the-federal-ui-foundation]: Criterion 2 is only PARTIALLY evidenced: 02-04 has no API auth gate, so only GET /api/session returns 401 unauthenticated (DELETE⇒403, the 7 unimplemented pairs⇒404, /api/unknown⇒404). Follow-up in owning module 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware would restore uniform 401.
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-07: the CSRF token lives only in a module variable in api/client.ts and is re-stored inside getSession()/signIn() — the client half of 02-04's rotate-on-GET, so a page reload never leaves a dead token (proven by the sign-out-after-reload 204 regression test)
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-07: sign-in is the deliberate exception to the error pattern — one generic ERROR_MESSAGES.AUTH_FAILED item and NO aria-invalid on either input; unknown email and wrong password render an identical screen (asserted in e2e). SessionProvider became the router root layout (needs useNavigate/useAnnounce); old app/session.ts removed
 
 ### Pending Todos
 
@@ -126,6 +129,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-14T22:46:04.615Z
-Stopped at: Completed 02-06-PLAN.md
+Last session: 2026-09-15T00:01:57.175Z
+Stopped at: Completed 02-07-PLAN.md
 Resume file: None
