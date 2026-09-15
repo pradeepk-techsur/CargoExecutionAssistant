@@ -321,11 +321,17 @@ function coerceNumerics(parsed: ParsedBody): Partial<Record<EntryFieldName, stri
       details.push({ field, code: 'not_numeric', message: notNumericMessage(field) });
       continue;
     }
-    const intDigits = m[1] ?? '';
+    const intDigits = (m[1] ?? '').replace(/^0+(?=\d)/, '');
     const fracDigits = m[2] ?? '';
     const totalDigits = intDigits.length + fracDigits.length;
     const maxDecimals = MAX_DECIMALS[field as 'quantity' | 'declared_value_usd'];
-    if (totalDigits > MAX_TOTAL_DIGITS) {
+    // The DB column is numeric(14, maxDecimals): its integer part holds at most
+    // precision − scale = MAX_TOTAL_DIGITS − maxDecimals digits. Bound the integer
+    // part explicitly — bounding only the combined total lets a value like
+    // quantity "123456789012" (12 int digits, precision 12 ≤ 14) through the total
+    // gate and overflow numeric(14,3) as Postgres 22003 → an FRD-forbidden 500.
+    const maxIntDigits = MAX_TOTAL_DIGITS - maxDecimals;
+    if (intDigits.length > maxIntDigits || totalDigits > MAX_TOTAL_DIGITS) {
       details.push({
         field,
         code: 'too_many_decimals',
