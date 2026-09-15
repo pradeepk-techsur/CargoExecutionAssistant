@@ -67,7 +67,7 @@ fi
 # boots are.
 #
 # Escape hatch: PIVOTA_DEV_FORCE_RESTART=1 always does the full boot.
-READY_PORTS="5432"
+READY_PORTS="3000 5432"
 DEV_STATE="/tmp/pivota-dev-boot-state"
 dev_boot_state() {
   # Cheap, deterministic, and quiet. `compose config` resolves env/overrides,
@@ -323,13 +323,12 @@ for _ in 1 2 3; do
   docker compose restart db
   sleep 5
 done
-# Forward-only migration runner, in the repo'\''s own `migrate` profile service.
-# It reads node_modules from the bind-mounted repo, which is why the install
-# step above is not the usual compose no-op. Re-running is idempotent
-# ("No migrations to run!"), so this is safe on every boot.
-docker compose --profile migrate run --rm migrate || exit 1
-# Foreground process the platform supervises.
-docker compose up db'
+# The web service (added in phase 2) owns migrate -> idempotent account
+# bootstrap -> serve in its OWN compose `command`, so the wrapper does NOT run a
+# separate migrate here (that would double-run and, worse, leave the app never
+# started). Foreground the whole stack so the platform supervises the web app on
+# :3000, which is the port a human previews and verify tests.
+docker compose up --build db web'
 
 # #219: record what this boot is FOR, so the fast path at the top of the file
 # can tell "already running the same thing" from "running something stale".
