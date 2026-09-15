@@ -16,6 +16,24 @@ import type { Queryable } from './types.js';
  */
 
 /**
+ * Convert a bigint `receipt_position` (pg returns it as a string) to the
+ * `number` the contract types it as (dto.ts ExceptionRef.receipt_position). The
+ * sequence sits far below Number.MAX_SAFE_INTEGER for any realistic receipt
+ * volume; should a future high-volume deployment ever exceed 2^53, THROW rather
+ * than truncate silently — a lost-precision receipt position is an internal
+ * invariant breach, never a value we quietly round.
+ */
+function toReceiptPosition(raw: string): number {
+  const n = Number(raw);
+  if (!Number.isSafeInteger(n)) {
+    throw new Error(
+      `receipt_position ${raw} exceeds Number.MAX_SAFE_INTEGER; the contract types it as number`,
+    );
+  }
+  return n;
+}
+
+/**
  * Open the exception for a failing validation. Binds ONLY `entry_id` and
  * `validation_result_id`; `validation_outcome`, `state` and `receipt_position`
  * are DDL defaults (`'FAIL'`, `'OPEN'`, `nextval('exception_receipt_position_seq')`).
@@ -41,9 +59,7 @@ export async function insertException(
   if (row === undefined) {
     throw new Error('insertException: INSERT returned no row');
   }
-  // receipt_position is a bigint — pg returns it as a string; the sequence is far
-  // below Number.MAX_SAFE_INTEGER for any realistic receipt volume.
-  return { id: row.id, state: row.state as 'OPEN', receipt_position: Number(row.receipt_position) };
+  return { id: row.id, state: row.state as 'OPEN', receipt_position: toReceiptPosition(row.receipt_position) };
 }
 
 /**
@@ -83,5 +99,5 @@ export async function loadExceptionRefByEntry(
   if (row === undefined) {
     return null;
   }
-  return { id: row.id, state: row.state, receipt_position: Number(row.receipt_position) };
+  return { id: row.id, state: row.state, receipt_position: toReceiptPosition(row.receipt_position) };
 }
