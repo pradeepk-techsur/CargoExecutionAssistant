@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-06-PLAN.md
-last_updated: "2026-09-15T16:53:14.919Z"
-last_activity: "2026-09-15 — 03-06 executed: routes/entries.ts (both F3 handlers) + API_ROUTE_TABLE to five implemented + boot.spec to five + entries.spec.ts (27 cases). Empty body ⇒ 201 with 13 ordered findings; quantity '0' / declared_value '-5' / arrival_date '2026-02-30' are 201s with RIV findings, not 422s; duplicate ⇒ 409 persisting nothing; no cookie ⇒ 401, cookie without CSRF ⇒ 403. Deviations (all test-correctness, no prod change): clean entry provides 13 origins not 14 (RIV-073 forbids BOL+AWB together); numeric byte-verbatim needs submission at column scale (numeric(14,3)/(14,2) reformat on read); --reporter=list unsupported by the repo vitest → default reporter. Commits 4d8ae3b (Task 1), 84503cb (Task 2), 47d3198 (Task 3)."
+stopped_at: Completed 03-07-PLAN.md
+last_updated: "2026-09-15T17:05:28.375Z"
+last_activity: "2026-09-15 — 03-07 executed (test-only, ZERO production code changed): three specs evidencing the phase's two (no screen) criteria. exceptionBasis.spec.ts (14 cases, cargoexec_app) — an exception on a PASS result is refused by exceptions_basis_fk (23503, a foreign key not a P0001 trigger), is-failure CHECK, NOT NULL basis, findings uniqueness, one-per-entry, receipt_position monotonic + uncompacted rollback gap, nine-column set, state CHECK. receiptAtomicity.spec.ts (12 cases) — forced real mid-transaction failures leave an eight-table census identical (incl. zero new cargo_entries), five whole-DB orphan/coupling invariants = 0, exact positive-control deltas, contiguous case_sequence. receiptPaths.spec.ts (11 groups) — one INSERT path (three repos), sole caller receipt.service.ts, no UPDATE/DELETE on the five immutable tables, no UPDATE exceptions, no authoring route/function/affordance, no ingestion/draft store; assertions 1/4/5/8 proven RED on planted violations. FINDING: HITL trigger guards only state<>OPEN, so basis/receipt_position UPDATE on an OPEN exception is not refused at the DB — immutability rests on the single write path (asserted architecturally). Gates: build:server + typecheck exit 0; test 630/630 (unit 218/db 160/api 104/arch 148), 0 skipped. Commits 1bf7156, d704fd6, 3f87f34."
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 27
-  completed_plans: 26
+  completed_plans: 27
   percent: 33
 ---
 
@@ -26,9 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 3 of 6 (Receive, Validate, Except) — IN PROGRESS
-Plan: 03-06 complete — the two F3 endpoints over receiveEntry. Wave 1 (03-01/03-02/03-03) built the receipt persistence surface, the RIV-2026.09 rule set as data, and the API auth gate; 03-04 the F4 engine; 03-05 the atomic receipt transaction; 03-08 the shared web primitives. 03-06 makes the receipt REACHABLE: POST /api/entries and GET /api/entries/:entryId are implemented and CSRF-guarded, and the structural-vs-required-information line is drawn at the route (a validation failure is a 201 with EXCEPTION_OPENED, never an HTTP error). Remaining phase-3 plans: 03-07 (exception-derivation integrity), 03-09 (/entries/new screen).
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (7/8 plans have summaries). 03-06 gates green — `npm run build`/`npm run typecheck` exit 0; `npm run test:api` 104/104 (27 new entries cases); `npm run test:arch` 137/137; `npm run test:unit` 218/218. API_ROUTE_TABLE is now five-of-ten implemented (still exactly ten rows — no eleventh); csrf.middleware turns on for POST /api/entries automatically from the flag; app.ts answers 405 on /api/entries for an unregistered method. routes/entries.ts exports only entryRoutes; no PUT/PATCH/DELETE, no idempotency-key handling, no collection listing, trim-only canonicalisation. NOTE for 03-09: the screen consumes POST /api/entries; the response is the discriminated ReceiptResponse (receipt_outcome + case_reference + validation + exception + next).
-Last activity: 2026-09-15 — 03-06 executed: routes/entries.ts (both F3 handlers) + API_ROUTE_TABLE to five implemented + boot.spec to five + entries.spec.ts (27 cases). Empty body ⇒ 201 with 13 ordered findings; quantity '0' / declared_value '-5' / arrival_date '2026-02-30' are 201s with RIV findings, not 422s; duplicate ⇒ 409 persisting nothing; no cookie ⇒ 401, cookie without CSRF ⇒ 403. Deviations (all test-correctness, no prod change): clean entry provides 13 origins not 14 (RIV-073 forbids BOL+AWB together); numeric byte-verbatim needs submission at column scale (numeric(14,3)/(14,2) reformat on read); --reporter=list unsupported by the repo vitest → default reporter. Commits 4d8ae3b (Task 1), 84503cb (Task 2), 47d3198 (Task 3).
+Plan: 03-07 complete — the exception-derivation integrity evidence (test-only, no production code). Wave 1 (03-01/03-02/03-03) built the receipt persistence surface, the RIV-2026.09 rule set as data, and the API auth gate; 03-04 the F4 engine; 03-05 the atomic receipt transaction; 03-06 the two reachable F3 endpoints; 03-08 the shared web primitives. 03-07 EVIDENCES the phase's two (no screen) success criteria: criterion 4 (an exception exists only where a validation failure exists — no API shape, screen affordance or application-role SQL path can author one) by SQL + code/API/UI, and criterion 5 (a failed receipt saves nothing) by an eight-table census. Remaining phase-3 plan: 03-09 (/entries/new screen) — NOT YET WRITTEN (no 03-09-PLAN.md on disk; the 8 PLAN files 03-01..03-08 all have summaries, but the phase is not complete until 03-09 lands).
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress (8 plans written 03-01..03-08, all with summaries; 03-09 still to be authored). 03-07 gates green — `npm run build:server`/`npm run typecheck` exit 0; `npm run test` 630/630 (unit 218 / db 160 / api 104 / arch 148), 0 skipped. `git diff --stat` for this plan touches only the three new test files — no production code changed. receiptPaths.spec.ts is a permanent R-L5 guard with documented allowlist seams for Phase 4 (read services join the caller set) and Phase 6 (decision.service.ts joins the UPDATE-exceptions allowlist). NOTE for 03-09: the UI-absence assertions in receiptPaths.spec.ts re-run green against web/src/screens/NewEntry.tsx once it exists (do not add a file input, drag-drop, template download, batch paste, draft/autosave store, or open/create-exception copy).
+Last activity: 2026-09-15 — 03-07 executed (test-only): exceptionBasis.spec.ts (14 cases), receiptAtomicity.spec.ts (12 cases), receiptPaths.spec.ts (11 groups). FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is not refused at the DB — basis/receipt-position immutability rests on the single write path (asserted architecturally, not at the DB). Assertions 1/4/5/8 of receiptPaths proven RED on planted violations. Commits 1bf7156 (Task 1), d704fd6 (Task 2), 3f87f34 (Task 3).
 
 Progress: [███░░░░░░░] 33%
 
@@ -77,6 +77,7 @@ Progress: [███░░░░░░░] 33%
 | Phase 03-receive-validate-except P04 | 11 min | 3 tasks | 7 files |
 | Phase 03-receive-validate-except P05 | 12 min | 2 tasks | 2 files |
 | Phase 03-receive-validate-except P06 | 8 min | 3 tasks | 4 files |
+| Phase 03 P07 | 12 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,7 @@ Recent decisions affecting current work:
 - [Phase 03-receive-validate-except]: 03-04: F4 evaluation mechanism built over 03-02's rule data — pure evaluate(record, receivedAt) with declared requires_passed gating (never array position), no short-circuit, ascending rule_id findings, two-value PASS/FAIL, RULE_SET_VERSION stamp and no clock read; determinism PROVEN (two calls, two processes, advanced fake clock + converse received_at control). assertRuleRegistryValid() throws RULE_SET_INVALID before app.listen (not in createApp). validation.spec.ts makes purity/no-endpoint/no-bypass/no-grading/no-reference-table build constraints; purity assertion proven RED on a planted Date.now(). Deviation: purity regex narrowed to zero-arg new Date() so normalise.ts's deterministic argument-form date parse is allowed.
 - [Phase 03-receive-validate-except]: 03-06: the two F3 endpoints live in routes/entries.ts over receiveEntry. The route draws the structural-vs-required-information line: a .strict() zod schema (all 14 fields optional) makes an unknown property / client-supplied actor / skip-force flag a 422, while a required-information failure is a 201 with receipt_outcome EXCEPTION_OPENED and findings — no RIV code is ever an HTTP error. quantity '0' / negative declared value / calendrically-invalid arrival_date are 201s with RIV findings (F4's business), never 422s. API_ROUTE_TABLE is five-of-ten implemented (still ten rows); CSRF and the 405-on-unregistered-method both follow from the flag with no code change.
 - [Phase 03-receive-validate-except]: 03-06: a genuinely clean ocean entry provides THIRTEEN fields, not fourteen — RIV-073 forbids both a bill of lading and an air waybill, so field_origins has 13 HUMAN rows. Numeric byte-verbatim storage only holds at the column's scale (quantity numeric(14,3) / declared_value_usd numeric(14,2) reformat on the ::text read in loadEntryDetail), so the test submits numerics already at scale, matching 03-05's receipt.spec. requestId is read from res.locals['requestId'] (there is no req.requestId) and passed to receiveEntry for the audit request_id.
+- [Phase 03]: 03-07: criterion 4 evidenced by SQL (exceptions_basis_fk 23503, a foreign key not a P0001 trigger) + by code/API/UI (one write path, no authoring route, no authoring affordance) and criterion 5 by an eight-table census identical after forced mid-transaction failures. FINDING: the HITL trigger guards only state<>OPEN, so an UPDATE of validation_result_id/receipt_position on an OPEN exception is NOT refused at the DB — basis/receipt-position immutability rests on the single write path, asserted architecturally. No production code changed.
 
 ### Pending Todos
 
@@ -154,6 +156,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T16:53:14.917Z
-Stopped at: Completed 03-06-PLAN.md
+Last session: 2026-09-15T17:05:28.373Z
+Stopped at: Completed 03-07-PLAN.md
 Resume file: None
