@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-stopped_at: Completed 02-08-PLAN.md
-last_updated: "2026-09-15T00:12:54.158Z"
-last_activity: "2026-09-15 — 02-08 executed: the application runs. Multi-stage Dockerfile, compose web service (migrate → idempotent specialist bootstrap → serve on 0.0.0.0:3000), out-of-band ping.js liveness, demonstration README. No deviations."
+stopped_at: Completed 02-09-PLAN.md
+last_updated: "2026-09-15T00:44:30.587Z"
+last_activity: "2026-09-15 — 02-09 executed: exclusion & accessibility made artefacts (2 new architecture specs + extended absence gate + register + 2 signed a11y records). No production code changed; no deviations affecting scope."
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 19
-  completed_plans: 18
-  percent: 94
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 
 ## Current Position
 
-Phase: 2 of 6 (Identity and the Federal UI Foundation) — IN PROGRESS
-Plan: 02-08 complete (the application runs). Plans 02-01…02-08 executed; the phase's UI foundation now boots as a container and is signed into against the real deployment, not only a test runner.
-Status: Phase 1 complete (10/10). Phase 2: 02-01…02-08 executed. 02-08 gates green — `docker compose up -d --build` brings db + web to Up (healthy); /sign-in 200 on port 3000, no X-Frame-Options, POST /api/session with the bootstrap account → 201 (Set-Cookie cargoexec_sid). Boot command runs migrate → create-specialist --from-env --if-absent → serve, all idempotent (restart against persisted volume: nothing to migrate, account already exists). Liveness is out-of-band `node server/dist/cli/ping.js` (SELECT 1), NOT an 11th HTTP route (§8.6). Both Playwright suites (29 = 16 shell + 13 sign-in) pass against the composed stack with E2E_BASE_URL=http://localhost:3000, 0 skipped; npm run test (111/114/75/67) + typecheck exit 0; no .github/seeds/fixtures. NOTE (carry-forward from 02-06/07): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
-Last activity: 2026-09-15 — 02-08 executed: the application runs. Multi-stage Dockerfile, compose web service (migrate → idempotent specialist bootstrap → serve on 0.0.0.0:3000), out-of-band ping.js liveness, demonstration README. No deviations.
+Phase: 2 of 6 (Identity and the Federal UI Foundation) — COMPLETE (9/9)
+Plan: 02-09 complete (exclusion & accessibility as artefacts). All nine Phase 2 plans have SUMMARY records; the phase is ready for transition/verification.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). 02-09 gates green — `npm run test` unit 111 / db 114 / api 75 / arch 130 (was 67; +11 navigation, +48 headers, +4 absence) all pass 0 skipped; `npm run typecheck` and `npm run build` exit 0; `npx playwright test` 29 pass against the composed stack. Criterion 5 now evidenced by test (navigation.spec.ts: two nav items in data+DOM, exactly seven §3.17 routes, no excluded affordance outside the pinned footer, no RBAC identifier; proven red on a planted third nav item). Deviation D-1 evidenced by test (headers.spec.ts: no X-Frame-Options/COEP on any route or the SPA doc across three configs, loadConfig refusals, no dangerouslySetInnerHTML, no template-literal SQL). Forbidden-dependency gate now covers web/package.json + self-guards the workspaces array (proven red on a planted axe-core). Criterion 4 evidenced by artefact: docs/uswds-conformance-register.md + signed docs/a11y/shell.md and docs/a11y/sign-in.md (reviewer Pradeep K, 2026-09-15, AT walkthrough, no defects). CARRY-FORWARD (unchanged): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
+Last activity: 2026-09-15 — 02-09 executed: exclusion & accessibility made artefacts (2 new architecture specs + extended absence gate + register + 2 signed a11y records). No production code changed; no deviations affecting scope.
 
-Progress: [█████████░] 94%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -69,6 +69,7 @@ Progress: [█████████░] 94%
 | Phase 02-identity-and-the-federal-ui-foundation P06 | 13 min | 3 tasks | 3 files |
 | Phase 02 P07 | 62 min | 3 tasks | 10 files |
 | Phase 02 P08 | 6 min | 3 tasks | 6 files |
+| Phase 02-identity-and-the-federal-ui-foundation P09 | 22 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -118,6 +119,10 @@ Recent decisions affecting current work:
 - [Phase 02]: [Phase 02]: The app runs via its own docker-compose.yml — web service command is migrate → create-specialist --from-env --if-absent → serve, every step idempotent (schema_migrations forward-only, ON CONFLICT DO NOTHING); connection strings address the db service name, never localhost. This is the deployment path 02-04's e2e webServer already mirrored.
 - [Phase 02]: [Phase 02]: Liveness is out-of-band (node server/dist/cli/ping.js, SELECT 1 on DATABASE_URL_APP, exit 0/1, never prints the connection string) with the §8.6 justification in the file header, so no future reader adds an eleventh HTTP health route past the exhaustive-at-ten inventory.
 - [Phase 02]: [Phase 02]: The runtime Docker stage uses npm ci --omit=dev (not a node_modules copy from build); argon2's prebuild re-resolves cleanly in the slim runtime image, so the documented fallback was unnecessary. The bootstrap specialist is the FR-1.13 operational account path (one row in specialists), not seed data — distinction documented in compose/.env.example/README.
+- [Phase 02]: 02-09: criterion 5 is now a build constraint. navigation.spec.ts imports web/src .tsx into the server architecture suite and renders via react-dom/server (createElement, no JSX so the file stays navigation.spec.ts) — safe under typecheck because server/tsconfig include=['src'] excludes test/, and vitest transforms via esbuild. It scans AFFORDANCES (to/href/path values in both object-literal and JSX forms, NAV_ITEMS labels, rendered link/button names) not raw tokens, so export/filter/sort/reporter cannot trip it; footer excluded but its link set pinned-and-asserted equal.
+- [Phase 02]: 02-09: deviation D-1 is now a build constraint (headers.spec.ts) proven behaviourally over every API_ROUTE_TABLE path + SPA docs across governed±https and demo-iframe+https, and by source scan. The template-literal-SQL gate targets injection (caller data in query text); tx.ts SET LOCAL and writer.ts multi-row-INSERT placeholder scaffold are documented exclusions carrying no caller data.
+- [Phase 02]: 02-09: absence.spec.ts's forbidden-dependency gate now covers web/package.json and self-guards the root workspaces array (proven red on a planted axe-core in web) — previously the whole point of the gate leaked for the newest workspace. Added persistent gates: no raw hex/px in web/src/**/*.tsx (web/styles/ excluded), no Playwright html/reports artefact, no CDN host under web/. Allowlist-equality assertion deferred to Phase 5 (named in the TODO).
+- [Phase 02]: 02-09: accessibility enforcement = the signed §7.7 record, never a CI gate. docs/a11y/{shell,sign-in}.md carry the checklist (machine lines annotated with the proving test, human lines countersigned), the AT walkthrough, and reviewer Pradeep K / 2026-09-15 / no defects. docs/uswds-conformance-register.md maps every control to its USWDS basis and is append-only across phases.
 
 ### Pending Todos
 
@@ -133,6 +138,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T00:12:18.718Z
-Stopped at: Completed 02-08-PLAN.md
+Last session: 2026-09-15T00:44:30.585Z
+Stopped at: Completed 02-09-PLAN.md
 Resume file: None
