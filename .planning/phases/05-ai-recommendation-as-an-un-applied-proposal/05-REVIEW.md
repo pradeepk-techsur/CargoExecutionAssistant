@@ -1,58 +1,30 @@
 ---
 phase: 5
-status: issues_found
+status: clean
 blockers: 0
-warnings: 3
-files_reviewed: 24
+warnings: 0
+files_reviewed: 3
 files_reviewed_list:
-  - server/src/ai/provider.ts
-  - server/src/ai/outputSchema.ts
-  - server/src/ai/fakeProvider.ts
   - server/src/ai/job.ts
-  - server/src/ai/worker.ts
-  - server/src/ai/adapter.http.ts
-  - server/src/ai/promptManifest.ts
-  - server/src/ai/prompt/manifest.json
-  - server/src/config.ts
-  - server/src/index.ts
-  - server/src/db/pool.ai.ts
-  - server/src/db/repositories/recommendations.ts
-  - server/src/db/repositories/exceptions.ts
-  - server/src/db/repositories/entries.ts
   - server/src/services/recommendationRead.service.ts
-  - server/src/services/receipt.service.ts
-  - server/src/services/audit/writer.ts
-  - server/src/http/app.ts
-  - server/src/http/routes/index.ts
-  - server/src/http/routes/recommendation.ts
-  - server/src/http/routes/entries.ts
-  - server/src/http/logger.ts
-  - web/src/api/client.ts
   - web/src/components/ProvenanceBadge.tsx
-  - web/src/screens/CaseDetail.tsx
-  - web/src/app/router.tsx
-  - e2e/case-detail.spec.ts
-  - e2e/env.ts
-reviewed_at: 2026-09-15T23:18:47Z
-iteration: 1
+reviewed_at: 2026-09-15T23:24:32Z
+iteration: 2
 ---
 
-# Phase 5 Code Review
+# Phase 5 Code Review — iteration 2 (re-review of W1/W2/W3 fixes)
 
-Phase goal: an AI recommendation surfaces as an un-applied *proposal* — generated
-asynchronously off the receipt path, provably unable to write a decision,
-polled by the F10 case-detail screen, with every machine-proposed value marked
-as the machine's.
+Scope: the three fixer-touched files (`server/src/ai/job.ts`,
+`server/src/services/recommendationRead.service.ts`,
+`web/src/components/ProvenanceBadge.tsx`) plus their live cross-file seams
+(the audit writer's error contract, the F9 route consumer, the ENTRY_FIELDS
+denylist interaction). Each iteration-1 WARNING was re-read against the applied
+commit; each was confirmed genuinely fixed, and each fix was checked for a
+regression it might have introduced. `tsc -b contract server` and `tsc --noEmit`
+(web) both exit 0.
 
-The change set was verified against `961d0d9` (phase branch point) → HEAD. The
-core seams are sound: `tsc -b contract server` compiles cleanly, the
-provider↔contract failure-reason anti-drift assertion holds, the prompt digest
-in `manifest.json` matches the shipped template byte-for-byte (recomputed:
-`9c8980e1…642d3`), the two-pool privilege split is respected, receipt never
-awaits dispatch, the polling route is GET-only and auth-guarded, and every
-frontend↔contract↔backend type seam lines up. No BLOCKER survived refutation.
-
-Three WARNINGs below are real but degraded-not-broken defects.
+All three WARNINGs are resolved with no fix-introduced regression. Status is
+`clean`.
 
 ## BLOCKERs
 
@@ -60,97 +32,85 @@ None.
 
 ## WARNINGs
 
-### W1: An AI-proposed value whose text matches a secret-shape regex silently strands the recommendation PENDING forever
-- **File:** server/src/services/audit/writer.ts:203-208 (via server/src/ai/job.ts:136-155)
-- **Category:** bug
-- **Evidence:** In the SUCCESS branch, `job.ts` calls `append()` with `values`
-  carrying each proposed value's `after_value: v.proposed_value`. The audit
-  writer's `normaliseValues` runs `SECRET_VALUE_RES` against both sides of every
-  value (`/^Bearer\s+\S+/i`, `/\bsk-[A-Za-z0-9_-]{16,}\b/`, and a JWT-shaped
-  `x.y.z` pattern). A proposed correction whose text happens to match — e.g. a
-  `goods_description` or `bill_of_lading_number` correction shaped like
-  `AAAAAAAA.BBBBBBBB.CCCCCCCC` — makes `append()` throw `AuditWriteError`. That
-  throw is *inside* the `withTransaction`, so the whole AVAILABLE write rolls
-  back; the throw then propagates to `runGenerationJob`'s outer `catch` (job.ts:176),
-  which logs and returns, leaving the recommendation PENDING. F10 will poll for
-  60s and then show the "no recommendation yet" stale condition, with no trace
-  that a valid recommendation was produced and discarded. Note the schema
-  validator (`outputSchema.ts`) does NOT screen for these shapes, so a real
-  provider response can reach this path. Likelihood is low (cargo-field
-  corrections rarely look like bearer tokens/JWTs), hence WARNING not BLOCKER.
-- **Fix direction:** Decide the intended contract for a proposed value that trips
-  the secret denylist — either translate it to a terminal UNAVAILABLE outcome
-  (so the case degrades cleanly rather than hanging PENDING), or scope the
-  secret-value screen so it does not apply to AI proposed-value rows whose
-  field_name is a known non-secret entry field. Do not weaken the denylist for
-  human-authored audit values.
-- **Resolution:** fixed (1fa5736) — job.ts SUCCESS branch now catches
-  `AuditWriteError` with code `AUDIT_WRITE_FORBIDDEN_CONTENT` (thrown when a
-  proposed value trips `SECRET_VALUE_RES`) and records a terminal
-  UNAVAILABLE(CONTENT_FILTERED) outcome via a shared `writeUnavailable` helper,
-  so the case degrades cleanly instead of hanging PENDING. The denylist is left
-  intact; unrelated errors still propagate to the outer catch (PENDING as
-  before). Verified: typecheck clean, `generation.job.spec.ts` (all pass).
+None.
 
-### W2: `loadRecommendationDetail`'s defensive PENDING branch omits `requested_at`, degrading F10's stale-clock accuracy
-- **File:** server/src/services/recommendationRead.service.ts:53
-- **Category:** bug
-- **Evidence:** The normal PENDING return (line 85) is
-  `{ status: 'PENDING', requested_at: row.requested_at }`, but the defensive
-  "row === null" branch (line 53) returns `{ status: 'PENDING' }` with no
-  `requested_at`. `CaseDetail.tsx`'s `RecommendationSection` seeds its 60s stale
-  clock from `initial.requested_at ?? Date.now()` (line 403-407); the two
-  branches therefore measure the budget from different origins. This branch is
-  documented as "should not happen" (every exception has a PENDING placeholder),
-  so it is a genuine defect on an ostensibly-unreachable path rather than a live
-  one — WARNING. The inconsistency is only observable if the placeholder
-  invariant is ever violated.
-- **Fix direction:** Either make the defensive branch consistent (it has no row,
-  so it cannot supply a real `requested_at` — consider returning NOT_FOUND
-  instead of fabricating a PENDING, matching the "loudly refuse rather than
-  fabricate" posture used in `job.ts`), or explicitly document that the stale
-  clock falls back to mount time here.
-- **Resolution:** fixed (27aa415) — the `row === null` branch now returns
-  `'NOT_FOUND'` (the route answers 404) rather than fabricating a `PENDING`
-  without `requested_at`, adopting the "loudly refuse rather than fabricate"
-  posture. Verified: typecheck clean, `recommendation.spec.ts` (all pass).
+## Verified fixes (iteration-1 findings)
 
-### W3: ProvenanceBadge's icon `<title>` is inert under `aria-hidden`, so the sprite adds no AT semantics
-- **File:** web/src/components/ProvenanceBadge.tsx:34-37
-- **Category:** bug
-- **Evidence:** The `<svg>` carries `aria-hidden="true"` yet contains
-  `<title>{label}</title>`. `aria-hidden` removes the entire subtree (including
-  the title) from the accessibility tree, so the `<title>` is never announced —
-  the file header's claim that "the icon's `<title>` makes its meaning available
-  to AT too" is not actually true. This is NOT a functional a11y failure because
-  the adjacent visible text label (`AI-suggested` / `Specialist-entered`) carries
-  the meaning and is read by AT, and the phase's colour-independence criterion is
-  satisfied by that text (proven by case-detail.spec test 3). So the badge is
-  legible and conveys provenance correctly; only the redundant `<title>` is dead.
-  WARNING for the misleading guarantee, not a broken screen.
-- **Fix direction:** Remove the now-inert `<title>` (the visible text is the
-  accessible name) or drop `aria-hidden` if the icon is meant to be announced
-  independently — pick one so the code matches its documented intent.
-- **Resolution:** fixed (66dbee0) — removed the inert `<title>`; the icon stays
-  `aria-hidden` (decorative), and the visible label remains the accessible name.
-  The file-header comment was corrected to no longer claim the `<title>` conveys
-  meaning to AT. Verified: build + typecheck clean, arch a11y specs pass.
+### W1 — secret-shaped proposed value no longer strands PENDING — FIXED (1fa5736)
+- **File:** server/src/ai/job.ts:114-196, 213-249
+- **Verification:** The SUCCESS `withTransaction` is now wrapped in a `try/catch`.
+  The catch narrows on `err instanceof AuditWriteError && err.code ===
+  'AUDIT_WRITE_FORBIDDEN_CONTENT'` and, on a match, records a terminal
+  UNAVAILABLE(`CONTENT_FILTERED`) via the new shared `writeUnavailable` helper,
+  then `return`s. Any other error is re-thrown (`throw err`) to the outer catch
+  (job.ts:197), which logs and leaves PENDING — behaviour unchanged for
+  transient/DB/sequence errors.
+- **Refutation checks that held:**
+  - `AuditWriteError.code` is a real field (writer.ts:44-50) and
+    `AUDIT_WRITE_FORBIDDEN_CONTENT` is emitted by both the secret-VALUE-shape
+    path (writer.ts:203-208) and the secret-FIELD-NAME path (writer.ts:194-196).
+    The SUCCESS branch feeds `proposedValues` already filtered to `ENTRY_FIELDS`
+    members (job.ts:110-113); none of the 14 field names (contract/fields.ts)
+    match `SECRET_FIELD_NAME_RE` (`password|passwd|token|secret|api[_-]?key|
+    authorization|cookie|csrf|credential`), so the ONLY reachable
+    `AUDIT_WRITE_FORBIDDEN_CONTENT` from this branch is the value-shape denylist
+    — exactly what `CONTENT_FILTERED` is meant to represent. Classification is
+    sound.
+  - `'CONTENT_FILTERED'` is a member of `ProviderFailureReason`
+    (provider.ts:61), so `writeUnavailable({ failureReason: 'CONTENT_FILTERED' })`
+    typechecks and lands a valid `RecommendationFailureReason` (anti-drift
+    assertion still compiles).
+  - `writeUnavailable` is an extraction of the pre-existing FAILURE-branch tx:
+    same `markRecommendationUnavailable` conditional UPDATE (idempotence guard
+    intact — `if (!updated) return`), same coupled `RECOMMENDATION_UNAVAILABLE`
+    append. The FAILURE branch (job.ts:189-195) now routes through the same
+    helper. `generation.job.spec.ts` test 2 exercises all seven failure reasons
+    through this path; tests 1/1b exercise the wrapped SUCCESS path — both
+    refactored seams remain covered.
+  - The denylist itself is untouched (no weakening).
 
-## Cross-file seams checked
+### W2 — no-row branch no longer fabricates a hollow PENDING — FIXED (27aa415)
+- **File:** server/src/services/recommendationRead.service.ts:49-58
+- **Verification:** The `row === null` branch now `return 'NOT_FOUND'` instead of
+  `{ status: 'PENDING' }`. The function's declared return type is already
+  `Promise<RecommendationDetailDto | 'NOT_FOUND'>` (line 40), and the sole
+  consumer — `recommendation.ts:70-72` — maps `'NOT_FOUND'` to `404
+  EXCEPTION_NOT_FOUND`. The skewed 60s stale-clock origin that W1's finding
+  described can no longer arise: the fabricated PENDING-without-`requested_at`
+  is gone. The normal PENDING return (line 89) still carries `requested_at`.
+- **Refutation checks that held:** `loadRecommendationDetail` has exactly one
+  consumer (grep: only recommendation.ts), so no other caller relied on the old
+  fabricated PENDING. Return-type contract unchanged; typecheck clean.
 
-- GET /api/exceptions/:exceptionId/recommendation (recommendation.ts) ↔ api.getRecommendation (client.ts): path, method (GET, no CSRF), and uuid form all agree — OK
-- api.getRecommendation → RecommendationDetailDto ↔ loadRecommendationDetail return shape ↔ contract dto.ts: status-discriminated optional fields consistent (AVAILABLE/UNAVAILABLE/PENDING) — OK
-- CaseDetail.tsx consumes CaseDetailResponse.{exception,entry,validation,recommendation,is_closed}: every field present on the contract (dto.ts 207-215, EntryDto 98-105, FindingDto 107-113) — OK
-- ProviderFailureReason (provider.ts) ↔ RecommendationFailureReason (contract dto.ts 38-45): 7-for-7, anti-drift assertion compiles (tsc exit 0) — OK
-- FAKE_AI_TRIGGERS (fakeProvider.ts) ↔ e2e/case-detail.spec.ts: imports the real constant; whole-field-value sentinel matches FakeProvider's `v === marker` exactly — OK
-- runGenerationJob append() case_id = ex.entry_id ↔ append() locks cargo_entries WHERE id=case_id: entry_id is the case anchor — OK
-- markRecommendationAvailable latency_ms=$6 ↔ migration 0005 recommendations.latency_ms column: column exists — OK
-- job.ts RECOMMENDATION_GENERATED / RECOMMENDATION_UNAVAILABLE ↔ trg_recommendations_audit (0009) expected action per status ↔ AUDIT_ACTION_TYPES (writer.ts): all present and matched — OK
-- dispatchRecommendation seam: index.ts → createApp → routes/index.ts → entries.ts → receipt.service.ts (post-commit, never awaited, throw-swallowed): threaded correctly, FR-3.14 preserved — OK
-- getAiPool import site: only index.ts imports pool.ai.js; job.ts takes Pool as a parameter — OK
-- config.ts AI self-checks ↔ e2e/env.ts keys ↔ prompt manifest digest: fake:deterministic posture boots, PROMPT_VERSION=2026.09.1 digest verified — OK
-- API_ROUTE_TABLE 8 implemented ↔ boot.spec.ts assertion (8) ↔ buildRoutes array (8): consistent — OK
+### W3 — inert `<title>` removed from the aria-hidden icon — FIXED (66dbee0)
+- **File:** web/src/components/ProvenanceBadge.tsx:34-40, 14-17
+- **Verification:** The `<title>{label}</title>` child of the `aria-hidden`
+  `<svg>` is deleted; the icon remains decorative (`aria-hidden="true"
+  focusable="false"`) and the visible `{label}` text ("AI-suggested" /
+  "Specialist-entered") is the accessible name. The file-header comment no
+  longer claims the `<title>` conveys meaning to AT — it now correctly states
+  the icon is decorative and the visible label is the accessible name.
+- **Refutation checks that held:** `label` is still rendered as visible text
+  (line 39), so no accessible-name regression; the colour-independence criterion
+  (distinct text + distinct sprite id per variant) is unaffected. web `tsc
+  --noEmit` clean.
+
+## Cross-file seams checked (this iteration)
+
+- job.ts `AuditWriteError` import + `.code` narrowing ↔ writer.ts error contract (code is `InternalInvariantCode`, `AUDIT_WRITE_FORBIDDEN_CONTENT` thrown by `forbidden()`) — OK
+- job.ts `writeUnavailable(failureReason: 'CONTENT_FILTERED')` ↔ provider.ts `ProviderFailureReason` union (member present) ↔ contract anti-drift assertion (still compiles) — OK
+- job.ts SUCCESS `proposedValues` (ENTRY_FIELDS-filtered) ↔ writer.ts `SECRET_FIELD_NAME_RE` (no ENTRY_FIELDS name matches ⇒ only value-shape can trip CONTENT_FILTERED) — OK
+- recommendationRead.service.ts `'NOT_FOUND'` return ↔ recommendation.ts:70 (404 EXCEPTION_NOT_FOUND) ↔ declared return type — OK
+- loadRecommendationDetail consumers: exactly one (recommendation.ts); no stale dependency on the removed PENDING fabrication — OK
+- ProvenanceBadge visible `{label}` retained ↔ CaseDetail provenance rendering + case-detail.spec colour-independence test 3 (unaffected) — OK
+- writeUnavailable extraction ↔ generation.job.spec.ts tests 1/1b (SUCCESS wrapped path) and test 2 (7 failure reasons via helper): both refactored seams covered — OK
 
 ## Notes (out of scope, not findings)
 
-- The compose `web` service lacks the now-mandatory AI env keys (deferred-items.md, owner = Phase 6 compose plan). A fresh `docker compose up --build` would fail the AI boot self-checks. This is a pre-declared carry-forward, correctly deferred, not a Phase 5 source defect.
+- The CONTENT_FILTERED fallback attributes the outcome to "a proposed value"
+  even when it is the HUMAN `before_value` (`entryValues[field]`) that trips the
+  value-shape regex. The end state (terminal UNAVAILABLE, clean degrade) is
+  identical and correct either way; only the log message's attribution is
+  slightly imprecise. Non-blocking, not a defect.
+- The compose `web` service AI-env carry-forward (Phase 6, noted iteration 1)
+  remains out of scope and unaffected by these fixes.
