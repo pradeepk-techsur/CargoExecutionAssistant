@@ -87,7 +87,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 3: Receive, Validate, Except
 **Goal**: A cargo specialist types a cargo entry into a USWDS form and is told plainly what happened to it — validated clean, or an exception opened with a case reference she can follow — with no entry ever able to exist having been received but never assessed.
-**Status**: Verified
+**Status**: Passed
 **Depends on**: Phase 2
 **Requirements**: F3, F4, F5, F6
 **Non-functional carried**: NFR-11, NFR-2 (this screen's sign-off), NFR-6 (applied to the receipt transaction)
@@ -188,7 +188,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
 | 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
-| 3. Receive, Validate, Except | 0/TBD | Verified | - |
+| 3. Receive, Validate, Except | 0/TBD | Passed | - |
 | 4. The Receipt-Ordered Queue | 0/TBD | Not started | - |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Not started | - |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Not started | - |
