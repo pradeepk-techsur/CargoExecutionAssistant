@@ -1,8 +1,8 @@
 {
   "generator_version": "init-dev-server@1",
   "catalog_entry": "compose",
-  "generated_at": "2026-09-15T00:00:00Z",
-  "inspection_inputs_hash": "c380316721cf648c265cf1eb36e1688be757883af648d4bdc72ee0f786cb57ed",
+  "generated_at": "2026-09-15T23:34:00Z",
+  "inspection_inputs_hash": "5e298f3ec5b653436a2381b54e1ecdfc6244fe176be77dae35d3931811243b49",
   "inspection_inputs": {
     "matched_globs": [
       "docker-compose.yml",
@@ -15,7 +15,8 @@
       "package.json:devDependencies:vite@5.4.11",
       "package.json:script:build:assets=node web/scripts/copy-uswds-assets.mjs",
       "package.json:script:build:css=sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css",
-      "package.json:script:build:server=tsc -b contract server",
+      "package.json:script:build:prompt=node server/scripts/copy-prompt-assets.mjs",
+      "package.json:script:build:server=tsc -b contract server && npm run build:prompt",
       "package.json:script:build:web=npm run build:css && npm run build:assets && vite build -c web/vite.config.ts",
       "package.json:script:build=npm run build:server && npm run build:web",
       "package.json:script:create-specialist=node server/dist/cli/create-specialist.js",
