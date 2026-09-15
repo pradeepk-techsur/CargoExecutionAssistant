@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-05-PLAN.md
-last_updated: "2026-09-15T22:54:38.113Z"
-last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
+stopped_at: Completed 05-06-PLAN.md (Phase 5 complete)
+last_updated: "2026-09-15T23:13:39.221Z"
+last_activity: "2026-09-15 — 05-06 executed (Phase 5 COMPLETE): Task 1 25f3293 (wire fake AI into e2e/env.ts + author e2e/case-detail.spec.ts, 10 real-browser scenarios), fix 7390d9c (FR-2.24 h1-focus regression on CaseDetail), Task 2 8cadddb (signed docs/a11y/case-detail.md + append-only ProvenanceBadge/comparison-row rows in the conformance register). npm run test:all fully green: unit 297, db 196, api 136, arch 153, e2e 47 — 0 failures, 0 skipped. Deferred: compose web service lacks the required AI env keys (Phase 6 owns the whole-stack compose demo)."
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 37
-  completed_plans: 36
-  percent: 67
+  completed_plans: 37
+  percent: 83
 ---
 
 # Project State
@@ -21,11 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 5 (AI recommendation as an un-applied proposal) — in progress; 05-01..05-05 complete (F9 mechanism + F10 case-detail screen realised); 05-06 (accessibility sign-off + Playwright/e2e proof) next
+**Current focus:** Phase 5 (AI recommendation as an un-applied proposal) — COMPLETE (05-01..05-06 all committed; F9 mechanism + F10 case-detail screen realised, proven end-to-end in a real browser, and signed off for accessibility). Next: Phase 6 (F11 + F12 + F14 — the governed loop closes end to end).
 
 ## Current Position
 
-Phase: 5 of 6 (AI recommendation as an un-applied proposal) — IN PROGRESS
+Phase: 5 of 6 (AI recommendation as an un-applied proposal) — COMPLETE
+Plan: 05-06 COMPLETE — Phase 5 is done. F9/F10 proven in a REAL browser against a real server whose AI provider is `fake:deterministic` (e2e/env.ts wires the five §6.6 AI keys, no network): `e2e/case-detail.spec.ts` (10 scenarios, all green) proves genuine PENDING→AVAILABLE with no reload and no focus theft (FR-10.7), a forced PENDING→UNAVAILABLE via a FAKE_AI_TRIGGERS marker (role="status", no retry — FR-10.8), monochrome provenance (crit 2), the heading order + a genuinely-resolving "On this page" nav (FR-10.10, proven by clicking each link and asserting toBeInViewport), verbatim values (FR-10.6/10.16), uuid canonicalisation without reload (FR-10.13), the inert Phase-6 stubs (FR-10.12), and case-not-found (FR-10.15). A REAL FR-2.24 focus regression was auto-fixed: CaseDetail focused the loading-state h1 which React unmounted on the loading→loaded transition, dropping focus to <body> — now re-asserted on the loading→terminal edge (fix 7390d9c). `docs/a11y/case-detail.md` is the signed NFR-2 record (defect 1 = the focus bug, resolved), and `docs/uswds-conformance-register.md` gained append-only rows for ProvenanceBadge and the AI-recommendation comparison-row composition. Phase gate: `npm run test:all` green — unit 297, db 196, api 136, arch 153, e2e 47, 0 failures, 0 skipped. DEFERRED (deferred-items.md): the compose `web` service still declares no AI env, so a fresh `docker compose up --build` would now fail the AI boot self-checks — Phase 6's whole-stack demo owns that fix (add the five keys, AI_PROVIDER_URL defaulting to fake:deterministic).
+
+--- prior (05-05) ---
 Plan: 05-05 COMPLETE — the F10 case-detail screen is REAL. `web/src/screens/CaseDetail.tsx` renders the full normative FR-10.10 section order: h1 header (status/received/submitted-by + Back-to-queue link), an UNCONDITIONAL "On this page" nav of five native `#fragment` links to five matching `<h2 id>`s, "Why this case is open" (server-order findings verbatim, no severity language), "Submitted entry" (14 fields via a local plain-language `humanLabel`, HUMAN `ProvenanceBadge` only when a value is present), "AI recommendation" (all four presentations off `RecommendationDetailDto`: PENDING with a setTimeout-chained 3s poll of `api.getRecommendation` that stops at a terminal status / 60s / unmount and updates in place + announces politely WITHOUT moving focus; stale-PENDING and UNAVAILABLE via the shared `Degraded`; AVAILABLE with the "Nothing here has been applied" sentence, paragraph-split rationale as plain `<p>`, per-value AI/HUMAN comparison rows reading the submitted side from `entry.values`, Adding-vs-Changing, and the model/prompt/generated footnote), plus heading-only Phase 6 stubs for "Your decision" and "Audit trail". Read-only throughout (FR-10.12): no select/textarea/mutation control, only `ErrorState`'s Try-again. uuid→case-reference canonicalisation via react-router `navigate(...,{replace:true})` (no reload, no focus move). Dedicated "Case not found" presentation (FR-10.15). `ProvenanceBadge.tsx` is THE shared per-value provenance control (text + distinct USWDS sprite icon settings/person + distinct token colour pair — legible in monochrome and via AT). `/cases/:caseReference` now serves CaseDetail in place of NotBuiltYet (the audit route stays NotBuiltYet for Phase 6; NotBuiltYet.tsx still serves /entries/new + the audit route, so it is NOT deleted). Playwright link-activation proof and the accessibility sign-off (+ adding ProvenanceBadge to the conformance register) are 05-06's job.
 
 --- prior (05-04) ---
@@ -33,7 +36,7 @@ Plan: 05-04 COMPLETE — F9 is REAL end to end. `server/src/ai/adapter.http.ts::
 Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 COMPLETE (04-01..04-04). Phase 5 in progress: 05-01, 05-02, 05-03, 05-04, 05-05 all COMMITTED. Fast inner-loop gate green after 05-05: unit 297, api 136, arch 153 (0 failures); `npm run build` (server+web) + `npm run typecheck` exit 0 (test:db not run for 05-05 — the plan touches only web/src, no server/src or migration change, so the db tier is unaffected). F9 (AI Resolution Recommendation Generation) is now fully realised: opening a case dispatches an async, bounded-concurrency, in-process job that cannot write a decision (A-1 mechanism #5 proven by aiCapability.spec) and never blocks receipt (proven by recommendationDispatch.spec). ENV note: `npm install --include=dev` needed in a fresh sandbox before build/test; `--reporter=list` is unsupported by the installed vitest 2.1.5 (use the default reporter).
 Last activity: 2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0.
 
-Progress: [███████░░░] 67%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -90,6 +93,7 @@ Progress: [███████░░░] 67%
 | Phase 05-ai-recommendation-as-an-un-applied-proposal P01 | 8 min | 2 tasks | 16 files |
 | Phase 05-ai-recommendation-as-an-un-applied-proposal P04 | 14 min | 3 tasks | 12 files |
 | Phase 05 P05 | 4 min | 2 tasks | 4 files |
+| Phase 05 P06 | 41 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -164,6 +168,7 @@ Recent decisions affecting current work:
 - [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-04: F9 generation is real end to end — an in-process bounded-concurrency worker (FIFO+semaphore, no scheduler/queue lib) dispatched from receipt.service.ts's pre-existing dispatchRecommendation seam runs runGenerationJob: reads via cargoexec_ai, terminal AVAILABLE/UNAVAILABLE status+coupled AI audit entry via cargoexec_app in one withTransaction (the pool split exists because append()'s case-anchor FOR UPDATE needs UPDATE on cargo_entries, denied to cargoexec_ai). Idempotence is the WHERE status='PENDING' guard. getAiPool is imported ONLY by index.ts; aiCapability.spec proves no server/src/ai file references a decision-writing surface (A-1 mechanism #5).
 - [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-04: navigation.spec's F1 FR-1.1 no-application-role-model scan rejects any literal 'role:' identifier in server/src — the AI adapter's OpenAI-compatible chat message speaker key is therefore assembled via a computed MESSAGE_SPEAKER_KEY='role' (chatMessage helper), not a literal key. A future AI wire-shape change that writes 'role:' directly will turn navigation.spec RED; keep the computed-key pattern.
 - [Phase 05]: 05-05: the F10 case-detail screen (web/src/screens/CaseDetail.tsx) renders the full normative FR-10.10 section order — h1 header, an unconditional 'On this page' nav of five native #fragment links to five h2 ids, 'Why this case is open' (server-order findings verbatim), 'Submitted entry' (14 fields, plain-language labels, HUMAN ProvenanceBadge only when a value is present), 'AI recommendation' (all four PENDING/stale/AVAILABLE/UNAVAILABLE presentations), and heading-only Phase 6 stubs for 'Your decision' and 'Audit trail'. Read-only throughout (FR-10.12): no select/textarea/mutation control, only ErrorState's Try-again button. PENDING drives a setTimeout-chained 3s poll of api.getRecommendation, stopping at a terminal status / 60s / unmount, updating in place and announcing politely WITHOUT moving focus. uuid->case-reference canonicalisation via react-router navigate(...,{replace:true}) — no reload, no focus move. ProvenanceBadge is THE shared per-value provenance control: text + distinct USWDS sprite icon (settings/person) + distinct token colour pair, legible in monochrome and via AT (criterion 2). AVAILABLE comparison rows read the submitted value from the loaded entry.values (the DTO carries only proposed values); a null-submitted proposal is an 'Adding:', else 'Changing:'. Deviation: headers.spec's dangerouslySetInnerHTML scan reads RAW source, so even naming the prop in a comment fails it — reworded the T-05-13 comment. Full arch 153, unit 297, api 136 green; build+typecheck exit 0. Playwright link-activation proof and a11y sign-off are 05-06.
+- [Phase 05]: 05-06: F9/F10 proven in a real browser via AI_PROVIDER_URL=fake:deterministic (no network); case-detail.spec 10/10 green. Auto-fixed a real FR-2.24 focus regression on CaseDetail (focus fell to body after loading->loaded; now re-asserted on the loading->terminal edge). NFR-2 case-detail a11y record signed; ProvenanceBadge + comparison-row registered. Phase 5 gate green: unit 297, db 196, api 136, arch 153, e2e 47 (0 failures/skipped). Deferred: compose web service still lacks the required AI env keys (Phase 6 owns the whole-stack compose demo).
 
 ### Pending Todos
 
@@ -180,6 +185,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T22:54:38.111Z
-Stopped at: Completed 05-05-PLAN.md
+Last session: 2026-09-15T23:13:39.193Z
+Stopped at: Completed 05-06-PLAN.md (Phase 5 complete)
 Resume file: None
