@@ -350,8 +350,8 @@ test.describe('review queue', () => {
     page,
   }) => {
     // Real end-to-end navigation, as in test 1, gives us a screen to come back
-    // from (the still-NotBuiltYet Case placeholder is sufficient — this test
-    // only needs SOME screen to page.goBack() from).
+    // from (the real Phase-5 CaseDetail screen — this test only needs SOME
+    // screen to page.goBack() from).
     const caseReference = await createException(page, csrf);
 
     await page.goto(`${BASE}/queue`);

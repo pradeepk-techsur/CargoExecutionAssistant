@@ -32,8 +32,10 @@ for the controls it ships and does not rewrite the rows above.
 | Inline field error | `usa-error-message` inside `usa-form-group--error`, bound by `aria-describedby`, `aria-invalid="true"` | Sign in | `docs/a11y/sign-in.md` |
 | Session-expired notice | `usa-alert usa-alert--info` (`role="status"`) | Sign in | `docs/a11y/sign-in.md` |
 | Signed-out confirmation | `usa-alert usa-alert--success usa-alert--slim` (`role="status"`) | Sign in | `docs/a11y/sign-in.md` |
-| Shared status/error/empty/degraded/read-only states | `usa-alert` variants (`--info`/`--warning`/`--error`, `role="status"`/`"alert"`/`"note"`) | Shared (`states.tsx`) | reviewed at each consuming screen |
+| Shared status/error/empty/degraded/read-only states | `usa-alert` variants (`--info`/`--warning`/`--error`, `role="status"`/`"alert"`/`"note"`) | Shared (`states.tsx`); Case detail (`Degraded` for the UNAVAILABLE recommendation, `role="status"`) | reviewed at each consuming screen; `docs/a11y/case-detail.md` |
 | Live regions (polite / assertive announcers) | `aria-live` regions (`usa-sr-only`), not an interactive control | Shell (all screens) | `docs/a11y/shell.md` |
+| Provenance badge ("AI-suggested" / "Specialist-entered") | `usa-tag` + a distinct USWDS sprite icon per variant (`settings` for AI, `person` for HUMAN) — text + shape + token colour, legible in monochrome (`ProvenanceBadge.tsx`) | Case detail | `docs/a11y/case-detail.md` |
+| AI-recommendation comparison row | **Composition:** a definition-list row (`dl`/`dt`/`dd`) carrying the submitted value + its HUMAN `ProvenanceBadge`, the AI-suggested value + its AI `ProvenanceBadge`, and the plain-language rule message(s) as text | Case detail | `docs/a11y/case-detail.md` |
 
 ## Notes on the compositions
 
@@ -42,6 +44,16 @@ for the controls it ships and does not rewrite the rows above.
   unstyled list of in-page anchors; on activation, focus moves to the named
   control. This is the USWDS-documented error-summary pattern; it is registered
   here so the composition is auditable and re-reviewed whenever it changes.
+- **AI-recommendation comparison row** is a composition, not a single USWDS
+  component. It combines a USWDS definition-list row with two registered
+  `ProvenanceBadge` tags (one HUMAN, one AI) and plain text; it introduces no
+  bespoke interactive control (the whole case screen is read-only — FR-10.12).
+  It is registered here so the composition is auditable and re-reviewed whenever
+  it changes, exactly as the Error-summary composition is. `ProvenanceBadge`
+  itself is a single `usa-tag` differentiated by text AND a distinct sprite icon
+  per variant, so its meaning survives a colour-removed rendering (WCAG 1.4.1,
+  phase success criterion 2) and is announced by assistive technology from the
+  adjacent text and the icon `<title>`.
 - **Footer required-links row** (`usa-identifier`) is federal conformance markup
   whose link set is fixed by USWDS (it includes the statutory "Performance
   reports" link). It is pinned in `web/src/shell/Footer.tsx` and excluded from the
