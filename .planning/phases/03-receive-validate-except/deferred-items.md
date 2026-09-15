@@ -6,6 +6,10 @@ current task's changes).
 
 ## From plan 03-03 (API auth gate)
 
+- **[RESOLVED by 03-01, commit `341e032`]** `server/test/unit/scaffolding.spec.ts`
+  now splits its assertion: the eight database-enforced codes must all be present,
+  and `VALIDATION_ENGINE_FAILURE` (the ninth, application-level code) is asserted
+  separately. `npm run test:unit` → 189/189. Original entry preserved below.
 - **`server/test/unit/scaffolding.spec.ts` fails: `INTERNAL_INVARIANT_CODES`
   has 9 codes, test expects 8.**
   - Discovered during: 03-03 final `npm run test` (unit tier).
