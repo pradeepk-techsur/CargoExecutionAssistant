@@ -52,25 +52,26 @@ describe('context boot', () => {
       });
     });
 
-    it('registers exactly the seven implemented routes and no more', async () => {
-      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly seven are
-      // implemented (the three F1 session pairs, the two F3 entry pairs, and the
-      // two F7 exception pairs).
+    it('registers exactly the eight implemented routes and no more', async () => {
+      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly eight are
+      // implemented (the three F1 session pairs, the two F3 entry pairs, the
+      // two F7 exception pairs, and the F9 recommendation-polling read).
       const implemented = API_ROUTE_TABLE.filter((r) => r.implemented);
-      expect(implemented).toHaveLength(7);
-      expect(ROUTES).toHaveLength(7);
+      expect(implemented).toHaveLength(8);
+      expect(ROUTES).toHaveLength(8);
       expect(implemented.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
         'DELETE /api/session',
         'GET /api/entries/:entryId',
         'GET /api/exceptions',
+        'GET /api/exceptions/:exceptionId/recommendation',
         'GET /api/exceptions/:idOrReference',
         'GET /api/session',
         'POST /api/entries',
         'POST /api/session',
       ]);
 
-      // The registry and the ROUTER cannot disagree: the five registered
-      // method+path pairs are EXACTLY the five implemented rows, matched as a set.
+      // The registry and the ROUTER cannot disagree: the eight registered
+      // method+path pairs are EXACTLY the eight implemented rows, matched as a set.
       // If a handler were registered that the table did not implement (or vice
       // versa), this diverges. buildRoutes takes the injected per-suite pool.
       const registered = buildRoutes({
