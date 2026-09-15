@@ -61,7 +61,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 2: Identity and the Federal UI Foundation
 **Goal**: A cargo specialist signs in on an accessible USWDS screen and holds a session, so that every decision she takes from here on names a real accountable person — and no unidentified request reaches any case data or decision surface.
-**Status**: In progress
+**Status**: Failed
 **Depends on**: Phase 1
 **Requirements**: F1, F2
 **Non-functional carried**: NFR-1, NFR-2 (foundation + this screen's sign-off), NFR-8, NFR-12
@@ -185,7 +185,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
-| 2. Identity and the Federal UI Foundation | 0/TBD | In progress | - |
+| 2. Identity and the Federal UI Foundation | 0/TBD | Failed | - |
 | 3. Receive, Validate, Except | 0/TBD | Not started | - |
 | 4. The Receipt-Ordered Queue | 0/TBD | Not started | - |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Not started | - |
