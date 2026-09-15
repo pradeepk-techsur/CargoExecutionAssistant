@@ -2,15 +2,16 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-14T19:37:05.163Z"
-last_activity: "2026-09-14 — Phase 1 complete"
+status: completed
+stopped_at: Completed 02-09-PLAN.md
+last_updated: "2026-09-15T00:44:30.587Z"
+last_activity: "2026-09-15 — 02-09 executed: exclusion & accessibility made artefacts (2 new architecture specs + extended absence gate + register + 2 signed a11y records). No production code changed; no deviations affecting scope."
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 10
-  completed_plans: 10
-  percent: 17
+  completed_phases: 2
+  total_plans: 19
+  completed_plans: 19
+  percent: 100
 ---
 
 # Project State
@@ -20,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 1 — Governed Record Substrate
+**Current focus:** Phase 2 — Identity and the Federal UI Foundation
 
 ## Current Position
 
-Phase: 1 of 6 (Governed Record Substrate) — COMPLETE
-Plan: 01-10 complete (chain verification & F13 read path: chain.spec.ts TEST-DB-13/14/15 + auditRead.service.ts readCaseTrail). All 10 of 10 phase-1 plans have SUMMARYs on disk (01-01..01-10). Wave 7 (the full test:db gate) done.
-Status: Phase 1 complete — all 10 plans executed, full suite (unit 23 + db 103 + arch 67) green. Ready for phase transition to Phase 2.
-Last activity: 2026-09-14 — 01-10 executed: chain verification. Two concurrent appends serialise under the case-anchor lock (contiguous seq, no gap/dup, second observably blocked); forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001) three ways; four independent TEMPLATE copies detect excision (false,4,3), alteration (false,3,3), reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash recomputation; verify_audit_chain repairs nothing. readCaseTrail is the strictly read-only per-case F13 read path. Phase success criterion 5 demonstrated end to end.
+Phase: 2 of 6 (Identity and the Federal UI Foundation) — COMPLETE (9/9)
+Plan: 02-09 complete (exclusion & accessibility as artefacts). All nine Phase 2 plans have SUMMARY records; the phase is ready for transition/verification.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). 02-09 gates green — `npm run test` unit 111 / db 114 / api 75 / arch 130 (was 67; +11 navigation, +48 headers, +4 absence) all pass 0 skipped; `npm run typecheck` and `npm run build` exit 0; `npx playwright test` 29 pass against the composed stack. Criterion 5 now evidenced by test (navigation.spec.ts: two nav items in data+DOM, exactly seven §3.17 routes, no excluded affordance outside the pinned footer, no RBAC identifier; proven red on a planted third nav item). Deviation D-1 evidenced by test (headers.spec.ts: no X-Frame-Options/COEP on any route or the SPA doc across three configs, loadConfig refusals, no dangerouslySetInnerHTML, no template-literal SQL). Forbidden-dependency gate now covers web/package.json + self-guards the workspaces array (proven red on a planted axe-core). Criterion 4 evidenced by artefact: docs/uswds-conformance-register.md + signed docs/a11y/shell.md and docs/a11y/sign-in.md (reviewer Pradeep K, 2026-09-15, AT walkthrough, no defects). CARRY-FORWARD (unchanged): criterion 2 still only PARTIALLY evidenced — 02-04 has no API auth gate; only GET /api/session answers 401 unauthenticated. Follow-up in 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware.
+Last activity: 2026-09-15 — 02-09 executed: exclusion & accessibility made artefacts (2 new architecture specs + extended absence gate + register + 2 signed a11y records). No production code changed; no deviations affecting scope.
 
-Progress: [██░░░░░░░░] 17%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -61,6 +62,14 @@ Progress: [██░░░░░░░░] 17%
 | Phase 01-governed-record-substrate P09 | 9 min | 3 tasks | 3 files |
 | Phase 01-governed-record-substrate P08 | 14 min | 2 tasks | 1 files |
 | Phase 01-governed-record-substrate P10 | 10 min | 3 tasks | 2 files |
+| Phase 02-identity-and-the-federal-ui-foundation P01 | 5 min | 3 tasks | 13 files |
+| Phase 02-identity-and-the-federal-ui-foundation P02 | 16 min | 3 tasks | 9 files |
+| Phase 02-identity-and-the-federal-ui-foundation P03 | 9 min | 3 tasks | 9 files |
+| Phase 02-identity-and-the-federal-ui-foundation P04 | 10 min | 3 tasks | 15 files |
+| Phase 02-identity-and-the-federal-ui-foundation P06 | 13 min | 3 tasks | 3 files |
+| Phase 02 P07 | 62 min | 3 tasks | 10 files |
+| Phase 02 P08 | 6 min | 3 tasks | 6 files |
+| Phase 02-identity-and-the-federal-ui-foundation P09 | 22 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -90,6 +99,30 @@ Recent decisions affecting current work:
 - [Phase 01-governed-record-substrate]: TEST-DB-16 immutability of the entry of record is proved application-level (no UPDATE cargo_entries in server/src) not privilege-level: migration 0011 grants cargoexec_app UPDATE on cargo_entries for the FOR UPDATE anchor lock, so a raw UPDATE succeeds at the DB (user-approved reframe)
 - [Phase 01-governed-record-substrate]: cargoexec_ai cannot invoke append(): append() takes SELECT ... FOR UPDATE on cargo_entries which needs table UPDATE privilege A-1 denies the AI role; recommendation-status audit entries are written on a path that already holds the anchor. Pinned by immutability.spec.ts so a future UPDATE grant to the AI role fails loudly
 - [Phase 01-governed-record-substrate]: Plan 01-10 (final): chain verification proven — TEST-DB-13/14/15. Two concurrent appends serialise under the anchor lock (contiguous seq, no gap/dup, second observably blocked); forged prev_entry_hash refused at COMMIT (AUDIT_CHAIN_BROKEN/P0001); four independent TEMPLATE copies detect excision (false,4,3), alteration (false,3,3), reordering (false,2,2) via linkage and substitution (true,NULL,5) via computeEntryHash recomputation. verify_audit_chain repairs nothing (byte-identical post-tamper, identical second verify). readCaseTrail is the read-only per-case F13 read path. DROP TRIGGER confined to chain.spec.ts throwaway copies. Full test:db gate green (103 db tests).
+- [Phase 02-identity-and-the-federal-ui-foundation]: test excludes test:e2e; test:all (with the keyboard-only/focus/in-iframe Playwright suites carrying criterion-4 + D-1 browser proof) is the phase-completion gate; test:unit/db/api/arch is the fast inner loop
+- [Phase 02-identity-and-the-federal-ui-foundation]: contract exports resolve @cargoexec/contract to ./dist/index.js so the server runs; npm run build:server (or typecheck) is the first command after a fresh clone before any npx vitest importing the contract
+- [Phase 02-identity-and-the-federal-ui-foundation]: server/src/config.ts is environment-only with four fail-loud boot self-checks (loopback HOST §6.5, FRAME_ANCESTORS none/self D-1 §4.5, demo-iframe over http §4.3, missing DATABASE_URL_APP); error messages name the key never the value §4.7; AI keys deferred to phase 5 as a comment not a skipped test
+- [Phase 02-identity-and-the-federal-ui-foundation]: securityHeaders disables helmet's framing/CSP defaults and hand-writes the §4.5 CSP; X-Frame-Options is never set (matched on set-shape not the bare name so the explaining comment survives); frame-ancestors only when configured
+- [Phase 02-identity-and-the-federal-ui-foundation]: The lazy module logger falls back to a default-config logger with identical §4.7 redaction when loadConfig() is unavailable, so request correlation/logging never crashes a config-less context; boot still refuses a bad env via loadConfig separately
+- [Phase 02-identity-and-the-federal-ui-foundation]: errorMapper is the single §3.7 translation point: full PG table (incl phases 3/6 rows, no skipped tests), internal invariant codes logged against request_id and returned as generic 500, ZodError detected structurally, details omitted when empty
+- [Phase 02-identity-and-the-federal-ui-foundation]: Password verified before the is_active check and the throttle checked before any DB access, so neither a deactivated account nor account existence is disclosable by response timing; unknown-email verifies against a module-level Argon2id DUMMY_HASH
+- [Phase 02-identity-and-the-federal-ui-foundation]: Sessions store only 32-byte SHA-256 digests; raw token/CSRF returned once. revokeSession guarded by revoked_at IS NULL so a sign-out/expiry race keeps the first reason. Idle/absolute expiry proven via injected fixedClock
+- [Phase 02-identity-and-the-federal-ui-foundation]: pg is CommonJS: value imports must use the interop-default form under native ESM (CLI fixed; pool.app/ai.ts flagged for 02-04). Queryable is a structural query-interface so Pool/PoolClient/one-shot Client all satisfy it
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-04 ships production-mode SPA serving only (no Vite middleware); §6.5's one-origin-one-port-on-0.0.0.0:3000 is satisfied — a recorded deviation
+- [Phase 02-identity-and-the-federal-ui-foundation]: createApp injects the pool and constructs nothing at import time, enabling per-suite test databases and the context-boot test; API_ROUTE_TABLE lists all ten §3.1 pairs as data with three implemented, no 501 placeholders
+- [Phase 02-identity-and-the-federal-ui-foundation]: Rotate-on-GET CSRF has a mandatory client half: GET /api/session re-stores the token hash; 02-07's api.getSession must re-store csrf_token or a reload+POST/DELETE 403s while in-session tests still pass
+- [Phase 02-identity-and-the-federal-ui-foundation]: csrfMiddleware lets a state-changing method with no implemented route pass so PUT /api/session answers 405, not a masking 403; pool.app/ai.ts converted to pg interop-default import for native ESM boot
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-06 governance suites (guard/actor/expiry.spec, 60 tests) evidence phase criteria 2/3/1 as permanent regression assets; test-only, no production code changed. User decided to assert 02-04's shipped middleware behaviour rather than add an API auth gate.
+- [Phase 02-identity-and-the-federal-ui-foundation]: Criterion 2 is only PARTIALLY evidenced: 02-04 has no API auth gate, so only GET /api/session returns 401 unauthenticated (DELETE⇒403, the 7 unimplemented pairs⇒404, /api/unknown⇒404). Follow-up in owning module 02-04: requireApiAuth after sessionMiddleware/before csrfMiddleware would restore uniform 401.
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-07: the CSRF token lives only in a module variable in api/client.ts and is re-stored inside getSession()/signIn() — the client half of 02-04's rotate-on-GET, so a page reload never leaves a dead token (proven by the sign-out-after-reload 204 regression test)
+- [Phase 02-identity-and-the-federal-ui-foundation]: 02-07: sign-in is the deliberate exception to the error pattern — one generic ERROR_MESSAGES.AUTH_FAILED item and NO aria-invalid on either input; unknown email and wrong password render an identical screen (asserted in e2e). SessionProvider became the router root layout (needs useNavigate/useAnnounce); old app/session.ts removed
+- [Phase 02]: [Phase 02]: The app runs via its own docker-compose.yml — web service command is migrate → create-specialist --from-env --if-absent → serve, every step idempotent (schema_migrations forward-only, ON CONFLICT DO NOTHING); connection strings address the db service name, never localhost. This is the deployment path 02-04's e2e webServer already mirrored.
+- [Phase 02]: [Phase 02]: Liveness is out-of-band (node server/dist/cli/ping.js, SELECT 1 on DATABASE_URL_APP, exit 0/1, never prints the connection string) with the §8.6 justification in the file header, so no future reader adds an eleventh HTTP health route past the exhaustive-at-ten inventory.
+- [Phase 02]: [Phase 02]: The runtime Docker stage uses npm ci --omit=dev (not a node_modules copy from build); argon2's prebuild re-resolves cleanly in the slim runtime image, so the documented fallback was unnecessary. The bootstrap specialist is the FR-1.13 operational account path (one row in specialists), not seed data — distinction documented in compose/.env.example/README.
+- [Phase 02]: 02-09: criterion 5 is now a build constraint. navigation.spec.ts imports web/src .tsx into the server architecture suite and renders via react-dom/server (createElement, no JSX so the file stays navigation.spec.ts) — safe under typecheck because server/tsconfig include=['src'] excludes test/, and vitest transforms via esbuild. It scans AFFORDANCES (to/href/path values in both object-literal and JSX forms, NAV_ITEMS labels, rendered link/button names) not raw tokens, so export/filter/sort/reporter cannot trip it; footer excluded but its link set pinned-and-asserted equal.
+- [Phase 02]: 02-09: deviation D-1 is now a build constraint (headers.spec.ts) proven behaviourally over every API_ROUTE_TABLE path + SPA docs across governed±https and demo-iframe+https, and by source scan. The template-literal-SQL gate targets injection (caller data in query text); tx.ts SET LOCAL and writer.ts multi-row-INSERT placeholder scaffold are documented exclusions carrying no caller data.
+- [Phase 02]: 02-09: absence.spec.ts's forbidden-dependency gate now covers web/package.json and self-guards the root workspaces array (proven red on a planted axe-core in web) — previously the whole point of the gate leaked for the newest workspace. Added persistent gates: no raw hex/px in web/src/**/*.tsx (web/styles/ excluded), no Playwright html/reports artefact, no CDN host under web/. Allowlist-equality assertion deferred to Phase 5 (named in the TODO).
+- [Phase 02]: 02-09: accessibility enforcement = the signed §7.7 record, never a CI gate. docs/a11y/{shell,sign-in}.md carry the checklist (machine lines annotated with the proving test, human lines countersigned), the AT walkthrough, and reviewer Pradeep K / 2026-09-15 / no defects. docs/uswds-conformance-register.md maps every control to its USWDS basis and is append-only across phases.
 
 ### Pending Todos
 
@@ -101,9 +134,10 @@ None yet.
 
 - **Open assumption (REQUIREMENTS.md):** the 31 validation rules `RIV-010`–`RIV-132` are an implementation assumption open to CBP refinement. Build the Phase 3 rule registry so a rule change is a data change plus a `rule_set_version` bump — never an architectural one.
 - **Scope pressure is the named project risk (PRD R-2).** Every phase carries at least one criterion asserting an exclusion is structural. Do not let a plan add a filter, metric, export, role or ingestion path.
+- Criterion 2 partially unmet (02-06): the phase must_have 'all ten §3.1 pairs answer 401 unauthenticated' is not satisfied — 02-04 lacks an API auth gate. Fix in 02-04: add requireApiAuth (after sessionMiddleware, before csrfMiddleware) so any /api/* except POST /api/session with no principal ⇒ 401, then tighten guard.spec's 4 adjusted assertions back to 401. See 02-06-SUMMARY.md.
 
 ## Session Continuity
 
-Last session: 2026-09-14T03:24:41.945Z
-Stopped at: Completed 01-governed-record-substrate-10-PLAN.md
+Last session: 2026-09-15T00:44:30.585Z
+Stopped at: Completed 02-09-PLAN.md
 Resume file: None

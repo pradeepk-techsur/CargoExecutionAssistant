@@ -67,7 +67,7 @@ fi
 # boots are.
 #
 # Escape hatch: PIVOTA_DEV_FORCE_RESTART=1 always does the full boot.
-READY_PORTS="5432"
+READY_PORTS="3000"
 DEV_STATE="/tmp/pivota-dev-boot-state"
 dev_boot_state() {
   # Cheap, deterministic, and quiet. `compose config` resolves env/overrides,
@@ -128,8 +128,9 @@ echo "[pivota] $(date -Iseconds) start-dev.sh begin (catalog: compose)"
 # 0.0.0.0 binding for a child container, so this block is intentionally EMPTY
 # for the compose entry.
 #
-# The db service publishes "5432:5432" (all interfaces), not
-# "127.0.0.1:5432:5432", so it is reachable from outside the sandbox loopback.
+# The `web` service publishes "3000:3000" and sets HOST=0.0.0.0 in its own
+# `environment:` block, so it is reachable from outside the sandbox loopback
+# and no wrapper-side rewrite is required.
 
 # === D-11.3: .env.example -> .env seed (platform-injection-safe) ===
 # Seed .env from .env.example for first boot, but NEVER let an .env.example
@@ -224,24 +225,23 @@ export PATH="$PWD/node_modules/.bin:$PATH"
 # === Optional pre-exec snippet (JDK install, rustup, golang one-shot setup) ===
 # Catalog entries with PRE_EXEC_SNIPPET inject heavyweight one-time installs
 # here. Empty string when not needed.
-# No heavyweight one-time install: both compose services use prebuilt images
-# (postgres:16.4, node:22.11-bookworm-slim) and neither declares a `build:`,
-# which is also why the exec command below omits `--build`.
+# No heavyweight one-time install and no wrapper-side install of any kind: the
+# `web` service declares `build: .`, so `docker compose up --build` below runs
+# the Dockerfile, whose build stage does its own `npm ci` and `npm run build`.
+# The repo's node_modules on the sandbox host is not a boot input.
 #
-# The install step that follows is NOT the usual compose no-op. The `migrate`
-# service bind-mounts this repo at /app and runs `node server/scripts/migrate.mjs`,
-# which imports node-pg-migrate and pg from the repo's OWN node_modules — no
-# host install means no migrations, and the app would boot onto an empty schema.
-#
-# Exec chain: db up and healthy (its healthcheck is pg_isready) -> the repo's
-# own forward-only migration runner under the `migrate` profile -> db attached
-# in the foreground, which is the process the platform supervises.
+# The wrapper also does NOT run migrate. The `web` service's own compose
+# `command` is migrate -> `create-specialist --from-env --if-absent` -> serve,
+# and the image ships server/migrations and server/scripts for exactly that.
+# Duplicating it here would double-run it and, worse, could leave the app
+# never started. The `migrate` service is behind `profiles: ["migrate"]` and is
+# therefore not started by a profile-less `up`.
 
 # === D-12: idempotent install via lockfile hash + presence check ===
 SENTINEL="/tmp/pivota-setup-sentinel"
-LOCK_FILE_PATH="package-lock.json"
-INSTALL_PRESENCE_CHECK="node_modules"
-INSTALL_CMD='npm ci --include=dev || npm install --include=dev'   # single-quoted: catalog must escape internal quotes correctly
+LOCK_FILE_PATH=""
+INSTALL_PRESENCE_CHECK=""
+INSTALL_CMD=''   # single-quoted: catalog must escape internal quotes correctly
 
 run_install() {
   echo "[pivota] running install: $INSTALL_CMD"
@@ -310,26 +310,7 @@ fi
 # Final-attempt exit code propagates the INNER command's exit code, not a
 # fixed 1, so the caller (platform / Daytona) can distinguish "wrapper bug"
 # from "user command failed with N".
-EXEC_CMD='docker compose up -d --wait db || exit 1
-# The db container can be Up and healthy while its published port is NOT bound
-# on the host: a port sweep (boot-ctl free_port, fuser -k, any reclaim of 5432)
-# kills the docker-proxy that publishes the mapping, and a subsequent
-# `up -d --wait` is a no-op against an already-Running container, so it never
-# rebuilds it. `restart` republishes. Without this, every boot after the first
-# reports a healthy stack whose port nothing can reach.
-for _ in 1 2 3; do
-  (exec 3<>/dev/tcp/127.0.0.1/5432) 2>/dev/null && break
-  echo "[pivota] db is up but 5432 is not published on the host - restarting db to republish the port"
-  docker compose restart db
-  sleep 5
-done
-# Forward-only migration runner, in the repo'\''s own `migrate` profile service.
-# It reads node_modules from the bind-mounted repo, which is why the install
-# step above is not the usual compose no-op. Re-running is idempotent
-# ("No migrations to run!"), so this is safe on every boot.
-docker compose --profile migrate run --rm migrate || exit 1
-# Foreground process the platform supervises.
-docker compose up db'
+EXEC_CMD='docker compose up --build'
 
 # #219: record what this boot is FOR, so the fast path at the top of the file
 # can tell "already running the same thing" from "running something stale".

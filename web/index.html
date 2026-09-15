@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CargoExec</title>
+    <!--
+      LOAD-BEARING (§4.5): the stylesheet is a <link> to the dart-sass output,
+      NEVER a JS `import './uswds.scss'`. CSP is `style-src 'self'` with no
+      `unsafe-inline`, so a bundler injecting a runtime <style> element would be
+      blocked and the app would render unstyled with only a console warning. A
+      linked file from the same origin satisfies the directive in dev and prod.
+      No inline <script> and no inline style attribute appears anywhere.
+    -->
+    <link rel="stylesheet" href="/assets/uswds.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/assets/js/uswds.min.js"></script>
+  </body>
+</html>

@@ -1,20 +1,35 @@
 {
   "generator_version": "init-dev-server@1",
   "catalog_entry": "compose",
-  "generated_at": "2026-09-14T14:22:42Z",
-  "inspection_inputs_hash": "5ca9eef23ea212bd20ed2a141d4335c2655a3dffe6e126ecf58bdb2ad3a7a725",
+  "generated_at": "2026-09-15T00:00:00Z",
+  "inspection_inputs_hash": "c380316721cf648c265cf1eb36e1688be757883af648d4bdc72ee0f786cb57ed",
   "inspection_inputs": {
     "matched_globs": [
       "docker-compose.yml",
       "package.json"
     ],
     "manifest_signatures": [
+      "package.json:dependencies:express@4.21.1",
+      "package.json:dependencies:react@18.3.1",
+      "package.json:dev-script:npm run build:server && NODE_ENV=development node --env-file=.env server/dist/index.js",
+      "package.json:devDependencies:vite@5.4.11",
+      "package.json:script:build:assets=node web/scripts/copy-uswds-assets.mjs",
+      "package.json:script:build:css=sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css",
+      "package.json:script:build:server=tsc -b contract server",
+      "package.json:script:build:web=npm run build:css && npm run build:assets && vite build -c web/vite.config.ts",
+      "package.json:script:build=npm run build:server && npm run build:web",
+      "package.json:script:create-specialist=node server/dist/cli/create-specialist.js",
+      "package.json:script:dev=npm run build:server && NODE_ENV=development node --env-file=.env server/dist/index.js",
       "package.json:script:migrate=node --env-file=.env server/scripts/migrate.mjs",
+      "package.json:script:start=node server/dist/index.js",
+      "package.json:script:test:all=npm run test && npm run test:e2e",
+      "package.json:script:test:api=vitest run server/test/api",
       "package.json:script:test:arch=vitest run server/test/architecture",
       "package.json:script:test:db=vitest run server/test/db",
+      "package.json:script:test:e2e=playwright test",
       "package.json:script:test:unit=vitest run server/test/unit",
-      "package.json:script:test=npm run test:unit && npm run test:db && npm run test:arch",
-      "package.json:script:typecheck=tsc -b contract server"
+      "package.json:script:test=npm run test:unit && npm run test:db && npm run test:api && npm run test:arch",
+      "package.json:script:typecheck=tsc -b contract server && tsc -p web --noEmit"
     ],
     "existing_scripts": []
   }

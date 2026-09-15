@@ -1,4 +1,7 @@
-import { Pool } from 'pg';
+import pg from 'pg';
+
+const { Pool } = pg;
+type Pool = pg.Pool;
 
 /**
  * The recommendation worker's connection pool, connected as `cargoexec_ai`.

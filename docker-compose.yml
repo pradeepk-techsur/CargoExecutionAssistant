@@ -34,5 +34,62 @@ services:
       db:
         condition: service_healthy
 
+  web:
+    build: .
+    container_name: cargoexec-web
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0                  # never localhost: the proxy must reach it (§6.5)
+      PORT: 3000
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost:3000}
+      # The cookie profile, and the one thing most likely to go wrong in the
+      # preview. The default `governed` (SameSite=Lax, Secure only on HTTPS) is
+      # correct when the preview proxy serves the app SAME-ORIGIN under a path
+      # (§4.3's recommendation). If the proxy instead embeds the app from a
+      # DIFFERENT origin, a Lax cookie is not sent on the framed navigation and
+      # sign-in becomes impossible with no visible cause — the remedy is
+      # SESSION_COOKIE_PROFILE=demo-iframe, which requires an https: PUBLIC_ORIGIN
+      # (loadConfig refuses the combination with plain HTTP, so the failure is
+      # loud). CSRF does not depend on SameSite (§4.4), so neither profile weakens it.
+      SESSION_COOKIE_PROFILE: ${SESSION_COOKIE_PROFILE:-governed}
+      FRAME_ANCESTORS: ${FRAME_ANCESTORS:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL_OWNER: postgres://cargoexec_owner:${CARGOEXEC_OWNER_PASSWORD:-cargoexec_local_owner}@db:5432/cargoexec
+      DATABASE_URL_APP:   postgres://cargoexec_app:${CARGOEXEC_APP_PASSWORD:-cargoexec_local_app}@db:5432/cargoexec
+      DATABASE_URL_AI:    postgres://cargoexec_ai:${CARGOEXEC_AI_PASSWORD:-cargoexec_local_ai}@db:5432/cargoexec
+      # The operational account path of F1 FR-1.13 / TechArch §8.7 step 5.
+      # This is NOT seed data: it inserts one row in `specialists` and no case
+      # data at all. Without it the sign-in screen cannot be signed into. Do not
+      # delete it as scope leakage, and do not extend it into a demonstration
+      # dataset (PRD §10 #7).
+      BOOTSTRAP_SPECIALIST_EMAIL:    ${BOOTSTRAP_SPECIALIST_EMAIL:-specialist@cbp.example.gov}
+      BOOTSTRAP_SPECIALIST_NAME:     ${BOOTSTRAP_SPECIALIST_NAME:-A. Rivera}
+      BOOTSTRAP_SPECIALIST_PASSWORD: ${BOOTSTRAP_SPECIALIST_PASSWORD:-cargoexec-local-demo-password}
+    # migrate -> bootstrap account (if absent) -> serve, in that order (§8.7).
+    # Every step is idempotent because the volume persists and this command
+    # re-runs on every boot: migrate.mjs is forward-only against
+    # schema_migrations, and create-specialist --from-env --if-absent uses
+    # ON CONFLICT (email) DO NOTHING. A second `docker compose up` neither fails
+    # nor duplicates.
+    command:
+      - sh
+      - -c
+      - >-
+        node server/scripts/migrate.mjs &&
+        node server/dist/cli/create-specialist.js --from-env --if-absent &&
+        node server/dist/index.js
+    # Liveness is the out-of-band ping (§8.6), NOT an HTTP route: ping.js opens a
+    # connection on DATABASE_URL_APP, runs SELECT 1, and exits non-zero on failure.
+    healthcheck:
+      test: ["CMD", "node", "server/dist/cli/ping.js"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
 volumes:
   pgdata:
