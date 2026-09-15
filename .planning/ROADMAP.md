@@ -25,7 +25,7 @@ Resilience (degraded AI, conflicting decisions, stale screens) and per-screen ac
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them (completed 2026-09-14)
-- [ ] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits
+- [x] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits (completed 2026-09-15)
 - [ ] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean
 - [ ] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action
 - [ ] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such
@@ -186,7 +186,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
-| 2. Identity and the Federal UI Foundation | 0/TBD | Failed | - |
+| 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
 | 3. Receive, Validate, Except | 0/TBD | Not started | - |
 | 4. The Receipt-Ordered Queue | 0/TBD | Not started | - |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Not started | - |
