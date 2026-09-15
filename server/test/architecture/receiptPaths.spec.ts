@@ -379,13 +379,25 @@ describe('receiptPaths — no exception-authoring or ingestion UI affordance', (
       'State-changing call to an exception collection in web/src:\n' + offenders.join('\n'),
     ).toEqual([]);
 
-    // api/client.ts specifically: it names only /api/session and /api/entries —
-    // never an exception collection under a mutating method.
+    // api/client.ts specifically: as of Phase 4 (plan 04-04) it names the F7 READ
+    // routes /api/exceptions and /api/exceptions/:idOrReference — but ONLY under
+    // GET. It must never carry a POST/PUT/PATCH/DELETE against an exception
+    // collection (criterion 4: no exception-authoring/mutation UI). We check
+    // every request() call that names an exceptions path and assert its method
+    // literal is 'GET'.
     const clientSrc = stripComments(readFileSync(join(WEB_SRC, 'api', 'client.ts'), 'utf8'));
-    expect(
-      /['"`]\/api\/exceptions/.test(clientSrc),
-      'api/client.ts references an /api/exceptions path — no exception mutation exists yet.',
-    ).toBe(false);
+    for (const m of clientSrc.matchAll(/['"`](\/api\/exceptions[^'"`]*)['"`]/g)) {
+      const idx = m.index ?? 0;
+      // The method literal in a request('GET', '/api/exceptions', …) call sits a
+      // short distance BEFORE the path; scan a window around the path for a
+      // mutating method literal.
+      const window = clientSrc.slice(Math.max(0, idx - 60), idx + 60);
+      expect(
+        /\b(POST|PUT|PATCH|DELETE)\b/.test(window),
+        `api/client.ts calls a mutating method against ${m[1]} — the F7 exception ` +
+          'routes are read-only (GET); no exception-authoring/mutation call may exist.',
+      ).toBe(false);
+    }
   });
 
   it('10. no ingestion affordance: no file input, drag-and-drop, template download or batch paste', () => {

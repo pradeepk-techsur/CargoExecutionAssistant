@@ -156,44 +156,49 @@ function QueueLoaded(props: {
         {n} open exception{n === 1 ? '' : 's'}
       </p>
 
-      <table className="usa-table">
-        <caption>
-          Open exceptions in receipt order — {n} case{n === 1 ? '' : 's'}
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Case</th>
-            <th scope="col">Received</th>
-            <th scope="col">Entry number</th>
-            <th scope="col">Why it is open</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.exceptions.map((row) => (
-            <tr key={row.id}>
-              <td>
-                {row.case_reference ? (
-                  <Link
-                    to={`/cases/${row.case_reference}`}
-                    aria-label={`Open case ${row.case_reference}`}
-                  >
-                    {row.case_reference}
-                  </Link>
-                ) : (
-                  <MissingReference id={row.id} />
-                )}
-              </td>
-              <td>
-                <time dateTime={row.received_at}>
-                  {formatDateTime(row.received_at)}
-                </time>
-              </td>
-              <td>{row.entry_number ?? 'Not provided'}</td>
-              <td>{row.failure_summary}</td>
+      {/* USWDS scrollable wrapper: on a narrow viewport the TABLE scrolls
+          within this container (with a keyboard-focusable region), so the
+          document body never scrolls horizontally at 320px (reflow / FR-2 §14). */}
+      <div className="usa-table-container--scrollable" tabIndex={0} role="region" aria-label="Open exceptions table">
+        <table className="usa-table">
+          <caption>
+            Open exceptions in receipt order — {n} case{n === 1 ? '' : 's'}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Case</th>
+              <th scope="col">Received</th>
+              <th scope="col">Entry number</th>
+              <th scope="col">Why it is open</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.exceptions.map((row) => (
+              <tr key={row.id}>
+                <td>
+                  {row.case_reference ? (
+                    <Link
+                      to={`/cases/${row.case_reference}`}
+                      aria-label={`Open case ${row.case_reference}`}
+                    >
+                      {row.case_reference}
+                    </Link>
+                  ) : (
+                    <MissingReference id={row.id} />
+                  )}
+                </td>
+                <td>
+                  <time dateTime={row.received_at}>
+                    {formatDateTime(row.received_at)}
+                  </time>
+                </td>
+                <td>{row.entry_number ?? 'Not provided'}</td>
+                <td>{row.failure_summary}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   );
 }
