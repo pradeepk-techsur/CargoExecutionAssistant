@@ -256,10 +256,18 @@ describe('session endpoints', () => {
       expect(res.body.error.request_id).toBe(res.headers['x-request-id']);
     });
 
-    it('11. method not allowed: PUT /api/session ⇒ 405 METHOD_NOT_ALLOWED', async () => {
+    it('11. method not allowed: an AUTHENTICATED PUT /api/session ⇒ 405 METHOD_NOT_ALLOWED', async () => {
       __resetThrottle();
+      // The 405-vs-404/401 distinction is for an AUTHENTICATED caller: since plan
+      // 03-03 added requireApiAuth (after sessionMiddleware, before csrf and route
+      // matching), an UNAUTHENTICATED PUT /api/session is refused 401 by the gate
+      // — an anonymous caller cannot probe which methods a path implements. Sign
+      // in first, so the request reaches the route stage and gets the shape error.
+      const sp = await createTestSpecialist(h.db.appUrl);
+      const { cookie } = await h.signIn(sp.email, TEST_PASSWORD);
       const res = await supertest(h.app)
         .put('/api/session')
+        .set('Cookie', cookie)
         .set('Content-Type', 'application/json')
         .send({});
       expect(res.status).toBe(405);
