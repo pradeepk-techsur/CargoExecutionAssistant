@@ -1,137 +1,98 @@
 ---
 phase: 3
-status: fixed
-blockers: 1
-warnings: 2
-files_reviewed: 18
+status: clean
+blockers: 0
+warnings: 0
+files_reviewed: 2
 files_reviewed_list:
-  - contract/src/dto.ts
-  - contract/src/errors.ts
-  - server/src/db/repositories/entries.ts
-  - server/src/db/repositories/exceptions.ts
-  - server/src/db/repositories/validation.ts
-  - server/src/http/app.ts
-  - server/src/http/requireApiAuth.ts
   - server/src/http/routes/entries.ts
-  - server/src/http/routes/index.ts
-  - server/src/index.ts
-  - server/src/services/receipt.service.ts
-  - server/src/services/validation/domain.ts
-  - server/src/services/validation/engine.ts
-  - server/src/services/validation/index.ts
-  - server/src/services/validation/normalise.ts
-  - server/src/services/validation/rules.ts
-  - server/src/services/validation/selfCheck.ts
-  - server/src/services/validation/types.ts
-  - web/src/api/client.ts
-  - web/src/components/UswdsForm.tsx
-reviewed_at: 2026-09-15T17:10:27Z
-iteration: 1
+  - server/src/db/repositories/exceptions.ts
+reviewed_at: 2026-09-15T17:16:11Z
+iteration: 2
 ---
 
-# Phase 3 Code Review
+# Phase 3 Code Review — Iteration 2 (re-review)
 
-Reviewed the full phase-3 change set (18 source files plus the two web files;
-the 16 test/spec files in the diff were read for evidence but are out of review
-scope as production behaviour). The receipt transaction, the validation engine
-and registry, the two F3 endpoints, the auth gate, and the typed client are all
-structurally sound and the cross-file seams line up. One defect survives
-refutation as a BLOCKER: a structurally-plausible numeric input overflows the
-`numeric(14,3)` / `numeric(14,2)` columns and turns into a 500 the FRD forbids.
+Re-review after the code-fixer applied iteration-1's three findings across
+commits 307ead5 (B1), 69c0da8 (W1), 6ed1686 (W2). The fixer touched exactly two
+source files — `server/src/http/routes/entries.ts` and
+`server/src/db/repositories/exceptions.ts` — both already in the iteration-1
+files_reviewed_list; the fourth commit (cba12be) only records resolutions in
+this REVIEW.md. I read each changed region in full, re-derived the boundary
+cases by hand, and typechecked the workspace (`tsc -b contract server` → exit 0).
+All three fixes are correct and complete, and no fix introduced a regression.
+Status **clean**.
 
-## BLOCKERs
+## Iteration-1 findings — verification
 
-### B1: Large-integer numeric input overflows the DB column → 500 RECEIPT_FAILED instead of 422 (or acceptance)
-- **File:** server/src/http/routes/entries.ts:319-345 (`coerceNumerics`); reaches server/src/db/repositories/entries.ts:99-100 (`$15::numeric` / `$17::numeric`)
-- **Category:** bug
-- **Evidence:** The structural scale check bounds only the *total* digit count
-  (`totalDigits > MAX_TOTAL_DIGITS` = 14) and the *fractional* count
-  (`fracDigits.length > maxDecimals`). It never bounds the **integer** part to
-  the column's `precision − scale`. The columns are `quantity numeric(14,3)`
-  (max 11 integer digits) and `declared_value_usd numeric(14,2)` (max 12 integer
-  digits) (migrations/0002_entries.sql:22,24). A value like
-  `quantity: "123456789012"` (12 integer digits, 0 decimals) has totalDigits=12
-  ≤ 14 and 0 decimals, so `coerceNumerics` **accepts** it (verified by
-  simulation), it is bound at `$15::numeric` into `numeric(14,3)`, and Postgres
-  raises `22003 numeric field overflow` — confirmed live:
-  `SELECT 123456789012::numeric(14,3)` → `ERROR: numeric field overflow`.
-  Likewise `declared_value_usd: "1234567890123"` (13 integer digits) →
-  `SELECT '1234567890123'::numeric(14,2)` → overflow. The error is `22003`, not
-  the `23505` the service distinguishes, so it is not a duplicate; it is not the
-  arrival-date `22008` the service pre-empts either. It propagates out of
-  `runReceipt`, the transaction rolls back, and `errorMapper` answers the
-  generic **500 RECEIPT_FAILED**. Both the JSON-number path (`String(n)` with no
-  `e`) and the numeric-string path reach it. This directly contradicts the
-  stated contract: routes/entries.ts:143-145 ("Only unparseable or over-scale
-  values are 422s") and entries.ts repo header (arrival-date §): "a malformed
-  value MUST NOT become a 422 — nor a 500". A structural input the client
-  supplied crashes the receipt with a message telling the specialist nothing was
-  saved. No test exercises the integer-overflow case (entries.spec.ts case 10
-  only covers `abc`, `1.2345`, `"0"`, `-5`).
-- **Fix direction:** In `coerceNumerics`, additionally reject when the integer
-  digit count exceeds `MAX_TOTAL_DIGITS − maxDecimals` for the field (11 for
-  quantity, 12 for declared_value) with a 422 `too_many_decimals`/over-scale
-  detail — i.e. bound the integer part to the column's `precision − scale`, not
-  just the combined total. (Or treat over-precision as F4 business only if the
-  column widened; it has not, so the 422 guard is the correct fix here.)
-- **Resolution:** fixed (307ead5) — bound the integer digit count to
-  `MAX_TOTAL_DIGITS − maxDecimals` (11 for quantity, 12 for declared_value) in
-  `coerceNumerics`, refusing an over-precision value with a 422
-  `too_many_decimals`. Leading zeros are stripped before the count so a legal
-  zero-padded value is not spuriously rejected. Verified: tsc clean; api
-  entries.spec case 10 green.
+### B1 (was BLOCKER) — large-integer numeric overflow → 500 — FIXED, verified
+- **Fix:** `coerceNumerics` (entries.ts:331,340-341) now strips leading zeros
+  from the integer group (`(m[1] ?? '').replace(/^0+(?=\d)/, '')`) and rejects
+  when `intDigits.length > MAX_TOTAL_DIGITS − maxDecimals` in addition to the
+  existing combined-total gate.
+- **Boundary re-derivation (hand-checked):**
+  - `quantity "123456789012"` (12 int, 0 frac): `maxIntDigits = 14−3 = 11`;
+    `12 > 11` → **422 too_many_decimals**. The reported overflow is closed.
+  - `quantity "99999999999.999"` (11 int, 3 frac, fits numeric(14,3)):
+    `11 > 11` false, `14 > 14` false, `3 > 3` false → **accepted**. No
+    over-rejection of the legal maximum.
+  - `declared_value_usd "1234567890123"` (13 int): `maxIntDigits = 14−2 = 12`;
+    `13 > 12` → **422**. Closed. `"999999999999.99"` (12 int, 2 frac) accepted.
+  - Leading-zero legality preserved: `"0"` → `/^0+(?=\d)/` needs a following
+    digit, so `"0"` is untouched (1 int digit, accepted); `"000123"` → `"123"`;
+    `"0.001"` → int `"0"` (1), frac 3, accepted.
+  - Sign handling: `-?` sits outside capture group 1, so `"-99999999999.999"`
+    counts 11 int digits exactly as the positive form — correct.
+- The 422 path emits `too_many_decimals` matching entries.spec case 10's
+  assertion; the contract (routes/entries.ts:150-151 "Only unparseable or
+  over-scale values are 422s") is now honoured for the integer-part case. FIXED.
 
-## WARNINGs
+### W1 (was WARNING) — untrimmed `.max()` length gate — FIXED, verified
+- **Fix:** new `text(max)` helper (entries.ts:74) =
+  `z.string().transform((s) => s.trim()).pipe(z.string().max(max))`, applied to
+  all twelve structural text fields; the length bound now measures the trimmed
+  value, matching `cargo_entries_len_chk`.
+- **Regression checks (hand-traced):**
+  - Numeric fields (`quantity`, `declared_value_usd`) still use `numericish`,
+    NOT `text()`; their trimming stays in `coerceNumerics` (line 315) — no
+    double-transform, no behavioural shift.
+  - `parsed` now holds pre-trimmed strings; `collapse` (line 406) trims again —
+    idempotent, so canonicalisation is unchanged. Internal whitespace is
+    preserved (`.trim()` is edges-only), so verbatim storage of internal spaces
+    (spec case 25 `"  abc12345678  "` → `"abc12345678"`) still holds.
+  - Empty/whitespace-only (spec case 26 `''` / `'   '`) → transform yields `''`
+    → passes `.max()` → `.nullish()` returns `''` → `collapse` → null. Unchanged.
+  - A JSON number sent to a text field is still rejected by `z.string()` exactly
+    as the prior `z.string().max()` did — no widening.
+  - Over-length WITHOUT surrounding whitespace is still 422: spec case 9
+    (`'A'.repeat(21)`) and case 11 (`arrival_date 'not-a-date-x'`, 12 chars,
+    no edge whitespace) both remain over-length after trim → 422. Confirmed the
+    fix does not weaken the length gate.
+- Note (not a finding — test coverage is out of scope): no spec exercises the
+  precise W1 case (a value over-length raw but legal once trimmed, e.g.
+  `' ' + 'A'.repeat(20)`); the fix is nonetheless correct by construction.
 
-### W1: Structural `.max()` length check runs on the untrimmed value, so a leading/trailing space makes a would-be-valid value a 422
-- **File:** server/src/http/routes/entries.ts:69-86 (`EntryBody`) vs 388-395 (`collapse` trims only afterward)
-- **Evidence:** Zod's per-field `.max(n)` is applied to the raw submitted string
-  BEFORE canonicalisation trims it. `canonicalise`/`collapse` trims and the DB
-  `cargo_entries_len_chk` measures the trimmed stored value, but the schema does
-  not. So `entry_number: " AAAAAAAAAAAAAAAAAAAA"` (a leading space + 20 chars =
-  21) is refused `422 REQUEST_MALFORMED` for over-length, even though the value
-  actually stored would be 20 chars and legal. Similarly a valid
-  `arrival_date: " 2026-02-15"` (11 chars pre-trim) is 422 over-length instead
-  of being accepted. FR-3.8 makes leading/trailing whitespace insignificant
-  ("empty string, whitespace-only and absent are treated identically"), which
-  argues the length gate should measure the trimmed value. Degraded edge-case
-  handling on an otherwise-correct path — real, but not corrupting or blocking.
-- **Fix direction:** Trim before the length check (e.g. `.transform(s => s.trim())`
-  ahead of `.max()`, or move the `.max()` bound onto the canonical value), so the
-  structural length gate and the stored-value length constraint measure the same
-  string.
-- **Resolution:** fixed (69c0da8) — introduced a `text(max)` schema helper that
-  `.transform(s => s.trim())` before `.pipe(z.string().max(max))`, applied to all
-  twelve structural text fields. The length gate now measures the trimmed value,
-  matching `cargo_entries_len_chk`. Verified: tsc clean; api entries.spec (27)
-  and unit canonical.spec (19) green.
+### W2 (was WARNING) — bigint `receipt_position` coerced via `Number()` — FIXED, verified
+- **Fix:** `toReceiptPosition(raw)` (exceptions.ts:24-34) throws on
+  `!Number.isSafeInteger(n)`; both call sites — `insertException` (line 62) and
+  `loadExceptionRefByEntry` (line 102) — route through it. A past-2^53 value now
+  raises a loud internal-invariant error instead of silently truncating.
+- **Verification:** both prior `Number(row.receipt_position)` sites replaced; no
+  third call site exists (grep). `Number.isSafeInteger` also rejects `NaN`, so a
+  malformed pg value fails loudly too. The contract type stays `number`
+  (dto.ts ExceptionRef) per scope — no seam break. FIXED.
 
-### W2: `receipt_position` / bigint sequence coerced through `Number()` loses precision past 2^53
-- **File:** server/src/db/repositories/exceptions.ts:46,86
-- **Evidence:** `receipt_position` is a `bigint` (pg returns it as a string) and
-  both `insertException` and `loadExceptionRefByEntry` do `Number(row.receipt_position)`.
-  The inline comment acknowledges this ("far below Number.MAX_SAFE_INTEGER for
-  any realistic receipt volume"). For the demonstration's scale this is fine, so
-  it is a WARNING, not a BLOCKER — flagged only because the coercion is silent
-  and the contract types `receipt_position` as `number` (dto.ts:125), meaning a
-  future high-volume deployment would truncate without any error. Stated
-  uncertainty: within phase-3 scope this is genuinely non-blocking.
-- **Resolution:** fixed (6ed1686) — centralised the bigint→number coercion in a
-  `toReceiptPosition()` helper used by both `insertException` and
-  `loadExceptionRefByEntry`; it throws when the value is not a safe integer,
-  turning a silent past-2^53 truncation into a loud internal-invariant breach.
-  The contract type (`number`) is left intact per scope. Verified: tsc clean; db
-  exceptionBasis.spec (14) and receipt.spec (16) green.
+## Cross-file seams re-checked (fixer-touched surface only)
+- `insertException` / `loadExceptionRefByEntry` return shape (`{ id, state,
+  receipt_position: number }`) ↔ `ExceptionRef` (contract dto) — unchanged by
+  the W2 helper; still `number`. OK.
+- `EntryBody` schema keys after the `text()` refactor ↔ `ParsedBody` /
+  `ENTRY_FIELDS` / `NUMERIC_FIELDS` / `canonicalise` — all fourteen keys intact,
+  numeric two untouched. OK.
+- `coerceNumerics` output (`Partial<Record<EntryFieldName, string>>`) ↔
+  `canonicalise` consumer — signature unchanged; only the internal gate widened.
+  OK.
+- `tsc -b contract server` → exit 0 (no type drift introduced by any fix). OK.
 
-## Cross-file seams checked
-- POST/GET /api/entries (routes/index.ts) ↔ API_ROUTE_TABLE `implemented: true` + app.ts 405/404 map — OK (five implemented rows, boot asserts five).
-- `receiveEntry(deps, submitted, provided)` signature ↔ route call site (entries.ts:158-166) — OK (deps shape, canonical record, provided list all match).
-- `evaluate(record, receivedAt)` engine ↔ receipt service call (receipt.service.ts:187) — OK; `ValidationEvaluation` fields all consumed.
-- `insertEntry` 18-column bind order ↔ `cargo_entries` column list (migration 0002) — OK (14 fields + 4 header cols, casts at $15/$17/$18).
-- `EntryCreateRequest` / `ReceiptResponse` / `EntryDetailResponse` (contract) ↔ web client `createEntry`/`getEntry` (client.ts:228-242) — OK, types imported and returned unchanged.
-- `EntryFieldName` / `ENTRY_FIELDS` (contract fields.ts) ↔ EntryBody schema keys, rules.ts, selfCheck ENTRY_FIELD_SET, engine ENTRY_FIELD_SET — OK, all 14 aligned.
-- `INTERNAL_INVARIANT_CODES` 9th code `VALIDATION_ENGINE_FAILURE` ↔ scaffolding.spec expectation — OK (deferred-items records it reconciled by 341e032; SUMMARY 03-04/03-06 confirm test:unit green).
-- `requireApiAuth` ordering (app.ts session→requireApiAuth→csrf) ↔ 401-before-403 guarantee — OK; POST /api/session exemption present.
-- `ExceptionRef` (state/receipt_position) shape ↔ `loadExceptionRefByEntry` return + receipt service `exceptionRef` — OK.
-- `evaluated_at` produced by DB `now()` (insertValidationResult / loadValidationByEntry) ↔ never a clock read in engine — OK (FR-4.4 honoured).
-- Known stubs (DateField USWDS no-op, D-1) verified non-blocking: plain text input is keyboard-operable and submits as typed; genuinely cosmetic — no escalation.
+No new BLOCKERs or WARNINGs. All three iteration-1 findings are resolved with no
+regression on the touched surface.
