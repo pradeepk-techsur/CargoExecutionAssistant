@@ -70,6 +70,22 @@ services:
       BOOTSTRAP_SPECIALIST_EMAIL:    ${BOOTSTRAP_SPECIALIST_EMAIL:-specialist@cbp.example.gov}
       BOOTSTRAP_SPECIALIST_NAME:     ${BOOTSTRAP_SPECIALIST_NAME:-A. Rivera}
       BOOTSTRAP_SPECIALIST_PASSWORD: ${BOOTSTRAP_SPECIALIST_PASSWORD:-cargoexec-local-demo-password}
+      # The AI recommendation environment (§6.6; plan 05-01's required keys).
+      # As of Phase 5, loadConfig makes AI_PROVIDER_URL / AI_MODEL_ID /
+      # PROMPT_VERSION mandatory (the AI self-checks abort boot without them), so
+      # a fresh `docker compose up --build` cannot start the web service without
+      # these. AI_PROVIDER_URL=fake:deterministic is the explicit non-production
+      # posture (config.ts §6.6 / plan 05-01 threat note T-05-16): the full
+      # generation pipeline runs with NO network and NO real API key, mirroring
+      # e2e/env.ts. AI_API_KEY is required only for a real https:// provider, so
+      # it is intentionally absent here. PROMPT_VERSION MUST be byte-identical to
+      # server/src/ai/prompt/manifest.json ('2026.09.1') or the boot digest
+      # self-check fails.
+      AI_PROVIDER_URL:      ${AI_PROVIDER_URL:-fake:deterministic}
+      AI_MODEL_ID:          ${AI_MODEL_ID:-demo-fake-model}
+      PROMPT_VERSION:       ${PROMPT_VERSION:-2026.09.1}
+      AI_TIMEOUT_MS:        ${AI_TIMEOUT_MS:-20000}
+      AI_WORKER_CONCURRENCY: ${AI_WORKER_CONCURRENCY:-2}
     # migrate -> bootstrap account (if absent) -> serve, in that order (§8.7).
     # Every step is idempotent because the volume persists and this command
     # re-runs on every boot: migrate.mjs is forward-only against
