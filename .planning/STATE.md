@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-03-PLAN.md
-last_updated: "2026-09-15T22:27:25.386Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-09-15T22:28:01.716Z"
 last_activity: "2026-09-15 — 04-04 executed (Phase 4 COMPLETE): Task 1 a17161b (client + formatter), Task 2 fb0484f (Queue screen + router + e2e), Task 3a 3c43a97 (table scroll-region + arch-spec narrowing + sign-in de-flake), Task 3b baac039 (signed docs/a11y/queue.md). 4 auto-fixed deviations (2×R1 own-code bugs, 1×R3 stale arch assertion, 1×R1 pre-existing flake 04-04 aggravated). test:all green."
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 37
-  completed_plans: 32
+  completed_plans: 33
   percent: 67
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 4 complete — ready for Phase 5 (Case detail + AI recommendation)
+**Current focus:** Phase 5 (AI recommendation as an un-applied proposal) — in progress; 05-02 complete
 
 ## Current Position
 
-Phase: 4 of 6 (The Receipt-Ordered Queue) — COMPLETE (4/4 plans)
-Plan: 04-04 complete — the F8 review-queue web UI, the phase's user-facing deliverable. `/queue` now serves `web/src/screens/Queue.tsx` (was NotBuiltYet): a single accessible USWDS `<table>` rendering `api.getQueue()` in EXACT API/receipt order (no client sort/regroup, FR-8.1), four plain `<th scope="col">` columns (Case / Received / Entry number / Why it is open), per-row `<Link to={/cases/:ref} aria-label="Open case …">` activatable by keyboard Enter and pointer (FR-8.5), a truncation notice (FR-8.12), an empty state and an ErrorState-with-Try-again reusing components/states.tsx verbatim (FR-8.7/8.8), an explicit Refresh button (FR-8.10) and polite/assertive FR-8.9 announcements. `api.getQueue()`/`api.getCase(idOrReference)` are GET-only reads (no CSRF header, getEntry pattern). `web/src/lib/formatDateTime.ts` is the one fixed-locale absolute date+time formatter (FR-8.14) — reused UNCHANGED by Phase 5/6 case-detail screens. The table lives in a focusable `usa-table-container--scrollable` region so the body never scrolls horizontally at 320px. No filter/sort/assign/priority/search affordance anywhere (criterion 4, proven by navigation.spec.ts + e2e test 2).
-Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored — its route still renders NotBuiltYet, which is why NotBuiltYet.tsx was correctly left in place this plan). Phase 4 COMPLETE (04-01..04-04): `npm run test:all` fully green — unit 218, db 175, api 124, arch 148, e2e 37; 0 failures, 0 skipped; `npm run build` + `npm run typecheck` exit 0. NOTE for Phase 5: `api.getCase(idOrReference)` and `formatDateTime` are ready and stable for the case-detail screen; `/cases/:caseReference` remains a NotBuiltYet placeholder (Phase 5's deliverable). ENV note: Playwright Chromium + Linux deps were installed this run (`npx playwright install chromium` + `install-deps chromium`) — required before any e2e tier can run in a fresh sandbox.
-Last activity: 2026-09-15 — 04-04 executed (Phase 4 COMPLETE): Task 1 a17161b (client + formatter), Task 2 fb0484f (Queue screen + router + e2e), Task 3a 3c43a97 (table scroll-region + arch-spec narrowing + sign-in de-flake), Task 3b baac039 (signed docs/a11y/queue.md). 4 auto-fixed deviations (2×R1 own-code bugs, 1×R3 stale arch assertion, 1×R1 pre-existing flake 04-04 aggravated). test:all green.
+Phase: 5 of 6 (AI recommendation as an un-applied proposal) — IN PROGRESS
+Plan: 05-02 complete — the WRITE side of `recommendations`/`recommendation_values` plus the two AI-safe reads the F9 generation job (05-04) needs. Three new write functions in `server/src/db/repositories/recommendations.ts`: `markRecommendationAvailable`/`markRecommendationUnavailable` (idempotent PENDING→terminal transitions whose ENTIRE guard is `WHERE id=$1 AND status='PENDING' RETURNING id`; `{updated:true}` on rowCount 1, `{updated:false}` no-op on 0) and `insertRecommendationValues` (multi-row bind-only insert, per-row `$n::text[]` scaffold — a third documented exclusion added to headers.spec.ts's template-literal-SQL gate). Two AI-safe reads: `loadExceptionForGeneration` (exceptions.ts — entry_id+validation_result_id, no join) and `loadEntryValuesForRecommendation` (entries.ts — the 14 field values, DELIBERATELY not reusing loadEntryDetail's `specialists` join, FR-9.16). The terminal write runs over `cargoexec_app` (append()'s case-anchor FOR UPDATE needs UPDATE on cargo_entries, denied to cargoexec_ai per 0011); the job uses `cargoexec_ai` only for its OWN reads.
+Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 COMPLETE (04-01..04-04). Phase 5 in progress: 05-02 done; 05-01 work is present but UNCOMMITTED in the working tree (config.ts/logger.ts/package.json/boot.spec.ts modified, server/src/ai/** + recommendation.spec.ts untracked) — 05-02 touched none of it. `npm run test:db` green at 183 (+8 from the new recommendationWrite.repo.spec.ts, 0 regressions); `npm run typecheck` + `npm run build:server` exit 0; headers.spec.ts 48/48. ENV note: `npm install --include=dev` was required in this fresh sandbox before any build/test.
+Last activity: 2026-09-15 — 05-02 executed: Task 1 b928058 (AI-safe reads), Task 2 12d53fb (write functions + headers exclusion), Task 3 ad6fb2b (DB-tier proof: idempotence, audit coupling ×2, cargoexec_ai privilege wall, 8 tests). 2 auto-fixed R3-Blocking deviations (deps install, vitest --reporter=list unsupported → default reporter), no source deviation. test:db 183/183.
 
 Progress: [███████░░░] 67%
 
@@ -83,6 +83,7 @@ Progress: [███████░░░] 67%
 | Phase 04 P03 | 7 min | 3 tasks | 5 files |
 | Phase 04-the-receipt-ordered-queue P04 | 27 min | 3 tasks | 8 files |
 | Phase 05-ai-recommendation-as-an-un-applied-proposal P03 | 4 min | 3 tasks | 5 files |
+| Phase 05-ai-recommendation-as-an-un-applied-proposal P02 | 12 min | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -150,6 +151,7 @@ Recent decisions affecting current work:
 - [Phase 04-the-receipt-ordered-queue]: 04-03: the two F7 endpoints are live as a thin HTTP translation over 04-02's listQueue/loadCase — GET /api/exceptions rejects any query string (FR-7.2) and serves the receipt-ordered queue; GET /api/exceptions/:idOrReference validates identifier FORM before loadCase and maps NOT_FOUND / ENTRY_PASSED_VALIDATION to two 404s sharing EXCEPTION_NOT_FOUND, distinguished only by message (FR-7.14). API_ROUTE_TABLE now seven implemented. Framework note: a mutating method on a parameterised /api path is 404 not 405 (app.ts keys 405 on route patterns vs concrete paths) — deferred to app.ts.
 - [Phase 04-the-receipt-ordered-queue]: 04-04: the F8 review-queue screen (web/src/screens/Queue.tsx) renders GET /api/exceptions in exact receipt order into one accessible USWDS table with per-row Link case activation (keyboard Enter + pointer), reusing Loading/Empty/ErrorState verbatim; api.getQueue/getCase are GET-only (no CSRF header, getEntry pattern); formatDateTime pins its own 3-letter month names because this runtime's Intl month:short renders 'Sept' not 'Sep'; the table sits in a focusable usa-table-container--scrollable region so the body never scrolls horizontally at 320px. receiptPaths.spec test 9 narrowed from 'client names no /api/exceptions' to 'no MUTATING method on an exception collection' (GET reads permitted). Phase 4 complete; test:all green (unit 218, db 175, api 124, arch 148, e2e 37).
 - [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-03: the F9 polling endpoint GET /api/exceptions/:exceptionId/recommendation is live and read-only, serving all three PENDING/AVAILABLE/UNAVAILABLE shapes off the always-present recommendation row with zero dependency on the AI generation job; loadRecommendationDetail uses resolveCaseIdentifier(UUID) as the existence probe (planned loadExceptionForGeneration does not exist) and duplicates caseRead's compose logic rather than importing it. API_ROUTE_TABLE now eight implemented; boot.spec asserts eight. Stable contract for plan 05-05.
+- [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-02: the recommendation terminal write (markRecommendationAvailable/Unavailable + insertRecommendationValues) runs over cargoexec_app because append()'s case-anchor FOR UPDATE lock needs UPDATE on cargo_entries, denied to cargoexec_ai (0011). Idempotence is the WHERE status='PENDING' guard alone (rowCount 1=fired, 0=no-op). loadEntryValuesForRecommendation deliberately avoids loadEntryDetail's specialists join (FR-9.16). Proven at DB tier with the plan's own functions; test:db 183/183.
 
 ### Pending Todos
 
@@ -166,6 +168,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T22:27:18.134Z
-Stopped at: Completed 05-03-PLAN.md
+Last session: 2026-09-15T22:27:53.597Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
