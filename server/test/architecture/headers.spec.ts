@@ -305,9 +305,15 @@ describe('headers — D-1 source guarantees', () => {
     //    from a fixed column count and the row index; every actual value goes
     //    through the `params` bind array. The interpolation is placeholder
     //    scaffolding, not data — the canonical safe bulk-insert pattern.
+    //  - server/src/db/repositories/recommendations.ts — the multi-row
+    //    `recommendation_values` insert builds its `VALUES (…),(…)` placeholder
+    //    tuples from a fixed column count and the row index; every actual value
+    //    goes through the `params` bind array. The same canonical safe
+    //    bulk-insert pattern, extended deliberately, never weakened.
     const EXCLUDED = new Set([
       join('server', 'src', 'db', 'tx.ts'),
       join('server', 'src', 'services', 'audit', 'writer.ts'),
+      join('server', 'src', 'db', 'repositories', 'recommendations.ts'),
     ]);
     const offenders: string[] = [];
     for (const file of walk(SERVER_SRC)) {
