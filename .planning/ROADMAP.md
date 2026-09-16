@@ -29,7 +29,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean (completed 2026-09-15)
 - [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2026-09-15)
 - [x] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such (completed 2026-09-16)
-- [ ] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here**
+- [x] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here** (completed 2026-09-16)
 
 ## Phase Details
 
@@ -141,7 +141,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 6: The Human Decision and the Record That Explains It
 **Goal**: A cargo specialist edits, approves or rejects the recommendation with a reason the record keeps, and then reads the whole story of the case inside the case — **closing the governed loop end to end** — with no path by which anything resolves without her.
-**Status**: Passed
+**Status**: Complete (2026-09-16)
 **Depends on**: Phase 5
 **Requirements**: F11, F12, F14
 **Non-functional carried**: NFR-5, NFR-7, NFR-2 (these screens' sign-off), NFR-4 (per-value re-stamping), NFR-6 (decision transaction)
@@ -210,7 +210,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Receive, Validate, Except | 0/TBD | Complete | 2026-09-15 |
 | 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2026-09-15 |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Complete | 2026-09-16 |
-| 6. The Human Decision and the Record That Explains It | 0/TBD | Passed | - |
+| 6. The Human Decision and the Record That Explains It | 0/TBD | Complete | 2026-09-16 |
 
 ---
 *Roadmap created: 2026-09-12*
