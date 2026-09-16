@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 05-ai-recommendation-as-an-un-applied-proposal
 source: 05-01-SUMMARY.md, 05-02-SUMMARY.md, 05-03-SUMMARY.md, 05-04-SUMMARY.md, 05-05-SUMMARY.md, 05-06-SUMMARY.md
 started: 2026-09-15T23:43:17Z
-updated: 2026-09-16T00:12:00Z
+updated: 2026-09-16T00:17:26Z
 ---
 
 ## Current Test
@@ -100,9 +100,17 @@ per_test:
   severity: major
   test: 4
   source: user
-  confidence: hypothesis
-  artifacts: []
-  missing: []
-  debug_session: ""
+  confidence: proven
+  root_cause: "The /entries/new route is wired in web/src/app/router.tsx (lines 76-79) to the NotBuiltYet placeholder screen instead of an assembled cargo-entry entry form. This is a pre-existing Phase 3 gap, not a Phase 5 defect: the assembled screen was scheduled as Phase 3 plans 03-09/03-10, which were never authored (only 03-01..03-08 exist), and 03-VERIFICATION.md already documented this exact gap before Phase 5 began. Phase 5's only router.tsx change (05-05-PLAN.md) was explicitly scoped to /cases/:caseReference and explicitly instructed NOT to touch /entries/new. Reproduced live in a signed-in browser session: clicking \"New cargo entry\" renders NotBuiltYet's literal text \"This screen is not available in this build.\""
+  artifacts:
+    - path: "web/src/app/router.tsx"
+      issue: "Lines 76-79: /entries/new maps to <NotBuiltYet title=\"New cargo entry\" />, not an assembled entry-form screen."
+    - path: "web/src/screens/NotBuiltYet.tsx"
+      issue: "Transitional placeholder occupying /entries/new; line 41 renders the exact reported text \"This screen is not available in this build.\""
+    - path: ".planning/phases/03-receive-validate-except/03-VERIFICATION.md"
+      issue: "Pre-dates Phase 5 UAT (2026-09-15T17:22:09Z); documents this same gap as unauthored plans 03-09/03-10 under success criteria 1-3."
+  missing:
+    - "The assembled cargo-entry screen at /entries/new (Phase 3 plans 03-09/03-10) that composes the existing UswdsForm primitives + api.createEntry into a real, submittable form."
+  debug_session: ".planning/debug/case-opens-immediately-while-ai-catches-up.md"
 
 [The pre-existing iframe-hostile cookie default (SameSite=Lax, no Secure) was already diagnosed and recorded in Phase 2's UAT (02-UAT.md) as a deployment-configuration default, not a Phase 5 code defect; not re-opened here. Workaround for testing in the embedded Preview: use "Open in new tab", or proceed directly against the sandbox as this self-check did.]

@@ -2,7 +2,7 @@
   "schema": "pivota_spec.uat_summary",
   "version": 1,
   "phase": "05",
-  "status": "complete",
+  "status": "diagnosed",
   "counts": {
     "total": 7,
     "passed": 6,
