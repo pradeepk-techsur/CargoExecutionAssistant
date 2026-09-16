@@ -1,0 +1,25 @@
+{
+  "duration_secs": 2869.0,
+  "token_usage": {
+    "input": 396,
+    "output": 133618,
+    "total": 32250005,
+    "cache_read": 31278335,
+    "cache_write": 837656,
+    "cost": 9.686779000000005
+  },
+  "model": "claude-sonnet-5",
+  "files_changed": [
+    ".pivota/dev-script.meta.json",
+    ".planning/STATE.md",
+    ".planning/debug/case-opens-immediately-while-ai-catches-up.md",
+    ".planning/phases/05-ai-recommendation-as-an-un-applied-proposal/05-UAT.md",
+    ".planning/phases/05-ai-recommendation-as-an-un-applied-proposal/05-UAT.summary.json",
+    ".planning/phases/05-ai-recommendation-as-an-un-applied-proposal/deferred-items.md"
+  ],
+  "verification_status": "passed",
+  "error_message": null,
+  "attempt_number": 2,
+  "created_at": "2026-09-15T23:34:07.232698+00:00",
+  "completed_at": "2026-09-16T00:21:56.940316053+00:00"
+}
