@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits (completed 2026-09-15)
 - [x] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean (completed 2026-09-15)
 - [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2026-09-15)
-- [ ] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such
+- [x] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such (completed 2026-09-16)
 - [ ] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here**
 
 ## Phase Details
@@ -119,7 +119,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 5: AI Recommendation as an Un-Applied Proposal
 **Goal**: A cargo specialist reads why the case is open, what the AI recommends and why, with every machine-proposed value marked as the machine's at the moment she is deciding — and the case remains readable and workable when the AI does not answer at all.
-**Status**: Passed
+**Status**: Complete (2026-09-16)
 **Depends on**: Phase 4
 **Requirements**: F9, F10
 **Non-functional carried**: NFR-4 (rendered), NFR-9, NFR-10, NFR-2 (this screen's sign-off)
@@ -202,7 +202,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
 | 3. Receive, Validate, Except | 0/TBD | Complete | 2026-09-15 |
 | 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2026-09-15 |
-| 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Passed | - |
+| 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Complete | 2026-09-16 |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Not started | - |
 
 ---
