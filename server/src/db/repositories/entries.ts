@@ -266,6 +266,43 @@ export async function loadEntryDetail(
 }
 
 /**
+ * Load the 14 submitted field values for the F9 generation job — DELIBERATELY
+ * NO JOIN to `specialists` (FR-9.16: the AI reads entry content + findings
+ * ONLY, never a specialist's identity/name/email). This is why
+ * `loadEntryDetail` — which joins `specialists` for `created_by_display_name`
+ * — is NOT reused here: that join would fail under the `cargoexec_ai` role
+ * (migration 0008 revokes ALL privilege on `specialists` from `cargoexec_ai`),
+ * and would leak specialist identity to the provider even if it did not.
+ * Returns `null` if the entry does not exist.
+ */
+export async function loadEntryValuesForRecommendation(
+  db: Queryable,
+  entryId: string,
+): Promise<CanonicalEntryRecord | null> {
+  const res = await db.query<{
+    entry_number: string | null; importer_of_record_id: string | null;
+    port_of_entry_code: string | null; mode_of_transport: string | null;
+    carrier_code: string | null; conveyance_name: string | null;
+    bill_of_lading_number: string | null; air_waybill_number: string | null;
+    country_of_origin_code: string | null; goods_description: string | null;
+    quantity: string | null; quantity_uom: string | null;
+    declared_value_usd: string | null; arrival_date: string | null;
+  }>(
+    `SELECT entry_number, importer_of_record_id, port_of_entry_code, mode_of_transport,
+            carrier_code, conveyance_name, bill_of_lading_number, air_waybill_number,
+            country_of_origin_code, goods_description,
+            quantity::text AS quantity, quantity_uom,
+            declared_value_usd::text AS declared_value_usd,
+            to_char(arrival_date, 'YYYY-MM-DD') AS arrival_date
+       FROM cargo_entries WHERE id = $1`,
+    [entryId],
+  );
+  const r = res.rows[0];
+  if (r === undefined) return null;
+  return { ...r };
+}
+
+/**
  * Load the field-origin map for an entry — every recorded field maps to
  * `'HUMAN'` by construction (`cefo_origin_human_chk`). Companion to
  * `loadEntryDetail` for the `GET /api/entries/{entryId}` read (F3 FR-3.11).

@@ -1,4 +1,8 @@
-import type { EntryFieldName, RecommendationStatus } from '@cargoexec/contract';
+import type {
+  EntryFieldName,
+  RecommendationFailureReason,
+  RecommendationStatus,
+} from '@cargoexec/contract';
 import type { Queryable } from './types.js';
 
 /**
@@ -7,12 +11,16 @@ import type { Queryable } from './types.js';
  * of `exceptions.ts`: `Queryable`-first, static SQL, `$n` binds only (R-L1,
  * R-L2, R-L8).
  *
- * Every function here is READ-ONLY. There is deliberately NO `INSERT`/`UPDATE`
- * of `recommendations.status`, `recommended_action`, `rationale`, the
- * traceability metadata, or `recommendation_values` in this module — Phase 5
- * (the AI recommendation service) owns writing those. The PENDING placeholder
- * is created by `insertPendingRecommendation` in `exceptions.ts` inside the
- * receipt transaction and nowhere else.
+ * The READ functions (`loadRecommendationByException`,
+ * `loadRecommendationValues`) are used by the Phase 4 case-read services. The
+ * WRITE functions (`markRecommendationAvailable`, `markRecommendationUnavailable`,
+ * `insertRecommendationValues`) live here alongside them: the terminal write of
+ * a generated or failed recommendation. Their SOLE caller is `ai/job.ts`
+ * (plan 05-04, the F9 generation job), which runs the status transition + its
+ * coupled audit entry over the `cargoexec_app` pool (see the note on
+ * `markRecommendationAvailable`). The PENDING placeholder is still created by
+ * `insertPendingRecommendation` in `exceptions.ts` inside the receipt
+ * transaction and nowhere else.
  */
 
 /** The recommendation row for an exception, timestamps stringified. */
@@ -106,4 +114,95 @@ export async function loadRecommendationValues(
     proposed_value: r.proposed_value,
     addresses_rule_ids: r.addresses_rule_ids,
   }));
+}
+
+// ---- write path for a generated / failed recommendation (F9, plan 05-04) ---
+
+/**
+ * Conditionally transition a PENDING recommendation to AVAILABLE (F9 FR-9.17,
+ * the idempotence guard). The WHERE clause is the ENTIRE idempotence
+ * mechanism: a second call for an already-resolved recommendation matches
+ * zero rows and returns { updated: false } — no error, no second write,
+ * nothing for the caller to do but exit. This function issues NO
+ * `SELECT ... FOR UPDATE` of its own; combined with `append()`'s existing
+ * case-anchor lock (called by the SAME transaction, see plan 05-04's job),
+ * the row-level `trg_recommendations_audit` constraint trigger (migration
+ * 0009) requires the matching `RECOMMENDATION_GENERATED` audit entry to exist
+ * by COMMIT whenever this UPDATE actually changes a row.
+ */
+export async function markRecommendationAvailable(
+  db: Queryable,
+  input: {
+    recommendation_id: string;
+    recommended_action: string;
+    rationale: string;
+    model_id: string;
+    prompt_version: string;
+    latency_ms: number;
+  },
+): Promise<{ updated: boolean }> {
+  const res = await db.query(
+    `UPDATE recommendations
+        SET status = 'AVAILABLE', recommended_action = $2, rationale = $3,
+            model_id = $4, prompt_version = $5, generated_at = now(), latency_ms = $6
+      WHERE id = $1 AND status = 'PENDING'
+      RETURNING id`,
+    [
+      input.recommendation_id, input.recommended_action, input.rationale,
+      input.model_id, input.prompt_version, input.latency_ms,
+    ],
+  );
+  return { updated: res.rowCount === 1 };
+}
+
+/** The UNAVAILABLE mirror of markRecommendationAvailable. Same idempotence guard. */
+export async function markRecommendationUnavailable(
+  db: Queryable,
+  input: {
+    recommendation_id: string;
+    failure_reason: RecommendationFailureReason;
+    model_id: string | null;
+    prompt_version: string | null;
+  },
+): Promise<{ updated: boolean }> {
+  const res = await db.query(
+    `UPDATE recommendations
+        SET status = 'UNAVAILABLE', failure_reason = $2, failed_at = now(),
+            model_id = $3, prompt_version = $4
+      WHERE id = $1 AND status = 'PENDING'
+      RETURNING id`,
+    [input.recommendation_id, input.failure_reason, input.model_id, input.prompt_version],
+  );
+  return { updated: res.rowCount === 1 };
+}
+
+/**
+ * Insert the proposed values for a NOW-AVAILABLE recommendation. Uses the same
+ * tuple-placeholder-scaffold pattern as `services/audit/writer.ts`'s
+ * `audit_entry_values` insert (see the deliberate exclusion this plan adds to
+ * headers.spec.ts) — `unnest()` is awkward here because `addresses_rule_ids`
+ * is itself an array column; a per-row `$n::text[]` bind avoids a nested-array
+ * unnest entirely. Every VALUE is still a bind parameter; only the tuple
+ * COUNT varies with `values.length` (<=14, never caller-supplied length logic
+ * beyond that bound). Returns early with no statement when `values` is empty.
+ */
+export async function insertRecommendationValues(
+  db: Queryable,
+  recommendationId: string,
+  values: readonly { field_name: EntryFieldName; proposed_value: string; addresses_rule_ids: readonly string[] }[],
+): Promise<void> {
+  if (values.length === 0) return;
+  const cols = 4;
+  const params: unknown[] = [];
+  const tuples: string[] = [];
+  values.forEach((v, i) => {
+    const base = i * cols;
+    tuples.push(`($${base + 1},$${base + 2},$${base + 3},$${base + 4}::text[])`);
+    params.push(recommendationId, v.field_name, v.proposed_value, v.addresses_rule_ids as readonly string[]);
+  });
+  await db.query(
+    `INSERT INTO recommendation_values (recommendation_id, field_name, proposed_value, addresses_rule_ids)
+     VALUES ${tuples.join(',')}`,
+    params,
+  );
 }

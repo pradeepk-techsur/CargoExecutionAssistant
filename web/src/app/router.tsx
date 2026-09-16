@@ -8,7 +8,7 @@
 //   /                             redirect to /queue
 //   /queue                        the F8 Review queue screen (Phase 4)
 //   /entries/new                  NotBuiltYet "New cargo entry" (F6, Phase 3)
-//   /cases/:caseReference         NotBuiltYet "Case" (F10, Phase 5)
+//   /cases/:caseReference         the F10 case-detail screen (Phase 5)
 //   /cases/:caseReference/audit   NotBuiltYet "Case" (F14, Phase 6)
 //   *                             NotFound
 //
@@ -18,6 +18,7 @@
 
 import { createBrowserRouter, Navigate, Outlet } from 'react-router-dom';
 import { Shell } from '../shell/Shell.js';
+import { CaseDetail } from '../screens/CaseDetail.js';
 import { NotBuiltYet } from '../screens/NotBuiltYet.js';
 import { NotFound } from '../screens/NotFound.js';
 import { Queue } from '../screens/Queue.js';
@@ -76,7 +77,7 @@ export const router = createBrowserRouter([
             path: '/entries/new',
             element: <NotBuiltYet title="New cargo entry" />,
           },
-          { path: '/cases/:caseReference', element: <NotBuiltYet title="Case" /> },
+          { path: '/cases/:caseReference', element: <CaseDetail /> },
           {
             path: '/cases/:caseReference/audit',
             element: <NotBuiltYet title="Case" />,

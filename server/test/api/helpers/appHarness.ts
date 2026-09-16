@@ -37,6 +37,14 @@ export const TEST_CONFIG: AppConfig = {
   frameAncestors: null,
   logLevel: 'silent',
   originIsHttps: false,
+  // AI environment in the deterministic fake posture (plan 05-01): the api
+  // tier exercises no real provider, so no URL/key is needed.
+  aiProviderUrl: 'fake:deterministic',
+  aiApiKey: null,
+  aiModelId: 'test-model',
+  promptVersion: '2026.09.1',
+  aiTimeoutMs: 20000,
+  aiWorkerConcurrency: 2,
 };
 
 export interface ApiHarness {

@@ -10,10 +10,15 @@
 // the app only over 127.0.0.1:<port>, so binding a loopback host would make the
 // demonstration simply not exist — config already refuses that.
 
-import { loadConfig } from './config.js';
+import { loadConfig, FAKE_PROVIDER_URL } from './config.js';
 import { createLogger } from './http/logger.js';
 import { createApp } from './http/app.js';
 import { getAppPool, closeAppPool } from './db/pool.app.js';
+import { getAiPool, closeAiPool } from './db/pool.ai.js';
+import { createHttpProvider } from './ai/adapter.http.js';
+import { createFakeProvider } from './ai/fakeProvider.js';
+import { createRecommendationWorker } from './ai/worker.js';
+import { runGenerationJob } from './ai/job.js';
 import { assertRuleRegistryValid } from './services/validation/index.js';
 
 // ── Serving mode ─────────────────────────────────────────────────────────────
@@ -48,18 +53,49 @@ async function main(): Promise<void> {
     );
   }
 
-  // 3. Assemble the app with the request-path pool. Serve static in any mode
+  // 3. The AI recommendation mechanism (F9). Construct the provider — the
+  //    deterministic FakeProvider in the fake posture, the real HTTPS adapter
+  //    otherwise — and the bounded-concurrency in-process worker whose runJob
+  //    closes over BOTH pools (reads via cargoexec_ai, terminal write via
+  //    cargoexec_app). `getAiPool()` is imported ONLY here (the bootstrap);
+  //    the job receives the pool as a plain parameter.
+  const provider =
+    config.aiProviderUrl === FAKE_PROVIDER_URL
+      ? createFakeProvider()
+      : createHttpProvider({
+          url: config.aiProviderUrl,
+          apiKey: config.aiApiKey ?? '',
+          modelId: config.aiModelId,
+          timeoutMs: config.aiTimeoutMs,
+        });
+  const worker = createRecommendationWorker({
+    concurrency: config.aiWorkerConcurrency,
+    runJob: (exceptionId) =>
+      runGenerationJob(
+        {
+          aiPool: getAiPool(),
+          appPool: getAppPool(),
+          provider,
+          modelId: config.aiModelId,
+          promptVersion: config.promptVersion,
+        },
+        exceptionId,
+      ),
+  });
+
+  // 4. Assemble the app with the request-path pool. Serve static in any mode
   //    other than development (the demonstration runs the production path).
   const serveStatic = config.nodeEnv !== 'development';
   const app = createApp({
     config,
     pool: getAppPool(),
     serveStatic,
+    dispatchRecommendation: worker.dispatch,
     // The built web bundle. web/vite.config.ts builds to web/dist (plan 02-05).
     webDist: new URL('../../web/dist', import.meta.url).pathname,
   });
 
-  // 4. Bind 0.0.0.0:3000 (defaults). One origin, one port (§6.5).
+  // 5. Bind 0.0.0.0:3000 (defaults). One origin, one port (§6.5).
   const server = app.listen(config.port, config.host, () => {
     logger.info(
       { host: config.host, port: config.port },
@@ -67,11 +103,13 @@ async function main(): Promise<void> {
     );
   });
 
-  // 5. Graceful shutdown: stop accepting, close the pool, exit 0.
+  // 6. Graceful shutdown: stop accepting, close BOTH pools, exit 0.
   const shutdown = (signal: string): void => {
     logger.info({ signal }, 'shutting down');
     server.close(() => {
-      void closeAppPool().finally(() => process.exit(0));
+      void Promise.allSettled([closeAppPool(), closeAiPool()]).finally(() =>
+        process.exit(0),
+      );
     });
   };
   process.on('SIGTERM', () => shutdown('SIGTERM'));

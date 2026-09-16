@@ -1,0 +1,3145 @@
+---
+phase: 05
+gate_status: passed
+build_command: "npm run build && npm run typecheck"
+test_command: "npm test"
+last_updated: 2026-09-15T23:28:06Z
+tests_disabled_during_fixes: none
+shadowed_sources: 0
+review_blockers_open: 0
+boot_smoke: pass
+waves:
+  - wave: 1
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 2
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 3
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 4
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 5
+    build: pass
+    tests: pass
+    fix_attempts: 0
+---
+
+## Wave 1
+
+- Build: `npm run build && npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3
+
+### Gate output
+
+```
+> build
+> npm run build:server && npm run build:web
+
+
+> build:server
+> tsc -b contract server && npm run build:prompt
+
+
+> build:prompt
+> node server/scripts/copy-prompt-assets.mjs
+
+copy-prompt-assets: /home/daytona/project/server/src/ai/prompt -> /home/daytona/project/server/dist/ai/prompt
+
+> build:web
+> npm run build:css && npm run build:assets && vite build -c web/vite.config.ts
+
+
+> build:css
+> sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use math.unit instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+14 │   @if unit($grid-in-rem) != "rem" {
+   │       ^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/units/rem-to-user-em.scss 14:7  rem-to-user-em()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 17:12        at-media()
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_usa-display.scss 7:3                    @forward
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_index.scss 4:1                          @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 13:1                                                                                   @forward
+    web/styles/app.scss 29:1                                                                           root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+34  │       content: "";
+    │       ^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 34:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+35  │       display: inline;
+    │       ^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 35:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+36  │       margin-top: 0.7ex;
+    │       ^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 36:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+37  │       margin-left: 2px;
+    │       ^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 37:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+38  │       padding-left: 1.75ex;
+    │       ^^^^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 38:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.has-key instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+45 │   @if map-has-key($our-breakpoints, $quoted-bp) {
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 45:7             at-media-max()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/typography/usa-table-styles.scss 18:5  usa-table-styles()
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_usa-prose.scss 8:5                            @forward
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_index.scss 4:1                                @forward
+    _index.scss 5:1                                                                                        @forward
+    _index.scss 10:1                                                                                       @forward
+    _index.scss 13:1                                                                                       @forward
+    web/styles/app.scss 29:1                                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $accordion-button-unopen-hc-icon: map-merge(
+   │ ┌───────────────────────────────────^
+25 │ │   $accordion-icon-map-defaults,
+26 │ │   (
+27 │ │     "name": "add",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 24:35  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+31 │   $accordion-button-open-hc-icon: map-merge(
+   │ ┌─────────────────────────────────^
+32 │ │   $accordion-icon-map-defaults,
+33 │ │   (
+34 │ │     "name": "remove",
+35 │ │   )
+36 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 31:33  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+16 │   @return if(color.lightness(color($token-from-bg)) > 50%, true, false);
+   │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/color/is-color-dark.scss 16:14    is-color-dark()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/set-icon-from-bg.scss 12:24  set-icon-from-bg()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 61:3                 accordion-button-styles()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 193:3                @forward
+    usa-accordion/src/_index.scss 1:1                                                                    @forward
+    _index.scss 14:1                                                                                     @forward
+    web/styles/app.scss 29:1                                                                             root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $banner-icon-chevron-up: map-merge(
+   │ ┌──────────────────────────^
+25 │ │   $banner-icon-chevron,
+26 │ │   (
+27 │ │     "name": "expand_less",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-banner/src/styles/_usa-banner.scss 24:26  @forward
+    usa-banner/src/_index.scss 4:1                                                   @forward
+    _index.scss 16:1                                                                 @forward
+    web/styles/app.scss 29:1                                                         root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+68 │     color.lightness(color($input-bg-color)) < 50%,
+   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 68:5  -checkbox-and-radio-colors()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 12:3  checkbox-colors()
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_usa-checkbox.scss 5:1                            @forward
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_index.scss 4:1                                   @forward
+    _index.scss 8:1                                                                                              @forward
+    _index.scss 4:1                                                                                              @forward
+    _index.scss 51:1                                                                                             @forward
+    web/styles/app.scss 29:1                                                                                     root stylesheet
+
+WARNING: 446 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+
+> build:assets
+> node web/scripts/copy-uswds-assets.mjs
+
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/img -> /home/daytona/project/web/public/assets/img
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/fonts -> /home/daytona/project/web/public/assets/fonts
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/js -> /home/daytona/project/web/public/assets/js
+uswds assets copied
+[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 57 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.92 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-BuofB0II.js  [39m[1m[2m230.14 kB[22m[1m[22m[2m │ gzip: 74.35 kB[22m
+[32m✓ built in 654ms[39m
+
+> typecheck
+> tsc -b contract server && tsc -p web --noEmit
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:api && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/validation.engine.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.rules.spec.ts [2m([22m[2m71 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 61[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m51 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.registry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/outputSchema.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/fakeProvider.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/promptManifest.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m      Tests [22m [1m[32m283 passed[39m[22m[90m (283)[39m
+[2m   Start at [22m 22:32:21
+[2m   Duration [22m 705ms[2m (transform 104ms, setup 0ms, collect 458ms, tests 151ms, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 811[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m431[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 229[2mms[22m[39m
+ [32m✓[39m server/test/db/exceptionBasis.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 222[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 235[2mms[22m[39m
+ [32m✓[39m server/test/db/receipt.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 119[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 371[2mms[22m[39m
+ [32m✓[39m server/test/db/queueService.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 911[2mms[22m[39m
+   [33m[2m✓[22m[39m queue/caseRead services — F7 composition (plan 04-02)[2m > [22m3a. 501 open exceptions serve as 500 rows, truncated:true, the 500 lowest receipt_position values [33m732[2mms[22m[39m
+ [32m✓[39m server/test/db/entries.repo.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 92[2mms[22m[39m
+ [32m✓[39m server/test/db/recommendationWrite.repo.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 95[2mms[22m[39m
+ [32m✓[39m server/test/db/queueRead.repo.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 126[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 181[2mms[22m[39m
+ [32m✓[39m server/test/db/receiptAtomicity.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 91[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 346[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 69[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 92[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m15 passed[39m[22m[90m (15)[39m
+[2m      Tests [22m [1m[32m183 passed[39m[22m[90m (183)[39m
+[2m   Start at [22m 22:32:21
+[2m   Duration [22m 4.35s[2m (transform 156ms, setup 0ms, collect 262ms, tests 3.99s, environment 0ms, prepare 22ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/exceptions.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 313[2mms[22m[39m
+ [32m✓[39m server/test/api/entries.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 189[2mms[22m[39m
+ [32m✓[39m server/test/api/guard.spec.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 353[2mms[22m[39m
+ [32m✓[39m server/test/api/expiry.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 317[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendation.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 124[2mms[22m[39m
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 400[2mms[22m[39m
+ [32m✓[39m server/test/api/actor.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 129[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 49[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m134 passed[39m[22m[90m (134)[39m
+[2m   Start at [22m 22:32:26
+[2m   Duration [22m 2.29s[2m (transform 145ms, setup 0ms, collect 322ms, tests 1.87s, environment 0ms, prepare 23ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — exactly two destinations (FR-2.7, §8.3, criterion 5)[2m > [22m[2mthe rendered <nav aria-label="Primary"> contains exactly two anchors
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4c. no rendered <Shell> link/button name outside the footer is an excluded affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4d. the footer link set equals the list pinned in Footer.tsx (exemption is auditable)
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m6. the authenticated shell contains no supervisory affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 81[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 73[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m      Tests [22m [1m[32m148 passed[39m[22m[90m (148)[39m
+[2m   Start at [22m 22:32:28
+[2m   Duration [22m 677ms[2m (transform 148ms, setup 0ms, collect 304ms, tests 281ms, environment 0ms, prepare 22ms)[22m
+```
+
+## Wave 2
+
+- Build: `npm run build && npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3
+
+### Gate output
+
+```
+> build
+> npm run build:server && npm run build:web
+
+
+> build:server
+> tsc -b contract server && npm run build:prompt
+
+
+> build:prompt
+> node server/scripts/copy-prompt-assets.mjs
+
+copy-prompt-assets: /home/daytona/project/server/src/ai/prompt -> /home/daytona/project/server/dist/ai/prompt
+
+> build:web
+> npm run build:css && npm run build:assets && vite build -c web/vite.config.ts
+
+
+> build:css
+> sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use math.unit instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+14 │   @if unit($grid-in-rem) != "rem" {
+   │       ^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/units/rem-to-user-em.scss 14:7  rem-to-user-em()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 17:12        at-media()
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_usa-display.scss 7:3                    @forward
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_index.scss 4:1                          @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 13:1                                                                                   @forward
+    web/styles/app.scss 29:1                                                                           root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+34  │       content: "";
+    │       ^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 34:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+35  │       display: inline;
+    │       ^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 35:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+36  │       margin-top: 0.7ex;
+    │       ^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 36:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+37  │       margin-left: 2px;
+    │       ^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 37:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+38  │       padding-left: 1.75ex;
+    │       ^^^^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 38:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.has-key instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+45 │   @if map-has-key($our-breakpoints, $quoted-bp) {
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 45:7             at-media-max()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/typography/usa-table-styles.scss 18:5  usa-table-styles()
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_usa-prose.scss 8:5                            @forward
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_index.scss 4:1                                @forward
+    _index.scss 5:1                                                                                        @forward
+    _index.scss 10:1                                                                                       @forward
+    _index.scss 13:1                                                                                       @forward
+    web/styles/app.scss 29:1                                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $accordion-button-unopen-hc-icon: map-merge(
+   │ ┌───────────────────────────────────^
+25 │ │   $accordion-icon-map-defaults,
+26 │ │   (
+27 │ │     "name": "add",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 24:35  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+31 │   $accordion-button-open-hc-icon: map-merge(
+   │ ┌─────────────────────────────────^
+32 │ │   $accordion-icon-map-defaults,
+33 │ │   (
+34 │ │     "name": "remove",
+35 │ │   )
+36 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 31:33  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+16 │   @return if(color.lightness(color($token-from-bg)) > 50%, true, false);
+   │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/color/is-color-dark.scss 16:14    is-color-dark()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/set-icon-from-bg.scss 12:24  set-icon-from-bg()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 61:3                 accordion-button-styles()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 193:3                @forward
+    usa-accordion/src/_index.scss 1:1                                                                    @forward
+    _index.scss 14:1                                                                                     @forward
+    web/styles/app.scss 29:1                                                                             root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $banner-icon-chevron-up: map-merge(
+   │ ┌──────────────────────────^
+25 │ │   $banner-icon-chevron,
+26 │ │   (
+27 │ │     "name": "expand_less",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-banner/src/styles/_usa-banner.scss 24:26  @forward
+    usa-banner/src/_index.scss 4:1                                                   @forward
+    _index.scss 16:1                                                                 @forward
+    web/styles/app.scss 29:1                                                         root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+68 │     color.lightness(color($input-bg-color)) < 50%,
+   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 68:5  -checkbox-and-radio-colors()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 12:3  checkbox-colors()
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_usa-checkbox.scss 5:1                            @forward
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_index.scss 4:1                                   @forward
+    _index.scss 8:1                                                                                              @forward
+    _index.scss 4:1                                                                                              @forward
+    _index.scss 51:1                                                                                             @forward
+    web/styles/app.scss 29:1                                                                                     root stylesheet
+
+WARNING: 446 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+
+> build:assets
+> node web/scripts/copy-uswds-assets.mjs
+
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/img -> /home/daytona/project/web/public/assets/img
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/fonts -> /home/daytona/project/web/public/assets/fonts
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/js -> /home/daytona/project/web/public/assets/js
+uswds assets copied
+[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 57 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.92 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-BuofB0II.js  [39m[1m[2m230.14 kB[22m[1m[22m[2m │ gzip: 74.35 kB[22m
+[32m✓ built in 615ms[39m
+
+> typecheck
+> tsc -b contract server && tsc -p web --noEmit
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:api && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/validation.engine.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.rules.spec.ts [2m([22m[2m71 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/adapter.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2009[2mms[22m[39m
+   [33m[2m✓[22m[39m createHttpProvider — the API key never leaks (FR-9.13 / FR-9.16)[2m > [22m10. the configured apiKey appears in no ProviderResult and no log line across all branches [33m2002[2mms[22m[39m
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 54[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m51 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.registry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/outputSchema.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/fakeProvider.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/promptManifest.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m297 passed[39m[22m[90m (297)[39m
+[2m   Start at [22m 22:47:04
+[2m   Duration [22m 2.72s[2m (transform 110ms, setup 0ms, collect 466ms, tests 2.15s, environment 0ms, prepare 23ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 826[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m432[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 269[2mms[22m[39m
+ [32m✓[39m server/test/db/exceptionBasis.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 206[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 234[2mms[22m[39m
+ [32m✓[39m server/test/db/receipt.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 117[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 351[2mms[22m[39m
+ [32m✓[39m server/test/db/queueService.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 872[2mms[22m[39m
+   [33m[2m✓[22m[39m queue/caseRead services — F7 composition (plan 04-02)[2m > [22m3a. 501 open exceptions serve as 500 rows, truncated:true, the 500 lowest receipt_position values [33m693[2mms[22m[39m
+{"level":40,"time":1789512430255,"pid":54850,"hostname":"pivota-sandbox-435bee68","exception_id":"f7fbee8c-f708-47a9-829c-24bf08e63dee","msg":"generation job: no recommendation row, exiting"}
+ [32m✓[39m server/test/db/generation.job.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 101[2mms[22m[39m
+ [32m✓[39m server/test/db/entries.repo.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 100[2mms[22m[39m
+ [32m✓[39m server/test/db/recommendationWrite.repo.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 90[2mms[22m[39m
+ [32m✓[39m server/test/db/queueRead.repo.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 124[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 179[2mms[22m[39m
+ [32m✓[39m server/test/db/receiptAtomicity.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 86[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 351[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 70[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 93[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m196 passed[39m[22m[90m (196)[39m
+[2m   Start at [22m 22:47:06
+[2m   Duration [22m 4.49s[2m (transform 193ms, setup 0ms, collect 317ms, tests 4.07s, environment 0ms, prepare 23ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/exceptions.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 312[2mms[22m[39m
+ [32m✓[39m server/test/api/entries.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 195[2mms[22m[39m
+ [32m✓[39m server/test/api/guard.spec.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 353[2mms[22m[39m
+ [32m✓[39m server/test/api/expiry.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 317[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendation.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 120[2mms[22m[39m
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 405[2mms[22m[39m
+ [32m✓[39m server/test/api/actor.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 128[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendationDispatch.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 302[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 48[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m136 passed[39m[22m[90m (136)[39m
+[2m   Start at [22m 22:47:11
+[2m   Duration [22m 2.60s[2m (transform 152ms, setup 0ms, collect 333ms, tests 2.18s, environment 0ms, prepare 22ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — exactly two destinations (FR-2.7, §8.3, criterion 5)[2m > [22m[2mthe rendered <nav aria-label="Primary"> contains exactly two anchors
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4c. no rendered <Shell> link/button name outside the footer is an excluded affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4d. the footer link set equals the list pinned in Footer.tsx (exemption is auditable)
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m6. the authenticated shell contains no supervisory affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 30[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 13[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 35[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 62[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 76[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 73[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m153 passed[39m[22m[90m (153)[39m
+[2m   Start at [22m 22:47:14
+[2m   Duration [22m 688ms[2m (transform 148ms, setup 0ms, collect 294ms, tests 301ms, environment 0ms, prepare 23ms)[22m
+```
+
+## Wave 3
+
+- Build: `npm run build && npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3
+
+### Gate output
+
+```
+> build
+> npm run build:server && npm run build:web
+
+
+> build:server
+> tsc -b contract server && npm run build:prompt
+
+
+> build:prompt
+> node server/scripts/copy-prompt-assets.mjs
+
+copy-prompt-assets: /home/daytona/project/server/src/ai/prompt -> /home/daytona/project/server/dist/ai/prompt
+
+> build:web
+> npm run build:css && npm run build:assets && vite build -c web/vite.config.ts
+
+
+> build:css
+> sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use math.unit instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+14 │   @if unit($grid-in-rem) != "rem" {
+   │       ^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/units/rem-to-user-em.scss 14:7  rem-to-user-em()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 17:12        at-media()
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_usa-display.scss 7:3                    @forward
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_index.scss 4:1                          @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 13:1                                                                                   @forward
+    web/styles/app.scss 29:1                                                                           root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+34  │       content: "";
+    │       ^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 34:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+35  │       display: inline;
+    │       ^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 35:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+36  │       margin-top: 0.7ex;
+    │       ^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 36:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+37  │       margin-left: 2px;
+    │       ^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 37:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+38  │       padding-left: 1.75ex;
+    │       ^^^^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 38:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.has-key instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+45 │   @if map-has-key($our-breakpoints, $quoted-bp) {
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 45:7             at-media-max()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/typography/usa-table-styles.scss 18:5  usa-table-styles()
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_usa-prose.scss 8:5                            @forward
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_index.scss 4:1                                @forward
+    _index.scss 5:1                                                                                        @forward
+    _index.scss 10:1                                                                                       @forward
+    _index.scss 13:1                                                                                       @forward
+    web/styles/app.scss 29:1                                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $accordion-button-unopen-hc-icon: map-merge(
+   │ ┌───────────────────────────────────^
+25 │ │   $accordion-icon-map-defaults,
+26 │ │   (
+27 │ │     "name": "add",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 24:35  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+31 │   $accordion-button-open-hc-icon: map-merge(
+   │ ┌─────────────────────────────────^
+32 │ │   $accordion-icon-map-defaults,
+33 │ │   (
+34 │ │     "name": "remove",
+35 │ │   )
+36 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 31:33  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+16 │   @return if(color.lightness(color($token-from-bg)) > 50%, true, false);
+   │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/color/is-color-dark.scss 16:14    is-color-dark()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/set-icon-from-bg.scss 12:24  set-icon-from-bg()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 61:3                 accordion-button-styles()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 193:3                @forward
+    usa-accordion/src/_index.scss 1:1                                                                    @forward
+    _index.scss 14:1                                                                                     @forward
+    web/styles/app.scss 29:1                                                                             root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $banner-icon-chevron-up: map-merge(
+   │ ┌──────────────────────────^
+25 │ │   $banner-icon-chevron,
+26 │ │   (
+27 │ │     "name": "expand_less",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-banner/src/styles/_usa-banner.scss 24:26  @forward
+    usa-banner/src/_index.scss 4:1                                                   @forward
+    _index.scss 16:1                                                                 @forward
+    web/styles/app.scss 29:1                                                         root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+68 │     color.lightness(color($input-bg-color)) < 50%,
+   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 68:5  -checkbox-and-radio-colors()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 12:3  checkbox-colors()
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_usa-checkbox.scss 5:1                            @forward
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_index.scss 4:1                                   @forward
+    _index.scss 8:1                                                                                              @forward
+    _index.scss 4:1                                                                                              @forward
+    _index.scss 51:1                                                                                             @forward
+    web/styles/app.scss 29:1                                                                                     root stylesheet
+
+WARNING: 446 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+
+> build:assets
+> node web/scripts/copy-uswds-assets.mjs
+
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/img -> /home/daytona/project/web/public/assets/img
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/fonts -> /home/daytona/project/web/public/assets/fonts
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/js -> /home/daytona/project/web/public/assets/js
+uswds assets copied
+[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 59 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.92 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-D_xhlskE.js  [39m[1m[2m239.43 kB[22m[1m[22m[2m │ gzip: 76.77 kB[22m
+[32m✓ built in 654ms[39m
+
+> typecheck
+> tsc -b contract server && tsc -p web --noEmit
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:api && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/validation.engine.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.rules.spec.ts [2m([22m[2m71 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/adapter.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2011[2mms[22m[39m
+   [33m[2m✓[22m[39m createHttpProvider — the API key never leaks (FR-9.13 / FR-9.16)[2m > [22m10. the configured apiKey appears in no ProviderResult and no log line across all branches [33m2004[2mms[22m[39m
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 53[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m51 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.registry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/outputSchema.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/fakeProvider.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/promptManifest.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m297 passed[39m[22m[90m (297)[39m
+[2m   Start at [22m 22:56:03
+[2m   Duration [22m 2.72s[2m (transform 108ms, setup 0ms, collect 467ms, tests 2.15s, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 835[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m430[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 226[2mms[22m[39m
+ [32m✓[39m server/test/db/exceptionBasis.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 207[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 239[2mms[22m[39m
+ [32m✓[39m server/test/db/receipt.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 116[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 350[2mms[22m[39m
+ [32m✓[39m server/test/db/queueService.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 879[2mms[22m[39m
+   [33m[2m✓[22m[39m queue/caseRead services — F7 composition (plan 04-02)[2m > [22m3a. 501 open exceptions serve as 500 rows, truncated:true, the 500 lowest receipt_position values [33m698[2mms[22m[39m
+{"level":40,"time":1789512969181,"pid":68796,"hostname":"pivota-sandbox-435bee68","exception_id":"fc8f95be-3499-4c14-93e7-9e87e0d82283","msg":"generation job: no recommendation row, exiting"}
+ [32m✓[39m server/test/db/generation.job.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 108[2mms[22m[39m
+ [32m✓[39m server/test/db/entries.repo.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 88[2mms[22m[39m
+ [32m✓[39m server/test/db/recommendationWrite.repo.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 93[2mms[22m[39m
+ [32m✓[39m server/test/db/queueRead.repo.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 126[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 176[2mms[22m[39m
+ [32m✓[39m server/test/db/receiptAtomicity.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 88[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 350[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 96[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m196 passed[39m[22m[90m (196)[39m
+[2m   Start at [22m 22:56:05
+[2m   Duration [22m 4.43s[2m (transform 168ms, setup 0ms, collect 282ms, tests 4.05s, environment 0ms, prepare 22ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/exceptions.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 313[2mms[22m[39m
+ [32m✓[39m server/test/api/entries.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 199[2mms[22m[39m
+ [32m✓[39m server/test/api/guard.spec.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+ [32m✓[39m server/test/api/expiry.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 323[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendation.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 121[2mms[22m[39m
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 404[2mms[22m[39m
+ [32m✓[39m server/test/api/actor.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 128[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendationDispatch.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 299[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 48[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m136 passed[39m[22m[90m (136)[39m
+[2m   Start at [22m 22:56:10
+[2m   Duration [22m 2.61s[2m (transform 145ms, setup 0ms, collect 325ms, tests 2.19s, environment 0ms, prepare 22ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — exactly two destinations (FR-2.7, §8.3, criterion 5)[2m > [22m[2mthe rendered <nav aria-label="Primary"> contains exactly two anchors
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4c. no rendered <Shell> link/button name outside the footer is an excluded affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4d. the footer link set equals the list pinned in Footer.tsx (exemption is auditable)
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m6. the authenticated shell contains no supervisory affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 77[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 72[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m153 passed[39m[22m[90m (153)[39m
+[2m   Start at [22m 22:56:13
+[2m   Duration [22m 671ms[2m (transform 142ms, setup 0ms, collect 294ms, tests 286ms, environment 0ms, prepare 23ms)[22m
+```
+
+## Wave 4
+
+- Build: `npm run build && npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3
+
+### Gate output
+
+```
+> build
+> npm run build:server && npm run build:web
+
+
+> build:server
+> tsc -b contract server && npm run build:prompt
+
+
+> build:prompt
+> node server/scripts/copy-prompt-assets.mjs
+
+copy-prompt-assets: /home/daytona/project/server/src/ai/prompt -> /home/daytona/project/server/dist/ai/prompt
+
+> build:web
+> npm run build:css && npm run build:assets && vite build -c web/vite.config.ts
+
+
+> build:css
+> sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use math.unit instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+14 │   @if unit($grid-in-rem) != "rem" {
+   │       ^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/units/rem-to-user-em.scss 14:7  rem-to-user-em()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 17:12        at-media()
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_usa-display.scss 7:3                    @forward
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_index.scss 4:1                          @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 13:1                                                                                   @forward
+    web/styles/app.scss 29:1                                                                           root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+34  │       content: "";
+    │       ^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 34:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+35  │       display: inline;
+    │       ^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 35:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+36  │       margin-top: 0.7ex;
+    │       ^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 36:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+37  │       margin-left: 2px;
+    │       ^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 37:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+38  │       padding-left: 1.75ex;
+    │       ^^^^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 38:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.has-key instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+45 │   @if map-has-key($our-breakpoints, $quoted-bp) {
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 45:7             at-media-max()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/typography/usa-table-styles.scss 18:5  usa-table-styles()
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_usa-prose.scss 8:5                            @forward
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_index.scss 4:1                                @forward
+    _index.scss 5:1                                                                                        @forward
+    _index.scss 10:1                                                                                       @forward
+    _index.scss 13:1                                                                                       @forward
+    web/styles/app.scss 29:1                                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $accordion-button-unopen-hc-icon: map-merge(
+   │ ┌───────────────────────────────────^
+25 │ │   $accordion-icon-map-defaults,
+26 │ │   (
+27 │ │     "name": "add",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 24:35  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+31 │   $accordion-button-open-hc-icon: map-merge(
+   │ ┌─────────────────────────────────^
+32 │ │   $accordion-icon-map-defaults,
+33 │ │   (
+34 │ │     "name": "remove",
+35 │ │   )
+36 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 31:33  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+16 │   @return if(color.lightness(color($token-from-bg)) > 50%, true, false);
+   │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/color/is-color-dark.scss 16:14    is-color-dark()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/set-icon-from-bg.scss 12:24  set-icon-from-bg()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 61:3                 accordion-button-styles()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 193:3                @forward
+    usa-accordion/src/_index.scss 1:1                                                                    @forward
+    _index.scss 14:1                                                                                     @forward
+    web/styles/app.scss 29:1                                                                             root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $banner-icon-chevron-up: map-merge(
+   │ ┌──────────────────────────^
+25 │ │   $banner-icon-chevron,
+26 │ │   (
+27 │ │     "name": "expand_less",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-banner/src/styles/_usa-banner.scss 24:26  @forward
+    usa-banner/src/_index.scss 4:1                                                   @forward
+    _index.scss 16:1                                                                 @forward
+    web/styles/app.scss 29:1                                                         root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+68 │     color.lightness(color($input-bg-color)) < 50%,
+   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 68:5  -checkbox-and-radio-colors()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 12:3  checkbox-colors()
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_usa-checkbox.scss 5:1                            @forward
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_index.scss 4:1                                   @forward
+    _index.scss 8:1                                                                                              @forward
+    _index.scss 4:1                                                                                              @forward
+    _index.scss 51:1                                                                                             @forward
+    web/styles/app.scss 29:1                                                                                     root stylesheet
+
+WARNING: 446 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+
+> build:assets
+> node web/scripts/copy-uswds-assets.mjs
+
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/img -> /home/daytona/project/web/public/assets/img
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/fonts -> /home/daytona/project/web/public/assets/fonts
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/js -> /home/daytona/project/web/public/assets/js
+uswds assets copied
+[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 59 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.92 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-C5lnLxZ1.js  [39m[1m[2m239.52 kB[22m[1m[22m[2m │ gzip: 76.80 kB[22m
+[32m✓ built in 636ms[39m
+
+> typecheck
+> tsc -b contract server && tsc -p web --noEmit
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:api && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/validation.engine.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.rules.spec.ts [2m([22m[2m71 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/adapter.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2010[2mms[22m[39m
+   [33m[2m✓[22m[39m createHttpProvider — the API key never leaks (FR-9.13 / FR-9.16)[2m > [22m10. the configured apiKey appears in no ProviderResult and no log line across all branches [33m2003[2mms[22m[39m
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m51 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.registry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/outputSchema.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/fakeProvider.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/promptManifest.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m297 passed[39m[22m[90m (297)[39m
+[2m   Start at [22m 23:14:54
+[2m   Duration [22m 2.74s[2m (transform 112ms, setup 0ms, collect 473ms, tests 2.16s, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 825[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m432[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 234[2mms[22m[39m
+ [32m✓[39m server/test/db/exceptionBasis.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 222[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 239[2mms[22m[39m
+ [32m✓[39m server/test/db/receipt.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 122[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 354[2mms[22m[39m
+ [32m✓[39m server/test/db/queueService.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 858[2mms[22m[39m
+   [33m[2m✓[22m[39m queue/caseRead services — F7 composition (plan 04-02)[2m > [22m3a. 501 open exceptions serve as 500 rows, truncated:true, the 500 lowest receipt_position values [33m679[2mms[22m[39m
+{"level":40,"time":1789514100337,"pid":111268,"hostname":"pivota-sandbox-435bee68","exception_id":"1e1b5695-4091-49db-8b95-abe444fab4fb","msg":"generation job: no recommendation row, exiting"}
+ [32m✓[39m server/test/db/generation.job.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 119[2mms[22m[39m
+ [32m✓[39m server/test/db/entries.repo.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 100[2mms[22m[39m
+ [32m✓[39m server/test/db/recommendationWrite.repo.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 95[2mms[22m[39m
+ [32m✓[39m server/test/db/queueRead.repo.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 136[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 181[2mms[22m[39m
+ [32m✓[39m server/test/db/receiptAtomicity.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 89[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 345[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 73[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 95[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m196 passed[39m[22m[90m (196)[39m
+[2m   Start at [22m 23:14:57
+[2m   Duration [22m 4.47s[2m (transform 167ms, setup 0ms, collect 283ms, tests 4.09s, environment 0ms, prepare 22ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/exceptions.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 312[2mms[22m[39m
+ [32m✓[39m server/test/api/entries.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 207[2mms[22m[39m
+ [32m✓[39m server/test/api/guard.spec.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 352[2mms[22m[39m
+ [32m✓[39m server/test/api/expiry.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 317[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendation.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 121[2mms[22m[39m
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 413[2mms[22m[39m
+ [32m✓[39m server/test/api/actor.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 131[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendationDispatch.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 300[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 49[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m136 passed[39m[22m[90m (136)[39m
+[2m   Start at [22m 23:15:01
+[2m   Duration [22m 2.62s[2m (transform 147ms, setup 0ms, collect 326ms, tests 2.20s, environment 0ms, prepare 23ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — exactly two destinations (FR-2.7, §8.3, criterion 5)[2m > [22m[2mthe rendered <nav aria-label="Primary"> contains exactly two anchors
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4c. no rendered <Shell> link/button name outside the footer is an excluded affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4d. the footer link set equals the list pinned in Footer.tsx (exemption is auditable)
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m6. the authenticated shell contains no supervisory affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 33[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 20[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 61[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 77[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m153 passed[39m[22m[90m (153)[39m
+[2m   Start at [22m 23:15:04
+[2m   Duration [22m 672ms[2m (transform 148ms, setup 0ms, collect 293ms, tests 288ms, environment 0ms, prepare 22ms)[22m
+```
+
+## Wave 5
+
+- Build: `npm run build && npm run typecheck` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3 — phase-level final regression gate after code-review fixes (W1/W2/W3 commits 1fa5736/27aa415/66dbee0); full suite 782 green
+
+### Gate output
+
+```
+> build
+> npm run build:server && npm run build:web
+
+
+> build:server
+> tsc -b contract server && npm run build:prompt
+
+
+> build:prompt
+> node server/scripts/copy-prompt-assets.mjs
+
+copy-prompt-assets: /home/daytona/project/server/src/ai/prompt -> /home/daytona/project/server/dist/ai/prompt
+
+> build:web
+> npm run build:css && npm run build:assets && vite build -c web/vite.config.ts
+
+
+> build:css
+> sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use math.unit instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+14 │   @if unit($grid-in-rem) != "rem" {
+   │       ^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/units/rem-to-user-em.scss 14:7  rem-to-user-em()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 17:12        at-media()
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_usa-display.scss 7:3                    @forward
+    node_modules/@uswds/uswds/packages/usa-display/src/styles/_index.scss 4:1                          @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 5:1                                                                                    @forward
+    _index.scss 13:1                                                                                   @forward
+    web/styles/app.scss 29:1                                                                           root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+34  │       content: "";
+    │       ^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 34:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+35  │       display: inline;
+    │       ^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 35:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+36  │       margin-top: 0.7ex;
+    │       ^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 36:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+37  │       margin-left: 2px;
+    │       ^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 37:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss
+38  │       padding-left: 1.75ex;
+    │       ^^^^^^^^^^^^^^^^^^^^ declaration
+    ╵
+    ┌──> node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/icon.scss
+158 │ ┌   @supports (mask: url("")) {
+159 │ │     background: none;
+160 │ │     background-color: if($color == currentColor, $color, color($color));
+161 │ │     mask-image: url("#{$path}/usa-icons/#{$filename-base}.svg"),
+162 │ │       linear-gradient(transparent, transparent);
+163 │ │     mask-position: $position-x $position-y;
+164 │ │     mask-repeat: no-repeat;
+165 │ │     mask-size: $width $height;
+166 │ │ 
+167 │ │     @if $color-hover {
+168 │ │       &:hover {
+169 │ │         background-color: color($color-hover);
+170 │ │       }
+171 │ │     }
+172 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/general/external-link.scss 38:5  external-link()
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_usa-link.scss 12:3                       @forward
+    node_modules/@uswds/uswds/packages/usa-link/src/styles/_index.scss 4:1                           @forward
+    _index.scss 6:1                                                                                  @forward
+    _index.scss 7:1                                                                                  @forward
+    _index.scss 13:1                                                                                 @forward
+    web/styles/app.scss 29:1                                                                         root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.has-key instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+45 │   @if map-has-key($our-breakpoints, $quoted-bp) {
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/at-media.scss 45:7             at-media-max()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/typography/usa-table-styles.scss 18:5  usa-table-styles()
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_usa-prose.scss 8:5                            @forward
+    node_modules/@uswds/uswds/packages/usa-prose/src/styles/_index.scss 4:1                                @forward
+    _index.scss 5:1                                                                                        @forward
+    _index.scss 10:1                                                                                       @forward
+    _index.scss 13:1                                                                                       @forward
+    web/styles/app.scss 29:1                                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $accordion-button-unopen-hc-icon: map-merge(
+   │ ┌───────────────────────────────────^
+25 │ │   $accordion-icon-map-defaults,
+26 │ │   (
+27 │ │     "name": "add",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 24:35  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+31 │   $accordion-button-open-hc-icon: map-merge(
+   │ ┌─────────────────────────────────^
+32 │ │   $accordion-icon-map-defaults,
+33 │ │   (
+34 │ │     "name": "remove",
+35 │ │   )
+36 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 31:33  @forward
+    usa-accordion/src/_index.scss 1:1                                                      @forward
+    _index.scss 14:1                                                                       @forward
+    web/styles/app.scss 29:1                                                               root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+16 │   @return if(color.lightness(color($token-from-bg)) > 50%, true, false);
+   │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/functions/color/is-color-dark.scss 16:14    is-color-dark()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/set-icon-from-bg.scss 12:24  set-icon-from-bg()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 61:3                 accordion-button-styles()
+    node_modules/@uswds/uswds/packages/usa-accordion/src/styles/_usa-accordion.scss 193:3                @forward
+    usa-accordion/src/_index.scss 1:1                                                                    @forward
+    _index.scss 14:1                                                                                     @forward
+    web/styles/app.scss 29:1                                                                             root stylesheet
+
+DEPRECATION WARNING: Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+Use map.merge instead.
+
+More info and automated migrator: https://sass-lang.com/d/import
+
+   ╷
+24 │   $banner-icon-chevron-up: map-merge(
+   │ ┌──────────────────────────^
+25 │ │   $banner-icon-chevron,
+26 │ │   (
+27 │ │     "name": "expand_less",
+28 │ │   )
+29 │ │ );
+   │ └─^
+   ╵
+    node_modules/@uswds/uswds/packages/usa-banner/src/styles/_usa-banner.scss 24:26  @forward
+    usa-banner/src/_index.scss 4:1                                                   @forward
+    _index.scss 16:1                                                                 @forward
+    web/styles/app.scss 29:1                                                         root stylesheet
+
+DEPRECATION WARNING: color.lightness() is deprecated. Suggestion:
+
+color.channel($color, "lightness", $space: hsl)
+
+More info: https://sass-lang.com/d/color-functions
+
+   ╷
+68 │     color.lightness(color($input-bg-color)) < 50%,
+   │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   ╵
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 68:5  -checkbox-and-radio-colors()
+    node_modules/@uswds/uswds/packages/uswds-core/src/styles/mixins/helpers/checkbox-and-radio-colors.scss 12:3  checkbox-colors()
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_usa-checkbox.scss 5:1                            @forward
+    node_modules/@uswds/uswds/packages/usa-checkbox/src/styles/_index.scss 4:1                                   @forward
+    _index.scss 8:1                                                                                              @forward
+    _index.scss 4:1                                                                                              @forward
+    _index.scss 51:1                                                                                             @forward
+    web/styles/app.scss 29:1                                                                                     root stylesheet
+
+WARNING: 446 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+
+> build:assets
+> node web/scripts/copy-uswds-assets.mjs
+
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/img -> /home/daytona/project/web/public/assets/img
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/fonts -> /home/daytona/project/web/public/assets/fonts
+copied /home/daytona/project/node_modules/@uswds/uswds/dist/js -> /home/daytona/project/web/public/assets/js
+uswds assets copied
+[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+[32m✓[39m 59 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.92 kB[22m[1m[22m[2m │ gzip:  0.54 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-rzxc2ar2.js  [39m[1m[2m239.49 kB[22m[1m[22m[2m │ gzip: 76.80 kB[22m
+[32m✓ built in 631ms[39m
+
+> typecheck
+> tsc -b contract server && tsc -p web --noEmit
+
+
+> test
+> npm run test:unit && npm run test:db && npm run test:api && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/validation.engine.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[90m 27[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.rules.spec.ts [2m([22m[2m71 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/adapter.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2009[2mms[22m[39m
+   [33m[2m✓[22m[39m createHttpProvider — the API key never leaks (FR-9.13 / FR-9.16)[2m > [22m10. the configured apiKey appears in no ProviderResult and no log line across all branches [33m2002[2mms[22m[39m
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 55[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m51 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.registry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/outputSchema.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/fakeProvider.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/promptManifest.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m297 passed[39m[22m[90m (297)[39m
+[2m   Start at [22m 23:25:35
+[2m   Duration [22m 2.72s[2m (transform 111ms, setup 0ms, collect 466ms, tests 2.15s, environment 0ms, prepare 22ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 833[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m431[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 234[2mms[22m[39m
+ [32m✓[39m server/test/db/exceptionBasis.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 208[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 232[2mms[22m[39m
+ [32m✓[39m server/test/db/receipt.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 118[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 348[2mms[22m[39m
+ [32m✓[39m server/test/db/queueService.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 958[2mms[22m[39m
+   [33m[2m✓[22m[39m queue/caseRead services — F7 composition (plan 04-02)[2m > [22m3a. 501 open exceptions serve as 500 rows, truncated:true, the 500 lowest receipt_position values [33m765[2mms[22m[39m
+{"level":40,"time":1789514742087,"pid":127278,"hostname":"pivota-sandbox-435bee68","exception_id":"52629000-19ea-4049-96ab-30f0b8d12c16","msg":"generation job: no recommendation row, exiting"}
+ [32m✓[39m server/test/db/generation.job.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 99[2mms[22m[39m
+ [32m✓[39m server/test/db/entries.repo.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 89[2mms[22m[39m
+ [32m✓[39m server/test/db/recommendationWrite.repo.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 92[2mms[22m[39m
+ [32m✓[39m server/test/db/queueRead.repo.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 138[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 183[2mms[22m[39m
+ [32m✓[39m server/test/db/receiptAtomicity.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 88[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 345[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 95[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m196 passed[39m[22m[90m (196)[39m
+[2m   Start at [22m 23:25:38
+[2m   Duration [22m 4.51s[2m (transform 167ms, setup 0ms, collect 278ms, tests 4.13s, environment 0ms, prepare 21ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/exceptions.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[33m 312[2mms[22m[39m
+ [32m✓[39m server/test/api/entries.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 189[2mms[22m[39m
+ [32m✓[39m server/test/api/guard.spec.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 345[2mms[22m[39m
+ [32m✓[39m server/test/api/expiry.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 314[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendation.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 120[2mms[22m[39m
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 400[2mms[22m[39m
+ [32m✓[39m server/test/api/actor.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 129[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendationDispatch.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 302[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 50[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m9 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[32m136 passed[39m[22m[90m (136)[39m
+[2m   Start at [22m 23:25:43
+[2m   Duration [22m 2.60s[2m (transform 164ms, setup 0ms, collect 343ms, tests 2.16s, environment 0ms, prepare 22ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — exactly two destinations (FR-2.7, §8.3, criterion 5)[2m > [22m[2mthe rendered <nav aria-label="Primary"> contains exactly two anchors
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4c. no rendered <Shell> link/button name outside the footer is an excluded affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4d. the footer link set equals the list pinned in Footer.tsx (exemption is auditable)
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m6. the authenticated shell contains no supervisory affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 21[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 64[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 78[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 74[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m153 passed[39m[22m[90m (153)[39m
+[2m   Start at [22m 23:25:46
+[2m   Duration [22m 685ms[2m (transform 149ms, setup 0ms, collect 293ms, tests 298ms, environment 0ms, prepare 24ms)[22m
+```
+
+
+## Backend pre-push gate
+
+- Status: passed
+- Result marker + failing output tail:
+```
+__GATE__ build_exit=0 test_exit=0 build_cmd=[npm run build] test_cmd=[npm test] head=66748e7f32223240383eaeca897ed179fe57e3b7 test_files=57 skip_marks=0 shadow_files=0
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 32[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 62[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 8[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 76[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 70[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m153 passed[39m[22m[90m (153)[39m
+[2m   Start at [22m 23:31:35
+[2m   Duration [22m 676ms[2m (transform 144ms, setup 0ms, collect 291ms, tests 292ms, environment 0ms, prepare 22ms)[22m
+
+```

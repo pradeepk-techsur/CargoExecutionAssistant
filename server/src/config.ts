@@ -10,6 +10,11 @@
 // simply unreachable, a guarantee that is quietly unenforced, or a cookie the
 // browser silently drops. A loud refusal at boot is the point.
 
+import {
+  getManifestEntry,
+  computeFileDigestSync,
+} from './ai/promptManifest.js';
+
 /**
  * Thrown when the environment cannot produce a valid configuration.
  *
@@ -26,6 +31,14 @@ export class ConfigError extends Error {
 
 export type CookieProfile = 'governed' | 'demo-iframe';
 
+// The explicit, named non-production AI posture. Setting AI_PROVIDER_URL to
+// exactly this literal wires in the deterministic no-network FakeProvider,
+// letting the demonstration and every automated test run the full generation
+// pipeline with zero external dependency and zero real API key. It is the same
+// pattern SESSION_COOKIE_PROFILE=demo-iframe establishes: an intentional,
+// self-documenting alternate posture, never a silent default (TechArch §5).
+export const FAKE_PROVIDER_URL = 'fake:deterministic';
+
 export interface AppConfig {
   readonly nodeEnv: 'development' | 'production' | 'test';
   readonly host: string; // never loopback
@@ -35,6 +48,13 @@ export interface AppConfig {
   readonly frameAncestors: string | null; // null => directive omitted
   readonly logLevel: string;
   readonly originIsHttps: boolean;
+  // AI recommendation environment (§6.6). Required now that AI code exists.
+  readonly aiProviderUrl: string; // https:// URL OR 'fake:deterministic'
+  readonly aiApiKey: string | null; // null in fake posture (no provider to auth)
+  readonly aiModelId: string;
+  readonly promptVersion: string; // a known, digest-verified manifest entry
+  readonly aiTimeoutMs: number; // default 20000
+  readonly aiWorkerConcurrency: number; // default 2
 }
 
 // Loopback hosts the preview proxy cannot reach (§6.5). A server bound here
@@ -155,13 +175,99 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     );
   }
 
-  // TODO(phase 5 — AI recommendation): promote AI_PROVIDER_URL, AI_API_KEY,
-  // AI_MODEL_ID, PROMPT_VERSION, AI_TIMEOUT_MS and AI_WORKER_CONCURRENCY to
-  // required here. §6.6 lists them as required, but they become required only
-  // when ai/adapter.http.ts exists — reading them as required now would refuse
-  // to boot a build that has no AI code at all. Kept optional (unread) until
-  // then; this is a deferral comment, not a skipped test.
-  // Same DATABASE_URL_AI: request-path only in phase 5.
+  // The AI recommendation environment (§6.6). These are required now, because
+  // AI code now exists (this plan builds the provider abstraction the whole of
+  // Phase 5 programs against). §6.6 lists them as required; the earlier
+  // deferral held only while there was no AI code to configure.
+
+  // 5. AI_PROVIDER_URL — required. Accepts EITHER a https:// URL (a real hosted
+  //    provider) OR the exact literal 'fake:deterministic' (the named,
+  //    explicit, non-production posture — see FAKE_PROVIDER_URL). Anything else
+  //    (missing, empty, http://, any other scheme) is refused. 'fake:...' is a
+  //    deliberate, self-documenting alternate posture, never a silent default:
+  //    it lets the demonstration and every automated test exercise the full
+  //    generation pipeline with no external network dependency and no real API
+  //    key (TechArch §5's explicit allowance that the real HTTP adapter be
+  //    exercised narrowly or not at all in the automated suite).
+  const rawProviderUrl = (env.AI_PROVIDER_URL ?? '').trim();
+  const isFakeProvider = rawProviderUrl === FAKE_PROVIDER_URL;
+  const isHttpsProvider = /^https:\/\//i.test(rawProviderUrl);
+  if (!isFakeProvider && !isHttpsProvider) {
+    throw new ConfigError(
+      `AI_PROVIDER_URL must be an https:// URL or the literal ` +
+        `'${FAKE_PROVIDER_URL}'. A plain-http provider, another scheme, or a ` +
+        `missing value is refused (offending key: AI_PROVIDER_URL).`,
+    );
+  }
+  const aiProviderUrl = rawProviderUrl;
+
+  // 6. AI_MODEL_ID — required, non-empty.
+  const aiModelId = (env.AI_MODEL_ID ?? '').trim();
+  if (aiModelId === '') {
+    throw new ConfigError(
+      `AI_MODEL_ID is required but was not set (offending key: AI_MODEL_ID).`,
+    );
+  }
+
+  // 7. PROMPT_VERSION — required, and it must name a known manifest entry whose
+  //    template file's SHA-256 digest still matches the pinned digest. This is
+  //    the addition-A-2 boot self-check: it refuses to start the server if the
+  //    shipped prompt text changed without a version bump, so a prompt_version
+  //    recorded on a recommendation always corresponds to the exact template
+  //    text that produced it (FR-9.10 traceability).
+  const promptVersion = (env.PROMPT_VERSION ?? '').trim();
+  if (promptVersion === '') {
+    throw new ConfigError(
+      `PROMPT_VERSION is required but was not set (offending key: PROMPT_VERSION).`,
+    );
+  }
+  const manifestEntry = getManifestEntry(promptVersion);
+  if (manifestEntry === undefined) {
+    throw new ConfigError(
+      `PROMPT_VERSION is not a known prompt version (offending key: PROMPT_VERSION).`,
+    );
+  }
+  const actualDigest = computeFileDigestSync(manifestEntry.path);
+  if (actualDigest !== manifestEntry.sha256) {
+    throw new ConfigError(
+      `PROMPT_VERSION template digest mismatch — the shipped prompt text ` +
+        `changed without a version bump (offending key: PROMPT_VERSION).`,
+    );
+  }
+
+  // 8. AI_API_KEY — required ONLY when talking to a real https:// provider. The
+  //    fake posture has no provider to authenticate to, so the key may be
+  //    absent/empty there; stored as null in that case.
+  let aiApiKey: string | null = null;
+  if (isHttpsProvider) {
+    const rawKey = (env.AI_API_KEY ?? '').trim();
+    if (rawKey === '') {
+      throw new ConfigError(
+        `AI_API_KEY is required when AI_PROVIDER_URL is a real https:// ` +
+          `provider (offending key: AI_API_KEY).`,
+      );
+    }
+    aiApiKey = rawKey;
+  }
+
+  // 9. AI_TIMEOUT_MS — optional, default 20000; a positive integer if set.
+  const rawTimeout = (env.AI_TIMEOUT_MS ?? '20000').trim();
+  const aiTimeoutMs = Number(rawTimeout);
+  if (!Number.isInteger(aiTimeoutMs) || aiTimeoutMs < 1) {
+    throw new ConfigError(
+      `AI_TIMEOUT_MS must be a positive integer (offending key: AI_TIMEOUT_MS).`,
+    );
+  }
+
+  // 10. AI_WORKER_CONCURRENCY — optional, default 2; a positive integer if set.
+  const rawConcurrency = (env.AI_WORKER_CONCURRENCY ?? '2').trim();
+  const aiWorkerConcurrency = Number(rawConcurrency);
+  if (!Number.isInteger(aiWorkerConcurrency) || aiWorkerConcurrency < 1) {
+    throw new ConfigError(
+      `AI_WORKER_CONCURRENCY must be a positive integer (offending key: ` +
+        `AI_WORKER_CONCURRENCY).`,
+    );
+  }
 
   return {
     nodeEnv,
@@ -172,5 +278,11 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     frameAncestors,
     logLevel,
     originIsHttps,
+    aiProviderUrl,
+    aiApiKey,
+    aiModelId,
+    promptVersion,
+    aiTimeoutMs,
+    aiWorkerConcurrency,
   };
 }

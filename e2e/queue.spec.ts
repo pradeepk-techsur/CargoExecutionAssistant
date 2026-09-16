@@ -101,12 +101,18 @@ test.describe('review queue', () => {
     await page.waitForURL(`${BASE}/cases/${caseReference}`);
     expect(new URL(page.url()).pathname).toBe(`/cases/${caseReference}`);
 
-    // The destination (still NotBuiltYet for now — Phase 5's concern) focuses
-    // SOME h1; we assert only the URL and that an h1 receives focus.
-    const onH1 = await page.evaluate(
-      () => document.activeElement?.tagName === 'H1',
-    );
-    expect(onH1).toBe(true);
+    // The destination is now the REAL CaseDetail screen (Phase 5): it mounts in
+    // a loading state, then re-renders with the loaded case, and useScreenFocus
+    // moves focus to the screen h1. That focus lands ASYNCHRONOUSLY after the URL
+    // change, so poll for it rather than reading document.activeElement in the
+    // same synchronous tick as waitForURL (which raced under a full-suite run and
+    // sometimes sampled before the focus effect had run).
+    await expect
+      .poll(
+        () => page.evaluate(() => document.activeElement?.tagName === 'H1'),
+        { timeout: 5000 },
+      )
+      .toBe(true);
   });
 
   // 2. No forbidden affordance anywhere on the queue.
@@ -344,8 +350,8 @@ test.describe('review queue', () => {
     page,
   }) => {
     // Real end-to-end navigation, as in test 1, gives us a screen to come back
-    // from (the still-NotBuiltYet Case placeholder is sufficient — this test
-    // only needs SOME screen to page.goBack() from).
+    // from (the real Phase-5 CaseDetail screen — this test only needs SOME
+    // screen to page.goBack() from).
     const caseReference = await createException(page, csrf);
 
     await page.goto(`${BASE}/queue`);

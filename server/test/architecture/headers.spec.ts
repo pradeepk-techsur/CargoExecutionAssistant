@@ -260,6 +260,12 @@ describe('headers — D-1 source guarantees', () => {
       DATABASE_URL_APP: 'postgres://stub',
       NODE_ENV: 'test',
       HOST: '0.0.0.0',
+      // The AI environment is mandatory since plan 05-01; the fake posture keeps
+      // this header/host-focused check's positive control valid without a real
+      // provider or API key.
+      AI_PROVIDER_URL: 'fake:deterministic',
+      AI_MODEL_ID: 'test-model',
+      PROMPT_VERSION: '2026.09.1',
     };
     expect(() => loadConfig({ ...base, FRAME_ANCESTORS: "'none'" })).toThrow();
     expect(() => loadConfig({ ...base, FRAME_ANCESTORS: 'none' })).toThrow();
@@ -305,9 +311,15 @@ describe('headers — D-1 source guarantees', () => {
     //    from a fixed column count and the row index; every actual value goes
     //    through the `params` bind array. The interpolation is placeholder
     //    scaffolding, not data — the canonical safe bulk-insert pattern.
+    //  - server/src/db/repositories/recommendations.ts — the multi-row
+    //    `recommendation_values` insert builds its `VALUES (…),(…)` placeholder
+    //    tuples from a fixed column count and the row index; every actual value
+    //    goes through the `params` bind array. The same canonical safe
+    //    bulk-insert pattern, extended deliberately, never weakened.
     const EXCLUDED = new Set([
       join('server', 'src', 'db', 'tx.ts'),
       join('server', 'src', 'services', 'audit', 'writer.ts'),
+      join('server', 'src', 'db', 'repositories', 'recommendations.ts'),
     ]);
     const offenders: string[] = [];
     for (const file of walk(SERVER_SRC)) {

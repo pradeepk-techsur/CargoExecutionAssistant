@@ -126,6 +126,16 @@ function resolveLogger(): Logger {
         frameAncestors: null,
         logLevel: process.env['LOG_LEVEL']?.trim() || 'info',
         originIsHttps: false,
+        // AI fields carry inert fallbacks: this logger-only config never
+        // reaches the AI generation path (the boot path loads and validates
+        // config separately), it exists solely to keep the correlation logger
+        // alive in a config-less context.
+        aiProviderUrl: '',
+        aiApiKey: null,
+        aiModelId: '',
+        promptVersion: '',
+        aiTimeoutMs: 20000,
+        aiWorkerConcurrency: 2,
       };
     }
     cachedLogger = createLogger(config);

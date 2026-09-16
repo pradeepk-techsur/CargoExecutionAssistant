@@ -4,8 +4,15 @@ import { loadConfig, ConfigError } from '../../src/config.js';
 // loadConfig is passed a literal env object in every test; process.env is never
 // mutated (§8.7 self-checks are pure over their input).
 
+// minimalValid carries the three now-required AI keys in their fake posture
+// (self-checks 5–7): AI_PROVIDER_URL=fake:deterministic needs no API key, and
+// PROMPT_VERSION names the real shipped, digest-verified manifest entry. Every
+// existing test in this file inherits these three from its baseline.
 const minimalValid: NodeJS.ProcessEnv = {
   DATABASE_URL_APP: 'postgres://cargoexec_app:pw@db:5432/cargoexec',
+  AI_PROVIDER_URL: 'fake:deterministic',
+  AI_MODEL_ID: 'test-model',
+  PROMPT_VERSION: '2026.09.1',
 };
 
 describe('config — minimal valid env', () => {
@@ -120,6 +127,147 @@ describe('config — self-check 4: demo-iframe over plain HTTP rejected (§4.3, 
     expect(cfg.sessionCookieProfile).toBe('demo-iframe');
     expect(cfg.originIsHttps).toBe(true);
   });
+});
+
+describe('config — self-check 5: AI_PROVIDER_URL (§5)', () => {
+  it('throws when AI_PROVIDER_URL is absent', () => {
+    const { AI_PROVIDER_URL: _omit, ...rest } = minimalValid;
+    void _omit;
+    expect(() => loadConfig(rest)).toThrow(ConfigError);
+  });
+
+  it('throws for a plain-http provider url', () => {
+    expect(() =>
+      loadConfig({ ...minimalValid, AI_PROVIDER_URL: 'http://insecure' }),
+    ).toThrow(ConfigError);
+  });
+
+  it('throws for an unrecognised scheme', () => {
+    expect(() =>
+      loadConfig({ ...minimalValid, AI_PROVIDER_URL: 'ftp://provider' }),
+    ).toThrow(ConfigError);
+  });
+
+  it("accepts the literal 'fake:deterministic' with no AI_API_KEY", () => {
+    const cfg = loadConfig(minimalValid);
+    expect(cfg.aiProviderUrl).toBe('fake:deterministic');
+    expect(cfg.aiApiKey).toBeNull();
+  });
+
+  it('accepts an https provider only WITH an AI_API_KEY', () => {
+    const cfg = loadConfig({
+      ...minimalValid,
+      AI_PROVIDER_URL: 'https://real.example',
+      AI_API_KEY: 'sk-secret',
+    });
+    expect(cfg.aiProviderUrl).toBe('https://real.example');
+    expect(cfg.aiApiKey).toBe('sk-secret');
+  });
+
+  it('names the key but discloses no AI_API_KEY value on a bad-scheme throw (§4.7)', () => {
+    const secret = 'sk-should-never-leak';
+    let message = '';
+    try {
+      loadConfig({
+        ...minimalValid,
+        AI_PROVIDER_URL: 'http://insecure',
+        AI_API_KEY: secret,
+      });
+    } catch (err) {
+      message = (err as Error).message;
+    }
+    expect(message).toContain('AI_PROVIDER_URL');
+    expect(message).not.toContain(secret);
+  });
+});
+
+describe('config — self-check 6: AI_MODEL_ID', () => {
+  it('throws when AI_MODEL_ID is absent', () => {
+    const { AI_MODEL_ID: _omit, ...rest } = minimalValid;
+    void _omit;
+    expect(() => loadConfig(rest)).toThrow(ConfigError);
+  });
+
+  it('throws when AI_MODEL_ID is blank', () => {
+    expect(() => loadConfig({ ...minimalValid, AI_MODEL_ID: '   ' })).toThrow(
+      ConfigError,
+    );
+  });
+});
+
+describe('config — self-check 7: PROMPT_VERSION + digest (§5 A-2)', () => {
+  it('throws when PROMPT_VERSION is absent', () => {
+    const { PROMPT_VERSION: _omit, ...rest } = minimalValid;
+    void _omit;
+    expect(() => loadConfig(rest)).toThrow(ConfigError);
+  });
+
+  it('throws naming PROMPT_VERSION for an unknown version', () => {
+    let message = '';
+    try {
+      loadConfig({ ...minimalValid, PROMPT_VERSION: '1999.01.1' });
+    } catch (err) {
+      message = (err as Error).message;
+    }
+    expect(message).toContain('PROMPT_VERSION');
+  });
+
+  it('accepts the real shipped prompt version (digest matches)', () => {
+    const cfg = loadConfig(minimalValid);
+    expect(cfg.promptVersion).toBe('2026.09.1');
+  });
+});
+
+describe('config — self-check 8: AI_API_KEY required only for https', () => {
+  it('throws for an https provider with no AI_API_KEY', () => {
+    expect(() =>
+      loadConfig({
+        ...minimalValid,
+        AI_PROVIDER_URL: 'https://real.example',
+      }),
+    ).toThrow(ConfigError);
+  });
+
+  it('throws for an https provider with a blank AI_API_KEY', () => {
+    expect(() =>
+      loadConfig({
+        ...minimalValid,
+        AI_PROVIDER_URL: 'https://real.example',
+        AI_API_KEY: '   ',
+      }),
+    ).toThrow(ConfigError);
+  });
+});
+
+describe('config — self-checks 9/10: AI_TIMEOUT_MS + AI_WORKER_CONCURRENCY', () => {
+  it('applies the documented defaults 20000 / 2', () => {
+    const cfg = loadConfig(minimalValid);
+    expect(cfg.aiTimeoutMs).toBe(20000);
+    expect(cfg.aiWorkerConcurrency).toBe(2);
+  });
+
+  it('round-trips explicit valid overrides', () => {
+    const cfg = loadConfig({
+      ...minimalValid,
+      AI_TIMEOUT_MS: '5000',
+      AI_WORKER_CONCURRENCY: '4',
+    });
+    expect(cfg.aiTimeoutMs).toBe(5000);
+    expect(cfg.aiWorkerConcurrency).toBe(4);
+  });
+
+  for (const bad of ['0', '-1', 'abc', '1.5']) {
+    it(`throws for AI_TIMEOUT_MS=${bad}`, () => {
+      expect(() =>
+        loadConfig({ ...minimalValid, AI_TIMEOUT_MS: bad }),
+      ).toThrow(ConfigError);
+    });
+    it(`throws for AI_WORKER_CONCURRENCY=${bad}`, () => {
+      expect(() =>
+        loadConfig({ ...minimalValid, AI_WORKER_CONCURRENCY: bad }),
+      ).toThrow(ConfigError);
+    });
+  }
 });
 
 describe('config — PORT validation', () => {

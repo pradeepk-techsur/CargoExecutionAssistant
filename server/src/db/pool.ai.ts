@@ -14,10 +14,14 @@ type Pool = pg.Pool;
  * decided it" is impossible at the privilege layer alone, before the FK and the
  * HITL trigger are even reached.
  *
- * IMPORT RULE: only `ai/worker.ts` may import this pool. A later architecture
- * test asserts that no request-path module reaches for AI credentials — routing
- * request-path work through this pool would quietly widen (or, for decisions,
- * narrow to failure) the privilege set the code runs under.
+ * IMPORT RULE: only `server/src/index.ts` (the process bootstrap) constructs
+ * this pool via `getAiPool()`; every AI-side consumer (`ai/job.ts`, invoked
+ * through `ai/worker.ts`'s injected `runJob`) receives it as a plain `Pool`
+ * parameter, never by importing this module directly. A later architecture
+ * test (`aiCapability.spec.ts`) asserts no request-path route or service file
+ * imports `pool.ai.js` directly — the bootstrap is the sole import site.
+ * Routing request-path work through this pool would quietly widen (or, for
+ * decisions, narrow to failure) the privilege set the code runs under.
  *
  * Lazy like `pool.app.ts`: importing this module opens no socket, and the
  * connection string is never logged (T-01-37).

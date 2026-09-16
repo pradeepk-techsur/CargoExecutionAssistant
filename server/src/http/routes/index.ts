@@ -12,7 +12,7 @@
 //                      exist" (§3.1). Adding an eleventh row requires a feature
 //                      requirement in the FRD — that friction is the point.
 //
-//   ROUTES           — the concrete handlers for the seven IMPLEMENTED rows,
+//   ROUTES           — the concrete handlers for the eight IMPLEMENTED rows,
 //                      the single array an architecture test can pin. Route
 //                      registration is data-driven from one array (§1A.3).
 //
@@ -28,14 +28,16 @@ import type { AppConfig } from '../../config.js';
 import { sessionRoutes } from './session.js';
 import { entryRoutes } from './entries.js';
 import { exceptionRoutes } from './exceptions.js';
+import { recommendationRoutes } from './recommendation.js';
 
 export type HttpMethod = 'get' | 'post' | 'delete';
 
 /**
  * The full ten method/path pairs of TechArch §3.1, as data. `implemented`
- * marks the seven now registered (the three F1 session pairs, the two F3
- * entry pairs, and the two F7 exception pairs); the other three belong to the
- * feature that owns them. Adding a row requires an FRD requirement (FR-Y1.1).
+ * marks the eight now registered (the three F1 session pairs, the two F3
+ * entry pairs, the two F7 exception pairs, and the F9 recommendation-polling
+ * read); the other two belong to the feature that owns them. Adding a row
+ * requires an FRD requirement (FR-Y1.1).
  */
 export const API_ROUTE_TABLE = [
   { method: 'POST', path: '/api/session', feature: 'F1', implemented: true },
@@ -49,7 +51,7 @@ export const API_ROUTE_TABLE = [
     method: 'GET',
     path: '/api/exceptions/:exceptionId/recommendation',
     feature: 'F9',
-    implemented: false,
+    implemented: true,
   },
   {
     method: 'POST',
@@ -65,6 +67,11 @@ export interface RouteDeps {
   pool: Pool;
   config: AppConfig;
   clock: Clock;
+  /**
+   * The post-commit AI dispatch seam (F9), threaded through to the entries
+   * route. Optional: omitted by the Phase 3/4 harnesses. Wired at boot.
+   */
+  dispatchRecommendation?: (exceptionId: string) => void;
 }
 
 /** One implemented route: method, path, handler. The pinnable array (§1A.3). */
@@ -89,8 +96,16 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
     pool: deps.pool,
     config: deps.config,
     clock: deps.clock,
+    ...(deps.dispatchRecommendation !== undefined
+      ? { dispatchRecommendation: deps.dispatchRecommendation }
+      : {}),
   });
   const exceptions = exceptionRoutes({
+    pool: deps.pool,
+    config: deps.config,
+    clock: deps.clock,
+  });
+  const recommendation = recommendationRoutes({
     pool: deps.pool,
     config: deps.config,
     clock: deps.clock,
@@ -109,6 +124,11 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
     { method: 'get', path: '/api/entries/:entryId', handler: entries.get },
     { method: 'get', path: '/api/exceptions', handler: exceptions.get },
     { method: 'get', path: '/api/exceptions/:idOrReference', handler: exceptions.getOne },
+    {
+      method: 'get',
+      path: '/api/exceptions/:exceptionId/recommendation',
+      handler: recommendation.get,
+    },
   ];
 }
 
@@ -124,7 +144,7 @@ export function registerRoutes(router: Router, deps: RouteDeps): void {
   }
 }
 
-/** Also exported for the boot test, which asserts exactly seven are registered. */
+/** Also exported for the boot test, which asserts exactly eight are registered. */
 export const ROUTES = API_ROUTE_TABLE.filter((r) => r.implemented);
 
 /**

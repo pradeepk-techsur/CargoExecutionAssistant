@@ -31,6 +31,7 @@ import type {
   ErrorCode,
   QueueResponse,
   ReceiptResponse,
+  RecommendationDetailDto,
   SessionDto,
   SessionRequest,
 } from '@cargoexec/contract';
@@ -262,6 +263,20 @@ export const api = {
     return request<CaseDetailResponse>(
       'GET',
       `/api/exceptions/${encodeURIComponent(idOrReference)}`,
+      { expectBody: true },
+    );
+  },
+
+  /**
+   * Poll the current status/content of a case's recommendation (F9's own API
+   * surface, F10 FR-10.7). GET, no CSRF header — matches getCase/getQueue. The
+   * case-detail screen calls this on a 3-second cadence while the recommendation
+   * is PENDING, stopping on a terminal status or after 60s.
+   */
+  async getRecommendation(exceptionId: string): Promise<RecommendationDetailDto> {
+    return request<RecommendationDetailDto>(
+      'GET',
+      `/api/exceptions/${encodeURIComponent(exceptionId)}/recommendation`,
       { expectBody: true },
     );
   },
