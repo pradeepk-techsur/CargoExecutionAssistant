@@ -2,14 +2,15 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-09-16T02:02:52.634Z"
-last_activity: "2026-09-16 — Phase 5 complete"
+status: executing
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-09-16T11:27:45.623Z"
+last_activity: "2026-09-16 — 06-01 executed: Task 1 5d5b2fb (contract types + decisions write path), Task 2 3e55a5a (decision.service.ts F11 transaction), Task 3 6a14bf3 (route + wiring + 16-scenario regression suite). 2 deviations auto-fixed: [R2] csrf.middleware matched route patterns against concrete req.path as plain strings, silently skipping CSRF on parameterised state-changing routes (POST …/decision is the first) — now regex-matched; [R1] idempotent-replay comparison rejected an APPROVE replay because server-derived stored values differ from the empty body. Gate: unit 297, db 196, api 159, arch 153; build+typecheck exit 0."
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 37
-  completed_plans: 37
+  total_plans: 42
+  completed_plans: 38
   percent: 83
 ---
 
@@ -20,11 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-11)
 
 **Core value:** A cargo exception is never resolved without an accountable human decision, and every decision — what was recommended, what was chosen, by whom, and when — is permanently traceable.
-**Current focus:** Phase 5 (AI recommendation as an un-applied proposal) — COMPLETE (05-01..05-06 all committed; F9 mechanism + F10 case-detail screen realised, proven end-to-end in a real browser, and signed off for accessibility). Next: Phase 6 (F11 + F12 + F14 — the governed loop closes end to end).
+**Current focus:** Phase 6 (the human decision + the record that explains it) — IN PROGRESS. 06-01 COMPLETE: the F11 decision API is real — a cargo exception now closes only through one accountable human decision. Next: 06-02 (the F12 decision web UI that posts to this endpoint).
 
 ## Current Position
 
-Phase: 5 of 6 (AI recommendation as an un-applied proposal) — COMPLETE
+Phase: 6 of 6 (the human decision and the record that explains it) — IN PROGRESS
+Plan: 06-01 COMPLETE — the F11 decision API is real end to end. `POST /api/exceptions/{exceptionId}/decision` (server/src/http/routes/decision.ts, route-table row 9 implemented) is the ONLY code path that writes `decisions`/`decision_values` and `exceptions.state`/`closed_at`/`decision_id` — proven structurally by receiptPaths.spec's allowlist naming decision.service.ts. `recordDecision` (server/src/services/decision.service.ts) is the one governed transaction: `SELECT … FOR UPDATE` on the exception, per-value origin computed server-side by trim-then-byte-compare (FR-11.8: changed→HUMAN, identical→AI, direct-resolution→all HUMAN), one `UPDATE exceptions`, exactly one `append()` audit entry, all committed together (HITL + coupling triggers refuse any partial). APPROVE copies the proposal verbatim (all AI); EDIT_APPROVE against an AVAILABLE proposal requires the exact proposed field set (else 422 RESOLUTION_VALUES_INCOMPLETE) and re-stamps changed values HUMAN; EDIT_APPROVE with no available recommendation is a direct resolution (all HUMAN, prior_value from the entry). REJECT writes zero decision_values and audits the declined proposal. recommendation_id is ALWAYS stamped (F5 FR-5.12 PENDING placeholder guarantee). Idempotency-Key: pre-check outside the transaction; identical replay ⇒ original 201 with idempotent_replay:true and no second row; same key + different body ⇒ 409 IDEMPOTENCY_KEY_REUSED. The route resolves uuid OR case-reference, uses a `.strict()` zod body (blocking client-supplied origin/decided_by/actor/applied ⇒ 422), and maps each service error class to its Y2 code. `decision.spec.ts` (16 scenarios, 23 cases) proves all ten F11 acceptance criteria. Fast gate green: unit 297, db 196, api 159, arch 153; build+typecheck exit 0. Two deviations auto-fixed (see 06-01-SUMMARY): a real CSRF gap for parameterised state-changing routes (fixed generally in csrf.middleware), and the idempotent-replay comparison bug. Contract gained DecisionCreateRequest/DecisionRecordResponse + DecisionValueDto.changed_from_proposal. DEFERRED (carried from Phase 5): the compose `web` service still lacks the five AI env keys — the Phase 6 whole-stack demo owns that fix.
+
+--- prior (05-06) ---
 Plan: 05-06 COMPLETE — Phase 5 is done. F9/F10 proven in a REAL browser against a real server whose AI provider is `fake:deterministic` (e2e/env.ts wires the five §6.6 AI keys, no network): `e2e/case-detail.spec.ts` (10 scenarios, all green) proves genuine PENDING→AVAILABLE with no reload and no focus theft (FR-10.7), a forced PENDING→UNAVAILABLE via a FAKE_AI_TRIGGERS marker (role="status", no retry — FR-10.8), monochrome provenance (crit 2), the heading order + a genuinely-resolving "On this page" nav (FR-10.10, proven by clicking each link and asserting toBeInViewport), verbatim values (FR-10.6/10.16), uuid canonicalisation without reload (FR-10.13), the inert Phase-6 stubs (FR-10.12), and case-not-found (FR-10.15). A REAL FR-2.24 focus regression was auto-fixed: CaseDetail focused the loading-state h1 which React unmounted on the loading→loaded transition, dropping focus to <body> — now re-asserted on the loading→terminal edge (fix 7390d9c). `docs/a11y/case-detail.md` is the signed NFR-2 record (defect 1 = the focus bug, resolved), and `docs/uswds-conformance-register.md` gained append-only rows for ProvenanceBadge and the AI-recommendation comparison-row composition. Phase gate: `npm run test:all` green — unit 297, db 196, api 136, arch 153, e2e 47, 0 failures, 0 skipped. DEFERRED (deferred-items.md): the compose `web` service still declares no AI env, so a fresh `docker compose up --build` would now fail the AI boot self-checks — Phase 6's whole-stack demo owns that fix (add the five keys, AI_PROVIDER_URL defaulting to fake:deterministic).
 
 --- prior (05-05) ---
@@ -93,6 +97,7 @@ Progress: [████████░░] 83%
 | Phase 05-ai-recommendation-as-an-un-applied-proposal P04 | 14 min | 3 tasks | 12 files |
 | Phase 05 P05 | 4 min | 2 tasks | 4 files |
 | Phase 05 P06 | 41 min | 2 tasks | 7 files |
+| Phase 06-the-human-decision-and-the-record-that-explains-it P01 | 10 min | 3 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -168,6 +173,7 @@ Recent decisions affecting current work:
 - [Phase 05-ai-recommendation-as-an-un-applied-proposal]: 05-04: navigation.spec's F1 FR-1.1 no-application-role-model scan rejects any literal 'role:' identifier in server/src — the AI adapter's OpenAI-compatible chat message speaker key is therefore assembled via a computed MESSAGE_SPEAKER_KEY='role' (chatMessage helper), not a literal key. A future AI wire-shape change that writes 'role:' directly will turn navigation.spec RED; keep the computed-key pattern.
 - [Phase 05]: 05-05: the F10 case-detail screen (web/src/screens/CaseDetail.tsx) renders the full normative FR-10.10 section order — h1 header, an unconditional 'On this page' nav of five native #fragment links to five h2 ids, 'Why this case is open' (server-order findings verbatim), 'Submitted entry' (14 fields, plain-language labels, HUMAN ProvenanceBadge only when a value is present), 'AI recommendation' (all four PENDING/stale/AVAILABLE/UNAVAILABLE presentations), and heading-only Phase 6 stubs for 'Your decision' and 'Audit trail'. Read-only throughout (FR-10.12): no select/textarea/mutation control, only ErrorState's Try-again button. PENDING drives a setTimeout-chained 3s poll of api.getRecommendation, stopping at a terminal status / 60s / unmount, updating in place and announcing politely WITHOUT moving focus. uuid->case-reference canonicalisation via react-router navigate(...,{replace:true}) — no reload, no focus move. ProvenanceBadge is THE shared per-value provenance control: text + distinct USWDS sprite icon (settings/person) + distinct token colour pair, legible in monochrome and via AT (criterion 2). AVAILABLE comparison rows read the submitted value from the loaded entry.values (the DTO carries only proposed values); a null-submitted proposal is an 'Adding:', else 'Changing:'. Deviation: headers.spec's dangerouslySetInnerHTML scan reads RAW source, so even naming the prop in a comment fails it — reworded the T-05-13 comment. Full arch 153, unit 297, api 136 green; build+typecheck exit 0. Playwright link-activation proof and a11y sign-off are 05-06.
 - [Phase 05]: 05-06: F9/F10 proven in a real browser via AI_PROVIDER_URL=fake:deterministic (no network); case-detail.spec 10/10 green. Auto-fixed a real FR-2.24 focus regression on CaseDetail (focus fell to body after loading->loaded; now re-asserted on the loading->terminal edge). NFR-2 case-detail a11y record signed; ProvenanceBadge + comparison-row registered. Phase 5 gate green: unit 297, db 196, api 136, arch 153, e2e 47 (0 failures/skipped). Deferred: compose web service still lacks the required AI env keys (Phase 6 owns the whole-stack compose demo).
+- [Phase 06-the-human-decision-and-the-record-that-explains-it]: 06-01: POST /api/exceptions/:id/decision is the F11 write — the ONLY code path writing decisions/decision_values and exceptions.state/closed_at/decision_id (receiptPaths.spec allowlist). recordDecision computes per-value origin server-side (trim-then-byte-compare: changed→HUMAN, identical→AI, direct-resolution→all HUMAN); client can never assert origin (.strict() zod). recommendation_id always stamped (F5 FR-5.12 PENDING placeholder), so no null-recommendation branch. Idempotency-Key pre-check runs outside the transaction; replay compares resolution_values only when the client sent them (APPROVE/REJECT identified by type+trimmed reason). decision.spec 16 scenarios/23 cases prove all ten F11 acceptance criteria. Two deviations auto-fixed: [R2] csrf.middleware matched route PATTERNS against concrete req.path as plain strings — silently skipping CSRF on parameterised state-changing routes (POST …/decision is the first) — now compiles patterns to anchored regexes; [R1] replay comparison rejected an APPROVE replay because server-derived stored values differ from the empty body. Gate: unit 297, db 196, api 159, arch 153; build+typecheck exit 0.
 
 ### Pending Todos
 
@@ -185,6 +191,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-15T23:13:39.193Z
-Stopped at: Completed 05-06-PLAN.md (Phase 5 complete)
+Last session: 2026-09-16T11:27:45.621Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
