@@ -25,6 +25,7 @@
 import type {
   ApiErrorBody,
   ApiErrorDetail,
+  AuditTrailResponse,
   CaseDetailResponse,
   DecisionCreateRequest,
   DecisionRecordResponse,
@@ -313,6 +314,23 @@ export const api = {
       'POST',
       `/api/exceptions/${encodeURIComponent(exceptionId)}/decision`,
       { body, expectBody: true, headers: { 'idempotency-key': idempotencyKey } },
+    );
+  },
+
+  /**
+   * Read a case's complete audit trail (F13 GET
+   * /api/exceptions/{exceptionId}/audit). GET, no CSRF header — it is
+   * read-only and not state-changing, matching getCase/getQueue/getRecommendation.
+   * The F14 AuditTrailRegion fetches this on mount and after a decision is
+   * recorded on the same screen; it never polls (FR-14.12). A tampered hash
+   * chain is REPORTED in the 200 body (chain_verified:false), never an error —
+   * the region renders the integrity-failure alert from the response.
+   */
+  async getAuditTrail(exceptionId: string): Promise<AuditTrailResponse> {
+    return request<AuditTrailResponse>(
+      'GET',
+      `/api/exceptions/${encodeURIComponent(exceptionId)}/audit`,
+      { expectBody: true },
     );
   },
 
