@@ -30,6 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2007-09-15)
 - [x] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such (completed 2007-09-16)
 - [x] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here** (completed 2007-09-16)
+- [ ] **Phase 7: Redesign UI, seeded demo data, and real LLM integration** - An operator-run seed script pre-loads one fully-lifecycled case, the deployment defaults toward a real hosted LLM, and USWDS coupling is inventoried with a token seam prepared for a future visual redesign (depends on Phase 6)
 
 ## Phase Details
 
@@ -178,14 +179,15 @@ Plans:
 | F11 — human decision processing (API) | Phase 6 | human decide |
 | F12 — decision web UI with reason capture | Phase 6 | human decide (screen) |
 | F14 — per-case audit trail web UI | Phase 6 | audit (read) — **loop closes** |
+| F15 — seeded demonstration case | Phase 7 | demonstration enablement (no loop stage — operator shortcut alongside F6) |
 
-**Coverage: 15 / 15 v1 functional requirements mapped, each to exactly one phase. No orphans, no duplicates.**
+**Coverage: 16 / 16 v1 functional requirements mapped, each to exactly one phase. No orphans, no duplicates.**
 
 ### Non-functional coverage
 
 | NFR | Phase(s) where it is met |
 |-----|--------------------------|
-| NFR-1 USWDS conformance | 2 (foundation), then each UI phase 3, 4, 5, 6 |
+| NFR-1 USWDS conformance | 2 (foundation), then each UI phase 3, 4, 5, 6; 7 (visual system replacement scoped — conformance mechanism re-verified as swappable; the replacement design itself remains blocked pending access, so this phase's UI is unchanged) |
 | NFR-2 Section 508 / WCAG 2.1 AA | 2 (foundation + sign-in sign-off), then per-screen sign-off in 3, 4, 5, 6 — no CI gate, ever |
 | NFR-3 Audit immutability | 1 |
 | NFR-4 Per-value provenance | 1 (stored), 5 (rendered on the case), 6 (re-stamped on edit) |
@@ -201,7 +203,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -211,13 +213,24 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2007-09-15 |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Complete | 2007-09-16 |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Complete | 2007-09-16 |
+| 7. Redesign UI, seeded demo data, and real LLM integration | 0/3 | Not started | — |
 
 ### Phase 7: Redesign UI, seeded demo data, and real LLM integration
-
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 6
-**Plans:** 0 plans
-
+**Goal**: The demonstration is walkable without hand-typing every stage first — an operator-run seed script pre-loads one case already carried through the whole governed loop; the deployed AI now defaults toward a real hosted model rather than the deterministic fake; and the USWDS-coupled UI is inventoried and given a token seam so a future visual redesign — still blocked on an external design file that returned 403 during scoping — is a swap, not a rewrite, with today's rendered screens left unchanged.
+**Status**: Not started
+**Depends on**: Phase 6
+**Requirements**: F15 (new); F9 (deployment posture only — FR-9.20); F2 (infrastructure/preparation only — no visual reskinning)
+**Non-functional carried**: NFR-1 (conformance mechanism re-verification deferred to the still-blocked redesign; this phase only re-verifies the mechanism is swappable, not the design itself)
+**Success Criteria** (what must be TRUE):
+  1. Running the seed script against a freshly migrated database produces exactly one demonstration case already `RESOLVED` via `EDIT_APPROVE`, with mixed AI/HUMAN provenance on its resolution and a chain-verified audit trail; running it again immediately creates nothing and exits 0. *(no screen)*
+  2. The seed script is reachable only as an operator command — no route, UI control, or schedule invokes it, and manual entry (F6) is unaffected. *(no screen)*
+  3. A fresh deployment refuses to boot with a silently-defaulted fake AI provider: `AI_PROVIDER_URL` must be set explicitly — a real hosted endpoint for any demonstration/production run, or the literal `fake:deterministic` only as a deliberate, documented override. *(no screen)*
+  4. Every USWDS coupling point in the current UI is catalogued in one document, and a design-token seam exists that a future redesign can override — with today's rendered screens, USWDS wiring, and CSP left unchanged. *(no screen)*
+  5. Nothing shipped in this phase invents a replacement visual design, a new component, or a new colour — the actual redesign stays explicitly deferred until the approved design is accessible.
+**Plans**: 3 plans in 1 wave
 Plans:
-- [ ] TBD (run /pivota_spec:plan-phase 7 to break down)
+- [ ] 07-01-PLAN.md — F15 idempotent, stage-resumable seed script + the narrow one-seed-file architecture-test exception (wave 1)
+- [ ] 07-02-PLAN.md — F9 deployment posture: AI_PROVIDER_URL loses its silent fake default, real-provider operator docs (wave 1)
+- [ ] 07-03-PLAN.md — F2 USWDS coupling audit + design-token abstraction seam, behaviour-preserving (wave 1)
+
+*This phase adds no loop stage (the loop already closed end to end at Phase 6). F15 is an operator-only shortcut alongside the existing manual-entry path; F9's change is deployment posture, not architecture; F2's work is explicitly preparation, not the redesign itself — the source design remained inaccessible (403) throughout this phase's scoping.*
