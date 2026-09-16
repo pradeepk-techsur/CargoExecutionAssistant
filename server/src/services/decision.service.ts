@@ -425,6 +425,14 @@ async function editApproveDirect(
   }
   return submitted.map((s) => {
     const prior = entry.values[s.field_name];
+    // INVARIANT: a present prior entry value is ALWAYS HUMAN-authored. This is
+    // not an assumption — it is enforced at the schema level by
+    // `cargo_entry_field_origins.cefo_origin_human_chk CHECK (origin = 'HUMAN')`
+    // (migration 0002; proven by provenance.spec TEST-DB-12, which shows an
+    // `origin='AI'` insert is rejected 23514). `loadFieldOrigins` is typed to
+    // return only `'HUMAN'` for the same reason, so reading it here could never
+    // yield any other value. Hence `HUMAN` for a present prior, `null` when the
+    // entry field was itself unset.
     return {
       field_name: s.field_name,
       value: s.value,
