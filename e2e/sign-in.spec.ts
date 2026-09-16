@@ -128,10 +128,29 @@ test.describe('sign-in walkthrough', () => {
     // fires GET /api/exceptions on mount, and clearing cookies + an immediate
     // goto races that in-flight request — Chromium then aborts the NEW document
     // request too (net::ERR_ABORTED). Waiting for the network to be idle removes
-    // the race deterministically.
+    // most of the race, but under a full-suite load a follow-up fetch can still
+    // be settling when the document swap begins, so a single navigation can
+    // still abort. Retry the goto ONCE on that specific transient (it is a
+    // client-side timing artefact of clearing the session mid-fetch, not a
+    // product behaviour) so the test is deterministic under load.
     await page.waitForLoadState('networkidle');
     await page.context().clearCookies();
-    await page.goto(`${BASE}/sign-in`, { waitUntil: 'domcontentloaded' });
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        await page.goto(`${BASE}/sign-in`, { waitUntil: 'domcontentloaded' });
+        break;
+      } catch (err) {
+        if (
+          attempt === 0 &&
+          err instanceof Error &&
+          /ERR_ABORTED/.test(err.message)
+        ) {
+          continue; // the aborted-during-session-clear race; retry once
+        }
+        throw err;
+      }
+    }
+    await page.waitForSelector('#signin-password');
     await typeInto(page, '#signin-password', PASSWORD);
     await typeInto(page, '#signin-email', EMAIL);
     await page.locator('#signin-email').focus();

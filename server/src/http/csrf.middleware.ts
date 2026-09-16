@@ -28,18 +28,40 @@ import { API_ROUTE_TABLE } from './routes/index.js';
 // is an invariant of the API surface, not a convention of this file (§4.4).
 const STATE_CHANGING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 
-// The set of IMPLEMENTED method+path pairs, so CSRF only guards a request that
-// an actual state-changing route would handle. A state-changing method on a
-// known path that is NOT implemented (e.g. PUT /api/session) is a 405
-// METHOD_NOT_ALLOWED — a request-shape error, not a forged mutation — and must
-// be allowed past CSRF so the route stage can answer 405 (§3.1: "any other
+// The IMPLEMENTED state-changing method+path pairs, so CSRF only guards a
+// request that an actual state-changing route would handle. A state-changing
+// method on a known path that is NOT implemented (e.g. PUT /api/session) is a
+// 405 METHOD_NOT_ALLOWED — a request-shape error, not a forged mutation — and
+// must be allowed past CSRF so the route stage can answer 405 (§3.1: "any other
 // method on a listed path returns 405"). Checking CSRF first would mask the 405
 // with a 403, contradicting the contract.
-const IMPLEMENTED_STATE_CHANGING = new Set(
+//
+// csrfMiddleware runs BEFORE route matching, so `req.route` is not yet
+// available; the incoming `req.path` is a CONCRETE path
+// (`/api/exceptions/<uuid>/decision`) while the route table declares PATTERNS
+// (`/api/exceptions/:exceptionId/decision`). Matching the two as plain strings
+// silently skips CSRF for every parameterised state-changing route — which
+// POST …/decision (F11) is the first to exercise. Compile each implemented
+// state-changing pattern to an anchored regex so a `:param` segment matches any
+// single non-slash segment of the concrete path.
+const IMPLEMENTED_STATE_CHANGING: ReadonlyArray<{ method: string; re: RegExp }> =
   API_ROUTE_TABLE.filter(
     (r) => r.implemented && STATE_CHANGING.has(r.method.toUpperCase()),
-  ).map((r) => `${r.method.toUpperCase()} ${r.path}`),
-);
+  ).map((r) => ({ method: r.method.toUpperCase(), re: patternToRegExp(r.path) }));
+
+/** Compile a route pattern (with `:param` segments) to an anchored path regex. */
+function patternToRegExp(pattern: string): RegExp {
+  const escaped = pattern
+    .split('/')
+    .map((seg) => (seg.startsWith(':') ? '[^/]+' : seg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+    .join('/');
+  return new RegExp(`^${escaped}$`);
+}
+
+/** Whether a concrete method+path matches an implemented state-changing route. */
+function isImplementedStateChanging(method: string, path: string): boolean {
+  return IMPLEMENTED_STATE_CHANGING.some((r) => r.method === method && r.re.test(path));
+}
 
 // POST /api/session is the ONE state-changing request that is exempt: it CREATES
 // the session, so there is no stored token to compare against yet (§4.4; §3.1
@@ -69,7 +91,7 @@ export function csrfMiddleware(): RequestHandler {
     // A state-changing method on a path that no implemented route handles is a
     // 405 (a shape error), not a mutation to defend. Let it through so the route
     // stage answers METHOD_NOT_ALLOWED rather than masking it with a 403.
-    if (!IMPLEMENTED_STATE_CHANGING.has(`${method} ${req.path}`)) {
+    if (!isImplementedStateChanging(method, req.path)) {
       return next();
     }
 

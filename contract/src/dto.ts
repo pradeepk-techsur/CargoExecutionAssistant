@@ -173,13 +173,20 @@ export interface RecommendationDetailDto {
   readonly requested_at?: string;
 }
 
-/** One value on a recorded decision (FR-7.7). */
+/**
+ * One value on a recorded decision (FR-7.7, FR-11.21). Carried by BOTH the F7
+ * case-read decision section and the F11 decision-record response.
+ * `changed_from_proposal` (FR-11.21) is computed server-side by the trim-then-
+ * byte-compare rule (FR-11.8) and mirrors the `decision_values` column of the
+ * same name (migration 0006); it is never accepted from the client.
+ */
 export interface DecisionValueDto {
   readonly field_name: EntryFieldName;
   readonly value: string;
   readonly origin: Origin;
   readonly prior_value: string | null;
   readonly prior_origin: Origin | null;
+  readonly changed_from_proposal: boolean;
 }
 
 export interface DecisionDetailDto {
@@ -188,6 +195,109 @@ export interface DecisionDetailDto {
   readonly decided_by: ActorRef;
   readonly reason: string | null;
   readonly resolution_values: readonly DecisionValueDto[];
+}
+
+// ---- F11 decision request / response (FR-11.1–FR-11.21, TechArch §3.5) ------
+
+/** One submitted resolution value on a decision request. Exactly `{field_name, value}`
+ * — no `origin` slot, so a client-supplied origin is an unknown field (FR-11.15). */
+export interface DecisionResolutionValueRequest {
+  readonly field_name: EntryFieldName;
+  readonly value: string;
+}
+
+/**
+ * The client's request body for POST /api/exceptions/{exceptionId}/decision
+ * (F11 FR-11.1–FR-11.21). There is deliberately no `decided_by`/`actor`/
+ * `on_behalf_of`/`specialist_id`/`origin`/`applied` slot: the actor is the
+ * session principal (FR-11.14) and origin is computed server-side (FR-11.8).
+ */
+export interface DecisionCreateRequest {
+  readonly decision_type: DecisionType;
+  readonly reason?: string;
+  readonly resolution_values?: readonly DecisionResolutionValueRequest[];
+  readonly recommendation_id?: string;
+}
+
+/**
+ * The 201 response body for a recorded decision (FR-11.21, TechArch §3.5). The
+ * client confirms what was recorded from the server's own record, not from its
+ * optimistic assumption (F12 FR-12.10). `idempotent_replay` is `true` when this
+ * is a replay of an earlier decision under the same Idempotency-Key.
+ */
+export interface DecisionRecordResponse {
+  readonly decision: {
+    readonly id: string;
+    readonly decision_type: DecisionType;
+    readonly decided_at: string;
+    readonly decided_by: ActorRef;
+    readonly reason: string | null;
+  };
+  readonly resolution_values: readonly DecisionValueDto[];
+  readonly exception: {
+    readonly id: string;
+    readonly state: ExceptionState;
+    readonly closed_at: string | null;
+  };
+  readonly audit_entry_id: string;
+  readonly idempotent_replay: boolean;
+}
+
+// ---- F13 audit-trail read (TechArch §3.5.4, FRD F14) -----------------------
+
+/**
+ * The acting specialist on an audited event. Present ONLY on a human/system
+ * event; an AI event carries `actor: null` on `AuditEntryDto` and NEVER a
+ * person-like name (F14 FR-14.4). Identical shape to `ActorRef` but named for
+ * the audit trail so the trail's contract reads self-contained.
+ */
+export interface AuditActorDto {
+  readonly id: string;
+  readonly display_name: string;
+}
+
+/** One per-field value row on an audit entry (before/after with origins). */
+export interface AuditEntryValueDto {
+  readonly field_name: string;
+  readonly before_value: string | null;
+  readonly before_origin: Origin | null;
+  readonly after_value: string | null;
+  readonly after_origin: Origin | null;
+  readonly changed: boolean;
+}
+
+/**
+ * One entry in a case's audit trail (TechArch §3.5.4). `actor` is `null` for an
+ * AI-authored event and `model_id` is present only for
+ * RECOMMENDATION_GENERATED / RECOMMENDATION_UNAVAILABLE — so an AI event is
+ * distinguishable from a human one in the response shape itself (F14 FR-14.4).
+ */
+export interface AuditEntryDto {
+  readonly id: string;
+  readonly case_sequence: number;
+  readonly action_type: AuditActionType;
+  readonly actor_type: ActorType;
+  readonly actor: AuditActorDto | null; // null for AI — NEVER a person-like name (F14 FR-14.4)
+  readonly model_id?: string; // present only for RECOMMENDATION_GENERATED/UNAVAILABLE
+  readonly occurred_at: string;
+  readonly before_state: string | null;
+  readonly after_state: string;
+  readonly reason: string | null;
+  readonly values: readonly AuditEntryValueDto[];
+}
+
+/**
+ * The full audit-trail read response for one case (F13 FR-13.15/FR-13.18). The
+ * entries are in ascending `case_sequence`. `chain_verified` reports whether the
+ * hash chain still verifies, and `first_divergence_sequence` names the sequence
+ * at which it first diverges (null when healthy) — reported, never repaired.
+ */
+export interface AuditTrailResponse {
+  readonly case_reference: string;
+  readonly entry_count: number;
+  readonly chain_verified: boolean;
+  readonly first_divergence_sequence: number | null;
+  readonly entries: readonly AuditEntryDto[];
 }
 
 /** The exception identity + lifecycle section of a case detail (FR-7.7). */

@@ -9,7 +9,10 @@
 //   /queue                        the F8 Review queue screen (Phase 4)
 //   /entries/new                  NotBuiltYet "New cargo entry" (F6, Phase 3)
 //   /cases/:caseReference         the F10 case-detail screen (Phase 5)
-//   /cases/:caseReference/audit   NotBuiltYet "Case" (F14, Phase 6)
+//   /cases/:caseReference/audit   the F14 audit-trail deep link (Phase 6):
+//                                 renders the SAME case-detail screen with
+//                                 focusAuditTrail, which scrolls to and focuses
+//                                 the "Audit trail" heading on load (FR-14.11)
 //   *                             NotFound
 //
 // The root layout mounts SessionProvider (which resolves GET /api/session before
@@ -80,7 +83,7 @@ export const router = createBrowserRouter([
           { path: '/cases/:caseReference', element: <CaseDetail /> },
           {
             path: '/cases/:caseReference/audit',
-            element: <NotBuiltYet title="Case" />,
+            element: <CaseDetail focusAuditTrail />,
           },
           { path: '*', element: <NotFound /> },
         ],

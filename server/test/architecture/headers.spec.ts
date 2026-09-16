@@ -316,10 +316,16 @@ describe('headers — D-1 source guarantees', () => {
     //    tuples from a fixed column count and the row index; every actual value
     //    goes through the `params` bind array. The same canonical safe
     //    bulk-insert pattern, extended deliberately, never weakened.
+    //  - server/src/db/repositories/decisions.ts — the F11 multi-row
+    //    `decision_values` insert (plan 06-01) builds its `VALUES (…),(…)`
+    //    placeholder tuples from a fixed 7-column count and the row index; every
+    //    actual value goes through the `params` bind array. Identical canonical
+    //    safe bulk-insert pattern to writer.ts / recommendations.ts.
     const EXCLUDED = new Set([
       join('server', 'src', 'db', 'tx.ts'),
       join('server', 'src', 'services', 'audit', 'writer.ts'),
       join('server', 'src', 'db', 'repositories', 'recommendations.ts'),
+      join('server', 'src', 'db', 'repositories', 'decisions.ts'),
     ]);
     const offenders: string[] = [];
     for (const file of walk(SERVER_SRC)) {

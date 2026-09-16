@@ -36,6 +36,12 @@ for the controls it ships and does not rewrite the rows above.
 | Live regions (polite / assertive announcers) | `aria-live` regions (`usa-sr-only`), not an interactive control | Shell (all screens) | `docs/a11y/shell.md` |
 | Provenance badge ("AI-suggested" / "Specialist-entered") | `usa-tag` + a distinct USWDS sprite icon per variant (`settings` for AI, `person` for HUMAN) — text + shape + token colour, legible in monochrome (`ProvenanceBadge.tsx`) | Case detail | `docs/a11y/case-detail.md` |
 | AI-recommendation comparison row | **Composition:** a definition-list row (`dl`/`dt`/`dd`) carrying the submitted value + its HUMAN `ProvenanceBadge`, the AI-suggested value + its AI `ProvenanceBadge`, and the plain-language rule message(s) as text | Case detail | `docs/a11y/case-detail.md` |
+| The three decision-action buttons ("Approve" / "Edit and approve" or "Resolve directly" / "Reject") | **Composition:** `usa-button` × 3, all three sharing one class (equal weight, no `--outline`/primary distinction), inside a `usa-button-group` | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| The edit-resolution form (per-field text inputs + reason) | `usa-form` + `Field`/`TextAreaField` — the SAME shared form pattern already registered generically (Sign-in rows above); `DecisionPanel` reuses that inherited pattern, introducing no new primitive | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Pre-submission decision summary | **Composition:** a plain review panel (`dl`/`dt`/`dd` rows + text), no new interactive control | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Decision confirmation panel | **Composition:** plain content (`dl` + text) + already-registered `ProvenanceBadge` per value, no new interactive control | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Audit trail value-change table | **Composition:** a real `<table>` + `<caption>` + `scope="col"` column headers + an already-registered `ProvenanceBadge` per present cell (FR-14.13); no ARIA grid role | Case detail (audit trail region) | `docs/a11y/case-detail.md` |
+| Audit integrity-failure alert | `usa-alert usa-alert--error` (`role="alert"`) — an already-registered `usa-alert` variant, noted here for its new consuming context (a tampered-chain integrity failure that offers no repair) | Case detail (audit trail region) | `docs/a11y/case-detail.md` |
 
 ## Notes on the compositions
 
@@ -59,6 +65,30 @@ for the controls it ships and does not rewrite the rows above.
   reports" link). It is pinned in `web/src/shell/Footer.tsx` and excluded from the
   criterion-5 affordance scan for that reason — the exclusion is auditable, not a
   blind spot (see `server/test/architecture/navigation.spec.ts` item 4d).
+- **The three decision-action buttons** are a composition, not a single USWDS
+  component, in the specific sense that their EQUAL WEIGHT is the load-bearing
+  design decision: all three are the plain `usa-button` with the identical class,
+  deliberately WITHOUT the `usa-button--outline`/secondary or a primary emphasis
+  that USWDS button groups often mix. FR-12.1 requires the three choices to carry
+  no visual steer toward any one of them (the product must not nudge a specialist
+  toward approving, editing or rejecting), so the composition's rule is "one
+  `usa-button` class across all three, inside a `usa-button-group`". This equality
+  is asserted by `e2e/decision.spec.ts` "1." (the three buttons share exactly one
+  class). It introduces no bespoke control — only a constrained use of the
+  registered `usa-button` — and is registered so the equality constraint is
+  auditable and re-reviewed whenever the region changes.
+- **The audit value-change table** is a composition of a real HTML `<table>` with
+  a `<caption>` and `scope="col"` column headers and, in each present value cell,
+  the already-registered `ProvenanceBadge` (`usa-tag` + sprite icon). It uses no
+  ARIA grid role — it is a genuine data table, which is what assistive technology
+  navigates best — and introduces no interactive control (the whole audit region
+  is read-only by construction, FR-14; there is not a single button, input or
+  link with a mutation affordance in it, asserted by `e2e/audit-trail.spec.ts`
+  "5."). Per-cell provenance survives colour removal because each badge carries
+  text and a distinct icon shape (`e2e/audit-trail.spec.ts` "4."). It is registered
+  so the table composition — the shape in which the record's per-value provenance
+  is presented — is auditable and re-reviewed whenever it changes, exactly as the
+  AI-recommendation comparison row is.
 
 ## How to extend this register
 

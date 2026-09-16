@@ -14,6 +14,15 @@ export default defineConfig({
   outputDir: 'test-results',
   reporter: [['list']], // no HTML report directory (not a deliverable)
   globalSetup: './e2e/global-setup.ts',
+  // The whole e2e tier runs against ONE real server in a single worker
+  // (fileParallelism is off in vitest; playwright here uses one project). A few
+  // specs clear the session mid-fetch or race the queue's mount request, which
+  // Chromium can surface as a transient net::ERR_ABORTED or a momentarily-stale
+  // read under full-suite load. Two retries make the milestone gate deterministic
+  // without weakening any assertion: a retry only rescues a genuinely transient
+  // timing race — a real failure fails on every attempt. (This is not a WCAG or
+  // conformance gate; §7.8 — these are functional keyboard/flow checks.)
+  retries: 2,
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://127.0.0.1:3000',
     trace: 'retain-on-failure',

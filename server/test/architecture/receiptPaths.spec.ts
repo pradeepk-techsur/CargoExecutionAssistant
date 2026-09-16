@@ -222,7 +222,7 @@ describe('receiptPaths — one write path to the receipt tables (R-L5, F5 FR-5.1
     // zero. When it arrives, its owning plan extends this allowlist deliberately
     // rather than deleting the test.
     const ALLOWLIST = new Set<string>([
-      // 'server/src/services/decision.service.ts',  // Phase 6 — not yet present
+      'server/src/services/decision.service.ts', // Phase 6 (F11) — the ONE permitted UPDATE exceptions (R-L4, FR-5.7)
     ]);
     const offenders: string[] = [];
     for (const file of walk(SERVER_SRC)) {
@@ -348,19 +348,22 @@ describe('receiptPaths — no exception-authoring or ingestion UI affordance', (
     ).toEqual([]);
   });
 
-  it('9. web/src makes no state-changing fetch/api call to an exception collection', () => {
-    // The SPA has no way to POST to an exception collection. In practice
-    // api/client.ts is the only module that calls fetch — assert on it
-    // specifically as well as across the directory.
+  it('9. web/src makes no state-changing fetch/api call to an exception collection (except the F11/F12 decision sub-resource)', () => {
+    // The SPA has no way to CREATE, OPEN, or RAISE an exception — the system
+    // derives exceptions; the specialist never authors one (criterion 4). The
+    // ONE permitted state-changing call against an exceptions path is the F11/F12
+    // DECISION write, POST /api/exceptions/{id}/decision — the accountable human
+    // decision this whole phase exists to require. It is a sub-resource of a
+    // specific exception, never a mutation of the exception COLLECTION (no
+    // opening/creating/raising), so it is explicitly allowlisted here while every
+    // other mutating method against an exceptions path remains forbidden.
+    const DECISION_SUBRESOURCE = /\/api\/exceptions\/[^'"`]*\/decision$/;
     const offenders: string[] = [];
     for (const file of walk(WEB_SRC)) {
       const src = stripComments(readFileSync(file, 'utf8'));
       // A fetch/method literal referencing an /api/exceptions* collection path.
       // We look for a POST/PUT/PATCH/DELETE method near an exceptions path.
       if (/['"`]\/api\/exceptions[^'"`]*['"`]/.test(src)) {
-        // Any exceptions path at all in the client is worth inspecting; only the
-        // read routes are permitted, and none exist yet. A path with a
-        // state-changing method literal nearby is the offence.
         if (/\b(POST|PUT|PATCH|DELETE)\b/.test(src) && /\/api\/exceptions/.test(src)) {
           // Confirm the method and the exceptions path co-occur on the same call
           // by a coarse proximity check per matched path.
@@ -368,6 +371,8 @@ describe('receiptPaths — no exception-authoring or ingestion UI affordance', (
             const idx = m.index ?? 0;
             const window = src.slice(Math.max(0, idx - 120), idx + 120);
             if (/\b(POST|PUT|PATCH|DELETE)\b/.test(window)) {
+              // The F11/F12 decision sub-resource is the sole permitted write.
+              if (DECISION_SUBRESOURCE.test(m[1])) continue;
               offenders.push(`${rel(file)}: ${m[1]} with a state-changing method`);
             }
           }
@@ -380,22 +385,34 @@ describe('receiptPaths — no exception-authoring or ingestion UI affordance', (
     ).toEqual([]);
 
     // api/client.ts specifically: as of Phase 4 (plan 04-04) it names the F7 READ
-    // routes /api/exceptions and /api/exceptions/:idOrReference — but ONLY under
-    // GET. It must never carry a POST/PUT/PATCH/DELETE against an exception
-    // collection (criterion 4: no exception-authoring/mutation UI). We check
-    // every request() call that names an exceptions path and assert its method
-    // literal is 'GET'.
+    // routes /api/exceptions and /api/exceptions/:idOrReference under GET, and as
+    // of Phase 6 (plan 06-03) it names the F11/F12 DECISION write
+    // /api/exceptions/{id}/decision under POST. Every exceptions-path call MUST be
+    // either a GET, or the POST to a `/decision` sub-resource — no other mutating
+    // method, and no mutation of the exception collection itself, may exist.
     const clientSrc = stripComments(readFileSync(join(WEB_SRC, 'api', 'client.ts'), 'utf8'));
     for (const m of clientSrc.matchAll(/['"`](\/api\/exceptions[^'"`]*)['"`]/g)) {
       const idx = m.index ?? 0;
-      // The method literal in a request('GET', '/api/exceptions', …) call sits a
-      // short distance BEFORE the path; scan a window around the path for a
-      // mutating method literal.
+      // The method literal in a request('GET'|'POST', '/api/exceptions…', …) call
+      // sits a short distance BEFORE the path; scan a window around the path.
       const window = clientSrc.slice(Math.max(0, idx - 60), idx + 60);
+      const isDecisionWrite = DECISION_SUBRESOURCE.test(m[1]);
+      const hasMutatingMethod = /\b(POST|PUT|PATCH|DELETE)\b/.test(window);
+      if (isDecisionWrite) {
+        // The decision sub-resource is a POST by design; PUT/PATCH/DELETE remain
+        // forbidden even there.
+        expect(
+          /\b(PUT|PATCH|DELETE)\b/.test(window),
+          `api/client.ts uses PUT/PATCH/DELETE against ${m[1]} — the decision ` +
+            'sub-resource is a POST only.',
+        ).toBe(false);
+        continue;
+      }
       expect(
-        /\b(POST|PUT|PATCH|DELETE)\b/.test(window),
+        hasMutatingMethod,
         `api/client.ts calls a mutating method against ${m[1]} — the F7 exception ` +
-          'routes are read-only (GET); no exception-authoring/mutation call may exist.',
+          'routes are read-only (GET); the ONLY permitted exception write is the ' +
+          'F11/F12 POST to a /decision sub-resource.',
       ).toBe(false);
     }
   });

@@ -23,9 +23,22 @@
 
 export function ProvenanceBadge(props: {
   readonly origin: 'AI' | 'HUMAN';
+  /** F12 FR-12.6: when true and origin='HUMAN', the label reads
+   *  "Specialist-modified" instead of "Specialist-entered" — this label swap
+   *  IS the FR-12.6 "Changed" marker (text + icon via the existing distinct
+   *  HUMAN icon); no second widget is introduced. A modified HUMAN value keeps
+   *  the SAME icon/colour pair as a plain HUMAN one (the origin is genuinely
+   *  HUMAN either way); only the text changes. Ignored when origin='AI'.
+   *  Optional and defaulting to false, so every existing call site (F10's
+   *  usage in CaseDetail.tsx) is unchanged. */
+  readonly modified?: boolean;
 }): JSX.Element {
   const isAi = props.origin === 'AI';
-  const label = isAi ? 'AI-suggested' : 'Specialist-entered';
+  const label = isAi
+    ? 'AI-suggested'
+    : props.modified === true
+      ? 'Specialist-modified'
+      : 'Specialist-entered';
   const iconId = isAi ? 'settings' : 'person';
   const tokenClasses = isAi
     ? 'bg-primary-darker text-white'
