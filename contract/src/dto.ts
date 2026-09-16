@@ -173,13 +173,20 @@ export interface RecommendationDetailDto {
   readonly requested_at?: string;
 }
 
-/** One value on a recorded decision (FR-7.7). */
+/**
+ * One value on a recorded decision (FR-7.7, FR-11.21). Carried by BOTH the F7
+ * case-read decision section and the F11 decision-record response.
+ * `changed_from_proposal` (FR-11.21) is computed server-side by the trim-then-
+ * byte-compare rule (FR-11.8) and mirrors the `decision_values` column of the
+ * same name (migration 0006); it is never accepted from the client.
+ */
 export interface DecisionValueDto {
   readonly field_name: EntryFieldName;
   readonly value: string;
   readonly origin: Origin;
   readonly prior_value: string | null;
   readonly prior_origin: Origin | null;
+  readonly changed_from_proposal: boolean;
 }
 
 export interface DecisionDetailDto {
@@ -188,6 +195,52 @@ export interface DecisionDetailDto {
   readonly decided_by: ActorRef;
   readonly reason: string | null;
   readonly resolution_values: readonly DecisionValueDto[];
+}
+
+// ---- F11 decision request / response (FR-11.1–FR-11.21, TechArch §3.5) ------
+
+/** One submitted resolution value on a decision request. Exactly `{field_name, value}`
+ * — no `origin` slot, so a client-supplied origin is an unknown field (FR-11.15). */
+export interface DecisionResolutionValueRequest {
+  readonly field_name: EntryFieldName;
+  readonly value: string;
+}
+
+/**
+ * The client's request body for POST /api/exceptions/{exceptionId}/decision
+ * (F11 FR-11.1–FR-11.21). There is deliberately no `decided_by`/`actor`/
+ * `on_behalf_of`/`specialist_id`/`origin`/`applied` slot: the actor is the
+ * session principal (FR-11.14) and origin is computed server-side (FR-11.8).
+ */
+export interface DecisionCreateRequest {
+  readonly decision_type: DecisionType;
+  readonly reason?: string;
+  readonly resolution_values?: readonly DecisionResolutionValueRequest[];
+  readonly recommendation_id?: string;
+}
+
+/**
+ * The 201 response body for a recorded decision (FR-11.21, TechArch §3.5). The
+ * client confirms what was recorded from the server's own record, not from its
+ * optimistic assumption (F12 FR-12.10). `idempotent_replay` is `true` when this
+ * is a replay of an earlier decision under the same Idempotency-Key.
+ */
+export interface DecisionRecordResponse {
+  readonly decision: {
+    readonly id: string;
+    readonly decision_type: DecisionType;
+    readonly decided_at: string;
+    readonly decided_by: ActorRef;
+    readonly reason: string | null;
+  };
+  readonly resolution_values: readonly DecisionValueDto[];
+  readonly exception: {
+    readonly id: string;
+    readonly state: ExceptionState;
+    readonly closed_at: string | null;
+  };
+  readonly audit_entry_id: string;
+  readonly idempotent_replay: boolean;
 }
 
 /** The exception identity + lifecycle section of a case detail (FR-7.7). */
