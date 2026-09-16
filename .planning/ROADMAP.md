@@ -150,7 +150,13 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The audit trail is read inside the case and answers who decided, what the AI recommended, what the human changed and why — in full, with before and after values and the reason verbatim — with no export, query tool or second system, and no edit, correct or delete affordance anywhere on it.
   4. Nothing resolves without her: no worker, scheduler, retry path, batch shape or API call can move an exception out of `OPEN` without her authenticated decision, and a case already decided refuses a second decision with a clear statement of what is already true instead of silently overwriting it. *(no screen)*
   5. The complete loop — sign in → enter an entry → watch it fail validation → find the case in the queue → read the recommendation → decide with a reason → read the audit trail — is walked in one unbroken browser session, keyboard-only, with hand-created data and no workaround; and walked again with the AI provider stopped, still producing a full audit record.
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 06-01-PLAN.md — F11 Decision API: contract types, decisions repo write path, decision.service.ts transaction, POST /decision route + regression suite
+- [ ] 06-02-PLAN.md — F13/F14 Audit Trail API: extend auditRead.service.ts, GET /audit route + regression suite
+- [ ] 06-03-PLAN.md — F12 Decision Web UI: DecisionPanel (chooser/edit/reject/summary/confirmation), wired into CaseDetail + Playwright suite
+- [ ] 06-04-PLAN.md — F14 Audit Trail Web UI: AuditTrailRegion, deep-link route, live refresh + Playwright suite
+- [ ] 06-05-PLAN.md — Whole-loop keyboard-only E2E (healthy + AI-stopped), NFR-5 reconfirmation, accessibility sign-off, docker whole-stack proof, milestone gate
 
 ## Requirement Coverage
 
