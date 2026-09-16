@@ -1,6 +1,15 @@
 # Phase 6 — deferred / out-of-scope items
 
-## Out of scope for 06-02 (owner = 06-03, the F12 decision web UI)
+## RESOLVED by 06-03 (2026-09-16)
+
+- **`server/test/architecture/receiptPaths.spec.ts` criterion 4 relaxed for the
+  F12 decision write.** 06-03 (deviation [R1], commit `0193b4c`) allowlisted the
+  `/api/exceptions/{id}/decision` **sub-resource** POST while still forbidding any
+  mutation of the exception COLLECTION (opening/creating/raising). The full
+  architecture suite is green again (153/153; receiptPaths 11/11). The original
+  deferral note is retained below for provenance.
+
+## (Historical) Out of scope for 06-02 (owner = 06-03, the F12 decision web UI)
 
 - **`server/test/architecture/receiptPaths.spec.ts` test 9 fails** — "web/src
   makes no state-changing fetch/api call to an exception collection". The
