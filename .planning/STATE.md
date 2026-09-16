@@ -2,10 +2,9 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 05-06-PLAN.md (Phase 5 complete)
-last_updated: "2026-09-15T23:13:39.221Z"
-last_activity: "2026-09-15 — 05-06 executed (Phase 5 COMPLETE): Task 1 25f3293 (wire fake AI into e2e/env.ts + author e2e/case-detail.spec.ts, 10 real-browser scenarios), fix 7390d9c (FR-2.24 h1-focus regression on CaseDetail), Task 2 8cadddb (signed docs/a11y/case-detail.md + append-only ProvenanceBadge/comparison-row rows in the conformance register). npm run test:all fully green: unit 297, db 196, api 136, arch 153, e2e 47 — 0 failures, 0 skipped. Deferred: compose web service lacks the required AI env keys (Phase 6 owns the whole-stack compose demo)."
+status: planning
+last_updated: "2026-09-16T02:02:52.634Z"
+last_activity: "2026-09-16 — Phase 5 complete"
 progress:
   total_phases: 6
   completed_phases: 5
