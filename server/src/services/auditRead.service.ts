@@ -254,24 +254,36 @@ export async function loadAuditTrailResponse(
     }
   }
 
-  const entries: AuditEntryDto[] = trail.entries.map((e) => ({
-    id: e.id,
-    case_sequence: e.case_sequence,
-    action_type: e.action_type as AuditActionType,
-    actor_type: e.actor_type as ActorType,
-    actor:
-      e.actor_id !== null && e.actor_display_name !== null
-        ? { id: e.actor_id, display_name: e.actor_display_name }
-        : null,
-    ...(e.recommendation_id !== null && modelIdByRecId.has(e.recommendation_id)
-      ? { model_id: modelIdByRecId.get(e.recommendation_id) as string }
-      : {}),
-    occurred_at: e.occurred_at.toISOString(),
-    before_state: e.before_state,
-    after_state: e.after_state,
-    reason: e.reason,
-    values: e.values,
-  }));
+  const entries: AuditEntryDto[] = trail.entries.map((e) => {
+    // model_id is present ONLY on the two AI recommendation events (C-1). A
+    // DECISION event (APPROVE/EDIT_APPROVE/REJECT) also carries the
+    // recommendation_id — it is the recommendation the human acted on — but the
+    // MODEL that produced it belongs to the generation event, not the human's
+    // decision, so it is never attached to a decision entry.
+    const carriesModelId =
+      e.action_type === 'RECOMMENDATION_GENERATED' ||
+      e.action_type === 'RECOMMENDATION_UNAVAILABLE';
+    return {
+      id: e.id,
+      case_sequence: e.case_sequence,
+      action_type: e.action_type as AuditActionType,
+      actor_type: e.actor_type as ActorType,
+      actor:
+        e.actor_id !== null && e.actor_display_name !== null
+          ? { id: e.actor_id, display_name: e.actor_display_name }
+          : null,
+      ...(carriesModelId &&
+      e.recommendation_id !== null &&
+      modelIdByRecId.has(e.recommendation_id)
+        ? { model_id: modelIdByRecId.get(e.recommendation_id) as string }
+        : {}),
+      occurred_at: e.occurred_at.toISOString(),
+      before_state: e.before_state,
+      after_state: e.after_state,
+      reason: e.reason,
+      values: e.values,
+    };
+  });
 
   return {
     case_reference: exceptionRow.case_reference,

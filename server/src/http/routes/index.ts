@@ -3,23 +3,23 @@
 // Two exported data structures, and one function that registers routes from
 // them:
 //
-//   API_ROUTE_TABLE  — the FULL ten method/path pairs of §3.1, as data. Three
-//                      are not yet implemented (phases 5–6); they are listed so
-//                      the auth matrix in plan 02-06 can assert 401 across ALL
-//                      ten (which it can, because sessionMiddleware runs before
-//                      route matching), and so the phase that completes each has
-//                      one place to read. "Anything not on this list does not
-//                      exist" (§3.1). Adding an eleventh row requires a feature
-//                      requirement in the FRD — that friction is the point.
+//   API_ROUTE_TABLE  — the FULL ten method/path pairs of §3.1, as data. As of
+//                      plan 06-02 ALL TEN are implemented — the API surface is
+//                      complete. They remain listed so the auth matrix in plan
+//                      02-06 can assert 401 across all ten (which it can,
+//                      because sessionMiddleware runs before route matching).
+//                      "Anything not on this list does not exist" (§3.1).
+//                      Adding an eleventh row requires a feature requirement in
+//                      the FRD — that friction is the point.
 //
-//   ROUTES           — the concrete handlers for the nine IMPLEMENTED rows,
-//                      the single array an architecture test can pin. Route
+//   ROUTES           — the concrete handlers for the ten IMPLEMENTED rows, the
+//                      single array an architecture test can pin. Route
 //                      registration is data-driven from one array (§1A.3).
 //
 // registerRoutes registers ONLY the implemented rows. There is deliberately no
-// placeholder handler for the three unimplemented pairs: an endpoint that exists
-// and returns 501 is still an endpoint, and 501 is not in the Y2 catalogue. An
-// unmatched /api path is answered by the JSON 404 envelope in app.ts.
+// placeholder handler that returns 501: an endpoint that exists and returns 501
+// is still an endpoint, and 501 is not in the Y2 catalogue. An unmatched /api
+// path is answered by the JSON 404 envelope in app.ts.
 
 import type { Pool } from 'pg';
 import { Router, type RequestHandler } from 'express';
@@ -30,15 +30,16 @@ import { entryRoutes } from './entries.js';
 import { exceptionRoutes } from './exceptions.js';
 import { recommendationRoutes } from './recommendation.js';
 import { decisionRoutes } from './decision.js';
+import { auditRoutes } from './audit.js';
 
 export type HttpMethod = 'get' | 'post' | 'delete';
 
 /**
- * The full ten method/path pairs of TechArch §3.1, as data. `implemented`
- * marks the nine now registered (the three F1 session pairs, the two F3
- * entry pairs, the two F7 exception pairs, the F9 recommendation-polling read,
- * and the F11 decision write); the remaining one (F13 audit read) belongs to
- * the feature that owns it. Adding a row requires an FRD requirement (FR-Y1.1).
+ * The full ten method/path pairs of TechArch §3.1, as data. All TEN are now
+ * `implemented` (the three F1 session pairs, the two F3 entry pairs, the two F7
+ * exception pairs, the F9 recommendation-polling read, the F11 decision write,
+ * and the F13 audit read completed here) — the API surface is complete. Adding
+ * a row requires an FRD requirement (FR-Y1.1).
  */
 export const API_ROUTE_TABLE = [
   { method: 'POST', path: '/api/session', feature: 'F1', implemented: true },
@@ -60,7 +61,7 @@ export const API_ROUTE_TABLE = [
     feature: 'F11',
     implemented: true,
   },
-  { method: 'GET', path: '/api/exceptions/:exceptionId/audit', feature: 'F13', implemented: false },
+  { method: 'GET', path: '/api/exceptions/:exceptionId/audit', feature: 'F13', implemented: true },
 ] as const;
 
 /** Dependencies every route handler is built with. */
@@ -116,6 +117,11 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
     config: deps.config,
     clock: deps.clock,
   });
+  const audit = auditRoutes({
+    pool: deps.pool,
+    config: deps.config,
+    clock: deps.clock,
+  });
   // Registration order follows §3.1: the session routes first, then the entries
   // routes, then the exceptions routes. The parameterised GET
   // /api/entries/:entryId does not collide with the flat /api/entries POST, and
@@ -140,6 +146,11 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
       path: '/api/exceptions/:exceptionId/decision',
       handler: decision.post,
     },
+    {
+      method: 'get',
+      path: '/api/exceptions/:exceptionId/audit',
+      handler: audit.get,
+    },
   ];
 }
 
@@ -155,7 +166,7 @@ export function registerRoutes(router: Router, deps: RouteDeps): void {
   }
 }
 
-/** Also exported for the boot test, which asserts exactly nine are registered. */
+/** Also exported for the boot test, which asserts exactly ten are registered. */
 export const ROUTES = API_ROUTE_TABLE.filter((r) => r.implemented);
 
 /**

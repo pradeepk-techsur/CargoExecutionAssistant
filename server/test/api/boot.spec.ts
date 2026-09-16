@@ -52,18 +52,20 @@ describe('context boot', () => {
       });
     });
 
-    it('registers exactly the nine implemented routes and no more', async () => {
-      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly nine are
+    it('registers exactly the ten implemented routes and no more', async () => {
+      // API_ROUTE_TABLE declares all ten §3.1 pairs; ALL TEN are now
       // implemented (the three F1 session pairs, the two F3 entry pairs, the
-      // two F7 exception pairs, the F9 recommendation-polling read, and the
-      // F11 decision write).
+      // two F7 exception pairs, the F9 recommendation-polling read, the F11
+      // decision write, and the F13 audit read) — the API surface is complete.
+      // This is the LAST time this count changes: §3.1 is exhaustive.
       const implemented = API_ROUTE_TABLE.filter((r) => r.implemented);
-      expect(implemented).toHaveLength(9);
-      expect(ROUTES).toHaveLength(9);
+      expect(implemented).toHaveLength(10);
+      expect(ROUTES).toHaveLength(10);
       expect(implemented.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
         'DELETE /api/session',
         'GET /api/entries/:entryId',
         'GET /api/exceptions',
+        'GET /api/exceptions/:exceptionId/audit',
         'GET /api/exceptions/:exceptionId/recommendation',
         'GET /api/exceptions/:idOrReference',
         'GET /api/session',
@@ -72,8 +74,8 @@ describe('context boot', () => {
         'POST /api/session',
       ]);
 
-      // The registry and the ROUTER cannot disagree: the eight registered
-      // method+path pairs are EXACTLY the eight implemented rows, matched as a set.
+      // The registry and the ROUTER cannot disagree: the registered
+      // method+path pairs are EXACTLY the implemented rows, matched as a set.
       // If a handler were registered that the table did not implement (or vice
       // versa), this diverges. buildRoutes takes the injected per-suite pool.
       const registered = buildRoutes({
