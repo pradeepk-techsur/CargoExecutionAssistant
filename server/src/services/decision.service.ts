@@ -524,14 +524,23 @@ function decisionMatchesReplay(
   if ((existing.reason ?? null) !== bodyReason) {
     return false;
   }
-  const submitted = body.resolution_values ?? [];
-  if (submitted.length !== storedValues.length) {
-    return false;
-  }
-  const storedByField = new Map(storedValues.map((v) => [v.field_name, v.value]));
-  for (const s of submitted) {
-    if (storedByField.get(s.field_name) !== s.value) {
+  // Only compare resolution_values when the client actually supplied them
+  // (EDIT_APPROVE). For APPROVE/REJECT the body carries none — the stored values
+  // are server-derived (copied from the proposal for APPROVE, empty for REJECT),
+  // so there is nothing client-sent to compare and decision_type + reason fully
+  // identify the request. When supplied, the submitted field/value pairs must
+  // match the stored resolution values exactly (origin is server-computed and
+  // not part of the request, so it is not compared).
+  if (body.resolution_values !== undefined) {
+    const submitted = body.resolution_values;
+    if (submitted.length !== storedValues.length) {
       return false;
+    }
+    const storedByField = new Map(storedValues.map((v) => [v.field_name, v.value]));
+    for (const s of submitted) {
+      if (storedByField.get(s.field_name) !== s.value) {
+        return false;
+      }
     }
   }
   return true;

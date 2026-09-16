@@ -222,7 +222,7 @@ describe('receiptPaths — one write path to the receipt tables (R-L5, F5 FR-5.1
     // zero. When it arrives, its owning plan extends this allowlist deliberately
     // rather than deleting the test.
     const ALLOWLIST = new Set<string>([
-      // 'server/src/services/decision.service.ts',  // Phase 6 — not yet present
+      'server/src/services/decision.service.ts', // Phase 6 (F11) — the ONE permitted UPDATE exceptions (R-L4, FR-5.7)
     ]);
     const offenders: string[] = [];
     for (const file of walk(SERVER_SRC)) {

@@ -52,13 +52,14 @@ describe('context boot', () => {
       });
     });
 
-    it('registers exactly the eight implemented routes and no more', async () => {
-      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly eight are
+    it('registers exactly the nine implemented routes and no more', async () => {
+      // API_ROUTE_TABLE declares all ten §3.1 pairs; exactly nine are
       // implemented (the three F1 session pairs, the two F3 entry pairs, the
-      // two F7 exception pairs, and the F9 recommendation-polling read).
+      // two F7 exception pairs, the F9 recommendation-polling read, and the
+      // F11 decision write).
       const implemented = API_ROUTE_TABLE.filter((r) => r.implemented);
-      expect(implemented).toHaveLength(8);
-      expect(ROUTES).toHaveLength(8);
+      expect(implemented).toHaveLength(9);
+      expect(ROUTES).toHaveLength(9);
       expect(implemented.map((r) => `${r.method} ${r.path}`).sort()).toEqual([
         'DELETE /api/session',
         'GET /api/entries/:entryId',
@@ -67,6 +68,7 @@ describe('context boot', () => {
         'GET /api/exceptions/:idOrReference',
         'GET /api/session',
         'POST /api/entries',
+        'POST /api/exceptions/:exceptionId/decision',
         'POST /api/session',
       ]);
 

@@ -12,7 +12,7 @@
 //                      exist" (§3.1). Adding an eleventh row requires a feature
 //                      requirement in the FRD — that friction is the point.
 //
-//   ROUTES           — the concrete handlers for the eight IMPLEMENTED rows,
+//   ROUTES           — the concrete handlers for the nine IMPLEMENTED rows,
 //                      the single array an architecture test can pin. Route
 //                      registration is data-driven from one array (§1A.3).
 //
@@ -29,15 +29,16 @@ import { sessionRoutes } from './session.js';
 import { entryRoutes } from './entries.js';
 import { exceptionRoutes } from './exceptions.js';
 import { recommendationRoutes } from './recommendation.js';
+import { decisionRoutes } from './decision.js';
 
 export type HttpMethod = 'get' | 'post' | 'delete';
 
 /**
  * The full ten method/path pairs of TechArch §3.1, as data. `implemented`
- * marks the eight now registered (the three F1 session pairs, the two F3
- * entry pairs, the two F7 exception pairs, and the F9 recommendation-polling
- * read); the other two belong to the feature that owns them. Adding a row
- * requires an FRD requirement (FR-Y1.1).
+ * marks the nine now registered (the three F1 session pairs, the two F3
+ * entry pairs, the two F7 exception pairs, the F9 recommendation-polling read,
+ * and the F11 decision write); the remaining one (F13 audit read) belongs to
+ * the feature that owns it. Adding a row requires an FRD requirement (FR-Y1.1).
  */
 export const API_ROUTE_TABLE = [
   { method: 'POST', path: '/api/session', feature: 'F1', implemented: true },
@@ -57,7 +58,7 @@ export const API_ROUTE_TABLE = [
     method: 'POST',
     path: '/api/exceptions/:exceptionId/decision',
     feature: 'F11',
-    implemented: false,
+    implemented: true,
   },
   { method: 'GET', path: '/api/exceptions/:exceptionId/audit', feature: 'F13', implemented: false },
 ] as const;
@@ -110,6 +111,11 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
     config: deps.config,
     clock: deps.clock,
   });
+  const decision = decisionRoutes({
+    pool: deps.pool,
+    config: deps.config,
+    clock: deps.clock,
+  });
   // Registration order follows §3.1: the session routes first, then the entries
   // routes, then the exceptions routes. The parameterised GET
   // /api/entries/:entryId does not collide with the flat /api/entries POST, and
@@ -129,6 +135,11 @@ export function buildRoutes(deps: RouteDeps): RouteEntry[] {
       path: '/api/exceptions/:exceptionId/recommendation',
       handler: recommendation.get,
     },
+    {
+      method: 'post',
+      path: '/api/exceptions/:exceptionId/decision',
+      handler: decision.post,
+    },
   ];
 }
 
@@ -144,7 +155,7 @@ export function registerRoutes(router: Router, deps: RouteDeps): void {
   }
 }
 
-/** Also exported for the boot test, which asserts exactly eight are registered. */
+/** Also exported for the boot test, which asserts exactly nine are registered. */
 export const ROUTES = API_ROUTE_TABLE.filter((r) => r.implemented);
 
 /**
