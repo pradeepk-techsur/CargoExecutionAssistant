@@ -332,8 +332,12 @@ export function DecisionPanel(props: DecisionPanelProps): JSX.Element {
         default: {
           // REASON_REQUIRED / RESOLUTION_VALUES_INCOMPLETE / any other 4xx/5xx:
           // render the server's message, stay on the summary, PRESERVE every
-          // entered value (FR-12.9).
-          setErrors([{ controlId: 'decision-reason', message: err.message }]);
+          // entered value (FR-12.9). The summary stage renders no
+          // `#decision-reason` control (that textarea lives only on the
+          // edit/reject stages), so this error carries NO controlId — per the
+          // ErrorSummary contract it is emitted as plain text, never a dead
+          // in-page link whose focus-jump would resolve to nothing.
+          setErrors([{ message: err.message }]);
           announceError(err.message);
           return;
         }
