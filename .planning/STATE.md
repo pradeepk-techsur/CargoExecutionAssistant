@@ -2,10 +2,9 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: milestone-complete
-stopped_at: Completed 06-05-PLAN.md — Phase 6 and the v1.0 milestone COMPLETE
-last_updated: "2026-09-16T12:21:00.000Z"
-last_activity: "2026-09-16 — 06-05 executed (FINAL PLAN): Task 1 5ad9929 (e2e/whole-loop.spec.ts — the whole governed loop walked TWICE, keyboard-only, in one unbroken browser session per pass: scenario 1 healthy edit-and-approve, scenario 2 AI-stopped resolve-directly via a FAKE_AI_TRIGGERS UNAVAILABLE marker; both assert the full 5-event trail, the verbatim reason, and NO full-page reload during the in-place decision/audit steps), Task 2 fbf1cf6 (a11y re-sign + conformance register + docker whole-stack proof + milestone gate). NFR-5 reconfirmed after this phase (receiptPaths test 4 + aiCapability assertion 1, 16 arch tests green). docker compose up --build: db+web both healthy, curl /api/session → 401 (app answers), down clean — no compose edit needed (the five AI keys were already committed; the deferred note was stale). 2 deviations auto-fixed (R1: retry the aborted-during-session-clear goto in sign-in.spec test 2; R1: retries:2 in playwright.config for the single-worker e2e tier — test-determinism only, no product code, no assertion weakened). MILESTONE GATE: npm run build + typecheck exit 0; npm run test:all fully green — unit 297, db 196, api 170, arch 153 (816) + 67 e2e = 883 tests, 0 failures, 0 skipped."
+status: completed
+last_updated: "2026-09-16T21:37:23.160Z"
+last_activity: "2026-09-16 — Phase 6 complete"
 progress:
   total_phases: 6
   completed_phases: 6
