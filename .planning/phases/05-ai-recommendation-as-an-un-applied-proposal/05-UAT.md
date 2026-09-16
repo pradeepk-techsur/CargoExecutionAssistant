@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 05-ai-recommendation-as-an-un-applied-proposal
 source: 05-01-SUMMARY.md, 05-02-SUMMARY.md, 05-03-SUMMARY.md, 05-04-SUMMARY.md, 05-05-SUMMARY.md, 05-06-SUMMARY.md
 started: 2026-09-16T00:52:10Z
@@ -94,8 +94,8 @@ per_test:
 ## Gaps
 
 - truth: "A newly-submitted invalid entry opens its case immediately, letting the specialist see the recommendation catch up without being blocked"
-  status: failed
-  reason: "Auto-check (self_check) re-confirmed: clicking/opening \"New Cargo Entry\" (/entries/new) still shows \"This screen is not available in this build.\" No code has changed for this route since the prior UAT round (same commit 9f367e0)."
+  status: deferred
+  reason: "Auto-check (self_check) re-confirmed: clicking/opening \"New Cargo Entry\" (/entries/new) still shows \"This screen is not available in this build.\" No code has changed for this route since the prior UAT round (same commit 9f367e0). Cross-phase gap — owner is Phase 3 (plans 03-09/03-10, never authored), not Phase 5; no gap-closure plan created here per the SCOPE BOUNDARY rule. Already recorded in deferred-items.md."
   severity: major
   test: 4
   source: self_check
