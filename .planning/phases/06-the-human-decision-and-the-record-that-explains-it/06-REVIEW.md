@@ -60,6 +60,16 @@ None.
   `controlId` (so `ErrorSummary` emits plain text, per its own contract for
   field-less errors), OR route the user back to the originating form stage where
   `#decision-reason` exists before showing the summary error. Direction only.
+- **Resolution:** fixed (4a98cc3) — verified real: the `default:` (non-conflict
+  4xx) branch of `recordDecision` runs while `stage === 'summary'`, where the
+  `Summary` component renders no `#decision-reason` control, so the `controlId`
+  produced a dead in-page link. Fixed at root by emitting the error WITHOUT a
+  `controlId` (`setErrors([{ message: err.message }])`), which `ErrorSummary`
+  renders as plain text per its documented field-less contract (ErrorSummary.tsx
+  line 16, 88–90). The `continueToSummary` reason gate keeps its `controlId`
+  because it fires on the edit/reject stage where the control exists. Verified:
+  web `tsc --noEmit` clean; e2e/decision.spec REASON_REQUIRED path unaffected;
+  decision API suite green (23/23).
 
 ### W2: EDIT_APPROVE direct-resolution stamps prior_origin HUMAN for any present entry value
 - **File:** server/src/services/decision.service.ts:426–436 (`editApproveDirect`)
@@ -78,6 +88,18 @@ None.
   read the real prior origin rather than assuming HUMAN. Otherwise, a code
   comment asserting the invariant (entry submitted values are always HUMAN) would
   make the assumption explicit. No change is strictly required for v1.
+- **Resolution:** fixed (73e4285) — re-verified: the "assumption" is in fact a
+  hard schema invariant. `cargo_entry_field_origins` carries
+  `CONSTRAINT cefo_origin_human_chk CHECK (origin = 'HUMAN')` (migration 0002
+  line 61), proven by `provenance.spec` TEST-DB-12 (an `origin='AI'` insert is
+  rejected 23514). `loadFieldOrigins` is correspondingly typed to return only
+  `'HUMAN'`. The reviewer's suggested "read the real prior origin" would add a
+  DB round-trip + coupling that could NEVER yield a value other than `'HUMAN'` —
+  regression risk disproportionate to a robustness note. Took the reviewer's own
+  low-risk alternative: a comment at the `editApproveDirect` site asserting the
+  schema-enforced invariant (comment-only, no behavior change). Verified:
+  server `tsc -b` clean; unit (297/297), decision API (23/23) and provenance
+  db (27/27) suites green.
 
 ## Cross-file seams checked
 - `DecisionValueDto.changed_from_proposal` (new field) ↔ F7 consumer
