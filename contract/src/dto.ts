@@ -243,6 +243,63 @@ export interface DecisionRecordResponse {
   readonly idempotent_replay: boolean;
 }
 
+// ---- F13 audit-trail read (TechArch §3.5.4, FRD F14) -----------------------
+
+/**
+ * The acting specialist on an audited event. Present ONLY on a human/system
+ * event; an AI event carries `actor: null` on `AuditEntryDto` and NEVER a
+ * person-like name (F14 FR-14.4). Identical shape to `ActorRef` but named for
+ * the audit trail so the trail's contract reads self-contained.
+ */
+export interface AuditActorDto {
+  readonly id: string;
+  readonly display_name: string;
+}
+
+/** One per-field value row on an audit entry (before/after with origins). */
+export interface AuditEntryValueDto {
+  readonly field_name: string;
+  readonly before_value: string | null;
+  readonly before_origin: Origin | null;
+  readonly after_value: string | null;
+  readonly after_origin: Origin | null;
+  readonly changed: boolean;
+}
+
+/**
+ * One entry in a case's audit trail (TechArch §3.5.4). `actor` is `null` for an
+ * AI-authored event and `model_id` is present only for
+ * RECOMMENDATION_GENERATED / RECOMMENDATION_UNAVAILABLE — so an AI event is
+ * distinguishable from a human one in the response shape itself (F14 FR-14.4).
+ */
+export interface AuditEntryDto {
+  readonly id: string;
+  readonly case_sequence: number;
+  readonly action_type: AuditActionType;
+  readonly actor_type: ActorType;
+  readonly actor: AuditActorDto | null; // null for AI — NEVER a person-like name (F14 FR-14.4)
+  readonly model_id?: string; // present only for RECOMMENDATION_GENERATED/UNAVAILABLE
+  readonly occurred_at: string;
+  readonly before_state: string | null;
+  readonly after_state: string;
+  readonly reason: string | null;
+  readonly values: readonly AuditEntryValueDto[];
+}
+
+/**
+ * The full audit-trail read response for one case (F13 FR-13.15/FR-13.18). The
+ * entries are in ascending `case_sequence`. `chain_verified` reports whether the
+ * hash chain still verifies, and `first_divergence_sequence` names the sequence
+ * at which it first diverges (null when healthy) — reported, never repaired.
+ */
+export interface AuditTrailResponse {
+  readonly case_reference: string;
+  readonly entry_count: number;
+  readonly chain_verified: boolean;
+  readonly first_divergence_sequence: number | null;
+  readonly entries: readonly AuditEntryDto[];
+}
+
 /** The exception identity + lifecycle section of a case detail (FR-7.7). */
 export interface CaseExceptionRef {
   readonly id: string;

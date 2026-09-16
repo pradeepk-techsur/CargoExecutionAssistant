@@ -931,10 +931,15 @@ describe('TEST-DB-15 — excision, alteration, reordering and substitution are e
       await copyAPool.end();
     }
 
-    // The reader module exports only readCaseTrail and its types — no repair op.
+    // The reader module exports only READ operations and their types — no repair
+    // op. `loadAuditTrailResponse` (plan 06-02) is the F13 endpoint-10
+    // composition: it too issues only SELECTs (resolveCaseIdentifier /
+    // loadExceptionDetail / readCaseTrail / a model_id join) and offers no
+    // repair. The set is exactly the two read functions and nothing that
+    // mutates.
     const mod: Record<string, unknown> = await import('../../src/services/auditRead.service.js');
-    const runtimeExports = Object.keys(mod).filter((k) => typeof mod[k] === 'function');
-    expect(runtimeExports).toEqual(['readCaseTrail']);
+    const runtimeExports = Object.keys(mod).filter((k) => typeof mod[k] === 'function').sort();
+    expect(runtimeExports).toEqual(['loadAuditTrailResponse', 'readCaseTrail']);
   });
 });
 
