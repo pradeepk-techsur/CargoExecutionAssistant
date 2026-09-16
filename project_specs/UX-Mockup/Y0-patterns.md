@@ -1,5 +1,18 @@
 ## Y0: Interaction Patterns
 
+> ### ⚠ Phase 7 — pending redesign
+>
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the visual system; the new tokens, colours and
+> component styling are not yet known to this framework and will be captured during Phase 7
+> planning. **The ten patterns below describe interaction behaviour** — focus movement, live-
+> region timing and wording, state transitions, keyboard paths, DOM ordering — which is
+> unaffected by which visual system renders it and **remains authoritative**. Where a pattern
+> names a concrete USWDS colour token, icon, or component as its *current* implementation (most
+> visibly Pattern 1's colour-token row below), that reference is Phase-6-era and will be
+> superseded by a new token table once the Phase 7 design is imported; it is left in place here
+> as the historically accurate record of what shipped through Phase 6, not as a constraint on
+> the redesign. See `00-overview.md` for the full note.
+
 Patterns are defined once in the F2 shell and inherited without variation by every screen
 (US-2.1 … US-2.6). A screen that re-implements one of these divergently is a defect.
 
@@ -23,7 +36,7 @@ composition of stock components; not a bespoke control.
 | **Icon** (`aria-hidden="true"`) | `settings` (gear) | `person` | `edit` (pencil) |
 | **Border shape** | dashed 2px | solid 2px | solid 2px + "Changed" marker |
 | **Programmatic name** | tag text read as-is by AT | tag text read as-is | tag text read as-is |
-| *(colour, token-based, AA)* | `indigo-60v` bg / white text | `gray-cool-70` bg / white text | `gold-20v` bg / `ink` text |
+| *(colour, token-based, AA)* — **Phase-6 USWDS tokens, pending Phase 7 replacement** | `indigo-60v` bg / white text | `gray-cool-70` bg / white text | `gold-20v` bg / `ink` text |
 
 ```
   [ ⚙ AI-suggested ]        dashed border   ← machine proposal, never applied

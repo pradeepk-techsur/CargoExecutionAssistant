@@ -2,6 +2,22 @@
 
 ---
 
+> **Phase 7 — F15 has no UI.** PRD §5.7 F15 (Seeded Demonstration Case) and FRD F15 add an
+> idempotent, operator-run seed script to the product. It has no screen, no flow, and no
+> specialist-facing surface of any kind — it is invisible to the UI layer entirely, reachable
+> only as a command-line invocation against the deployment (FRD F15 FR-15.10). The screen
+> inventory this document designs — Screen-00 through Screen-05 — is **unchanged and complete**
+> for all specialist-facing surfaces; F15 does not add, remove, or alter any of them. See
+> `00-overview.md` §3 for the corresponding note in the screen index.
+>
+> **Phase 7 — pending redesign.** PRD §5.1 F2 replaces USWDS as the visual system. Assumptions
+> A-5, A-6 and A-7 below name concrete USWDS icons and colour tokens; those are Phase-6-era
+> implementation choices, left in place as the historically accurate record of what shipped
+> through Phase 6. The *underlying requirement* each assumption satisfies — a distinct icon per
+> origin (FR-2.20), a non-colour border cue, and colour that is never the sole carrier — is a
+> behavioural constraint that is unaffected by the redesign and must be re-satisfied by whatever
+> icon/colour choices the Phase 7 design specifies. See `00-overview.md` for the full note.
+
 ### 1. Design assumptions
 
 Every design decision in this document is drawn from the attached specifications. Where a

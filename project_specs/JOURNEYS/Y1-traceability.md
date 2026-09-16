@@ -56,7 +56,7 @@
 | JRN-02.1:Hear *AI versus human* | JTBD-02.3 | Per-value provenance in storage and rendering makes the human's contribution provable for mixed resolutions | SM-3, SM-2 |
 | JRN-02.1:Hear *why*, and *why open* | JTBD-02.3, JTBD-02.4 | Mandatory reason text and the derived validation basis are present in the record and read back | SM-5, SM-8 |
 | JRN-02.1:Satisfy himself the record could not have been altered | JTBD-02.2 | Insert-only storage with revoked UPDATE/DELETE privileges, monotonic sequencing and hash linkage — proven by test | SM-7, SM-6 |
-| JRN-03.1:Set the terms | JTBD-03.1 | No seeded dataset exists, so receive and validate sit inside the demonstrated path rather than behind it | SM-1 |
+| JRN-03.1:Set the terms | JTBD-03.1 | At least one entry is hand-typed live for receive/validate; a seeded case (F15) may additionally be used for later stages, disclosed rather than substituted | SM-1 |
 | JRN-03.1:Watch receive and validate | JTBD-03.1 | Two of six loop stages demonstrated live in the browser with data created during the session | SM-1 |
 | JRN-03.1:Watch except and recommend | JTBD-03.1, JTBD-03.3 | Except and recommend demonstrated with the proposal visibly un-applied and origin-marked beyond colour alone | SM-1, SM-3 |
 | JRN-03.1:Watch the human decide | JTBD-03.2 | Undefaulted decision controls and mandatory reason capture observed in operation, not described | SM-4, SM-5 |
@@ -66,7 +66,7 @@
 
 **JTBD coverage check:** JTBD-01.1 (JRN-01.1, 01.2, 01.7), JTBD-01.2 (01.1, 01.2, 01.7), JTBD-01.3 (01.2, 01.3, 01.4, 01.7), JTBD-01.4 (01.2, 01.3, 01.4, 01.6, 01.7), JTBD-01.5 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7), JTBD-01.6 (01.6), JTBD-01.7 (01.1, 01.7), JTBD-02.1 (02.1), JTBD-02.2 (02.1), JTBD-02.3 (02.1), JTBD-02.4 (02.1), JTBD-03.1 (03.1), JTBD-03.2 (03.1), JTBD-03.3 (03.1), JTBD-03.4 (03.1). **15 of 15 jobs covered; every journey maps to at least one job.**
 
-**Feature coverage check:** F0 (JRN-01.3, 01.5, 01.6, 02.1, 03.1), F1 (01.1, 01.7, 02.1, 03.1), F2 (all seven PER-01 journeys), F3 (01.1, 01.2, 01.7, 03.1), F4 (01.1, 01.2, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F5 (01.2, 01.7, 02.1, 03.1), F6 (01.1, 01.2, 01.7, 03.1), F7 (01.2, 01.4, 01.5, 01.6, 01.7, 03.1), F8 (01.1, 01.2, 01.5, 01.6, 01.7, 03.1), F9 (01.2, 01.3, 01.4, 01.6, 01.7, 02.1, 03.1), F10 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F11 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F12 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 03.1), F13 (01.1, 01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F14 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1). **15 of 15 features touched.**
+**Feature coverage check:** F0 (JRN-01.3, 01.5, 01.6, 02.1, 03.1), F1 (01.1, 01.7, 02.1, 03.1), F2 (all seven PER-01 journeys), F3 (01.1, 01.2, 01.7, 03.1), F4 (01.1, 01.2, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F5 (01.2, 01.7, 02.1, 03.1), F6 (01.1, 01.2, 01.7, 03.1), F7 (01.2, 01.4, 01.5, 01.6, 01.7, 03.1), F8 (01.1, 01.2, 01.5, 01.6, 01.7, 03.1), F9 (01.2, 01.3, 01.4, 01.6, 01.7, 02.1, 03.1), F10 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F11 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F12 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 03.1), F13 (01.1, 01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F14 (01.2, 01.3, 01.4, 01.5, 01.6, 01.7, 02.1, 03.1), F15 (03.1, Phase 7 — Check what was declined). **16 of 16 features touched.**
 
 **Metric coverage check:** SM-1, SM-2, SM-3, SM-4, SM-5, SM-6, SM-7, SM-8, SM-9, SM-10, SM-11, SM-12, SM-13, SM-14. **14 of 14 metrics referenced.**
 
@@ -82,16 +82,16 @@
 | Non-user journeys labelled explicitly | ✅ Both open with *non-user journey — no authenticated access, no dedicated interface* |
 | All seven required PER-01 scenarios present as their own journey | ✅ Happy path (01.1), core loop/approve (01.2), edit (01.3), reject (01.4), audit reconstruction (01.5), degraded AI (01.6), accessibility (01.7) |
 | Every touchpoint names one of the six screens (or a non-system touchpoint) | ✅ Sign-in, entry form, queue, case detail, decision, audit trail only |
-| No stage requires an excluded capability | ✅ No supervisor dashboard, queue metric, aging, throughput, workload, reassignment, filter, sort, assignment, prioritisation, audit export, bulk/file/API ingestion, second role, seeded data, autonomous AI resolution, duty/tariff calculation, native mobile, or CI accessibility gate appears in any stage |
+| No stage requires an excluded capability | ✅ No supervisor dashboard, queue metric, aging, throughput, workload, reassignment, filter, sort, assignment, prioritisation, audit export, bulk/file/API ingestion, second role, autonomous AI resolution, duty/tariff calculation, native mobile, or CI accessibility gate appears in any stage. **Phase 7:** seeded demonstration data (F15) is no longer on this excluded-capability list — it is a shipped, additive feature (JRN-03.1) that supplements rather than replaces the live entry path |
 | Every stage has all seven columns populated | ✅ No empty cells across all 60 stages |
 | Every journey has at least one key moment | ✅ Each journey lists 3–5 |
 | Success outcomes trace to JTBD success measures | ✅ Each cites its JTBD and SM IDs |
-| Feature touchpoints reference valid PRD feature IDs | ✅ F0–F14 only; non-user journeys mark features as beneficiary/observed, never operated |
-| Accessibility treated as journey steps, not a footnote | ✅ JRN-01.7 is a full eight-stage journey across all six screens, with WCAG/USWDS behaviours as stages |
+| Feature touchpoints reference valid PRD feature IDs | ✅ F0–F15 only (F15 added Phase 7); non-user journeys mark features as beneficiary/observed, never operated |
+| Accessibility treated as journey steps, not a footnote | ✅ JRN-01.7 is a full eight-stage journey across all six screens, with WCAG 2.1 AA accessibility behaviours as stages (visual design system is USWDS through Phase 6, replaced Phase 7; the accessibility bar itself is unchanged) |
 | Cross-journey patterns documented | ✅ Six common pain points, five shared opportunities, four convergence points |
 
 ---
 
 *Document generated by Pivota Spec Framework — Journeys Generator*
-*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PERSONAS-CargoExec.md v1.0, JTBD-CargoExec.md v1.0, PRD-CargoExec.md v1.0*
-*Last updated: 2026-09-11*
+*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PERSONAS-CargoExec.md v1.0, JTBD-CargoExec.md v1.0, PRD-CargoExec.md v1.1*
+*Last updated: 2026-09-11; Phase 7 targeted update: 2026-09-16 (USWDS wording made system-independent in F2-affected stages; JRN-03.1 updated for the seeded demonstration case, F15)*

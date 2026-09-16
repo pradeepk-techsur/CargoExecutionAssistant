@@ -79,3 +79,17 @@ opens, persisted as a proposal marked `AI`, and never applied to anything.
 **Priority:** P0 | **Feature Ref:** F9
 
 ---
+
+### US-9.6: Know that the recommendation shown came from a real model, not the test fake
+**As a** delivery sponsor, **I want to** see that the recommendation demonstrated to me was produced by a real hosted LLM rather than the deterministic fake used only for automated tests, **so that** the AI capability CargoExec is demonstrating is the genuine thing, not a scripted stand-in.
+
+**Acceptance Criteria:**
+- [ ] Given the demonstration/production deployment, when it starts, then it is configured with `AI_PROVIDER_URL` pointing at a real HTTPS LLM endpoint and a valid `AI_API_KEY`/`AI_MODEL_ID` — not the `fake:deterministic` provider (FR-9.20).
+- [ ] Given the `fake:deterministic` provider, when its configuration is reviewed, then it appears only in the automated test suite's own configuration, never as the default, fallback, or unconfigured-state behaviour of a deployed environment (FR-9.20).
+- [ ] Given this posture change, when the `RecommendationProvider` interface, retry/timeout logic, and output schema are reviewed, then none of them changed to introduce it — FR-9.20 governs deployment configuration only, not architecture (PRD §4.1, §5.4 F9 Phase 7 note).
+- [ ] Given a walkthrough of the demonstrated case, when the recommended action and rationale are read, then they are the real model's own output — not a canned string returned by the deterministic fake — and the recorded `model_id` names the real provider's model, not a fake or test identifier.
+- [ ] Given every other Epic 9 story (US-9.1 … US-9.5), when this posture change is applied, then their acceptance criteria are unaffected — degraded mode, provenance, provider abstraction, and audit behaviour are identical regardless of which concrete provider is configured.
+
+**Priority:** P0 | **Feature Ref:** F9
+
+---

@@ -48,6 +48,7 @@ cargoexec/
 │   │   └── repositories/        one module per table group, SQL only
 │   ├── migrations/              0001_…sql … forward-only, owner role
 │   ├── cli/create-specialist.ts operational provisioning
+│   ├── cli/seed-demo-case.ts    Phase 7 — idempotent demo-case seed (§1A.1a, 08 §8.9)
 │   └── test/                    unit · db-invariant · api · architecture
 ├── web/
 │   ├── vite.config.ts           host 0.0.0.0, port 3000, allowedHosts (§6.5)
@@ -66,11 +67,28 @@ cargoexec/
 
  ABSENT BY DESIGN (asserted by test):
    .github/            no CI workflow files at all
-   seeds/ fixtures/    no demonstration data
+   seeds/ fixtures/    no demonstration-data DIRECTORY, ever (unchanged, see §1A.1a)
    adapters/ingest/    no file or API ingestion
    export/ reports/    no export surface
    rbac/ roles/        one role, no permission model
 ```
+
+### 1A.1a Phase 7 addition — demonstration-case seed script (F15)
+
+Phase 7 adds exactly one new operational CLI script, `server/src/cli/seed-demo-case.ts`, placed alongside `cli/create-specialist.ts` because it is provisioned the same way: an operator-invoked command against a deployed environment, never an HTTP route, never a UI control, never scheduled (PRD §10 #7, superseded; F15). It is **not** the `seeds/`/`fixtures/` directory the architecture tests forbid — that prohibition is a directory-shape ban (§1A.1's `ABSENT BY DESIGN` list) and is **retained unchanged**; a single named CLI file is a different shape from a fixture-loading directory and the two tests below make that distinction explicit rather than incidental:
+
+- `server/test/architecture/absence.spec.ts` (`FORBIDDEN_DIRS` check, TEST-ARCH-09) — still forbids any `seeds/` or `fixtures/` **directory** anywhere in the repo, unmodified in its general form. It is updated only to the extent of confirming `server/src/cli/seed-demo-case.ts` is a file, not a directory, and therefore does not trip the check — no relaxation of the directory ban itself.
+- `server/test/architecture/validation.spec.ts` ("no seeds/ or fixtures/ directory anywhere in the repository", TEST-ARCH-11's neighbour) — same treatment: the repo-wide directory walk is untouched; it is joined by a new, narrowly-scoped assertion that the *only* file whose name contains `seed` is this one named script, so a future contributor cannot quietly add a second seed/fixture mechanism under a different name without the test noticing.
+
+Both tests' general-purpose prohibitions on a seeds/fixtures **directory** and on migration-file `INSERT INTO` (`TEST-ARCH-11`) remain exactly as strict as before. What is added is a single, named, reviewed exception for `cli/seed-demo-case.ts` — not a hole for future scripts. Full behavioural detail, idempotency contract, and the exact test updates are in `08-testing-deployment.md` §8.9.
+
+### 1A.1b Phase 7 — pending visual redesign (F2)
+
+Phase 7 replaces USWDS as the shell's visual system with a newly-approved external design; the concrete tokens, component names, and class names of that replacement are **not yet decided** and are deferred to Phase 7 discovery/UX design (PRD §4.1, §5.1 F2; FRD F2's Phase 7 note). This document does not invent that replacement. Three things are fixed now so implementation has a stable baseline to build against or deliberately supersede:
+
+1. **The current build pipeline is the baseline, not the design.** `web/styles/app.scss` as the single Sass entry point, `web/scripts/copy-uswds-assets.mjs`'s self-hosting of fonts/icons/JS (no CDN), and the CSP `style-src 'self'` header (no `unsafe-inline`) are *constraints on the build*, independent of which component library or token set fills it. Whatever replaces USWDS's Sass/JS/icon-sprite payload MUST still compile to a single self-hosted stylesheet loaded via `<link>` (not a JS-injected `<style>` tag, which `style-src 'self'` with no `unsafe-inline` would reject) and MUST still ship no runtime CDN dependency (FR-2.3's no-CDN requirement does not move just because the token source does). A replacement design system that assumes a CDN font host or an inline-style-injecting runtime is incompatible with this project's CSP as it stands today — that incompatibility is a Phase 7 planning input, not a decision this document makes for it.
+2. **`docs/uswds-conformance-register.md` needs a wholesale re-authoring, not a patch.** The register (§7.3) maps every interactive control to a specific USWDS primitive by name; once the new design system's primitives are chosen, essentially every row changes. This document does not attempt that re-authoring — there is nothing yet to map to — but flags it as required Phase 7 output before any screen can be re-signed-off under FR-2.26's per-screen checklist.
+3. **Section 508 / WCAG 2.1 AA conformance does not move.** It is an architectural constraint independent of which design system delivers it (PRD NFR-1, NFR-2). The testing/sign-off *process* — a signed per-screen record at `docs/a11y/{screen}.md` covering the checklist of `07-accessibility.md` §7.7, with **no CI accessibility gate, ever** (§7.8) — is unchanged by this phase; only the concrete component/token references inside each screen's review will need re-verifying once F2's replacement design lands. See `06-tech-stack.md` §6.2a and `07-accessibility.md` §7.1a for the same note stated against the tech-stack and accessibility chunks respectively.
 
 ### 1A.2 Layering and dependency rules
 

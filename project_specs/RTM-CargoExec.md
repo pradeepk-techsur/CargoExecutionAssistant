@@ -11,6 +11,7 @@
 | **Source of Truth** | `.planning/PROJECT.md` |
 | **Upstream Documents** | PRD-CargoExec, FRD-CargoExec, TechArch-CargoExec, UserStories-CargoExec, PERSONAS-CargoExec, JTBD-CargoExec, JOURNEYS-CargoExec, STORY-MAP-CargoExec |
 | **Status** | Baselined for delivery |
+| **Phase 7 Addendum** | Added 2026-09-16 — traces F15 (new), and the F2/F9 Phase 7 revisions, into this baseline. See §3.9. Original baseline rows above and throughout this document are unmodified; all Phase 7 content is additive. |
 
 ---
 
@@ -85,6 +86,7 @@ Each arrow is bidirectional. §3 traces forward (requirement to test); §3.2 and
 - **12 non-functional requirements NFR-1–NFR-12**, each traced to an architectural mechanism (§3.4)
 - **14 success metrics SM-1–SM-14**, each traced to a named test or review (§3.7)
 - **No P2/P3 tier exists** — capabilities that would rank lower were excluded outright rather than deprioritised
+- **Phase 7 addendum (additive, does not alter the count above):** **16th feature F15** (Seeded Demonstration Case) added under a new Category G, reversing PRD §10 #7; **F2** and **F9** each carry a Phase 7 revision note (visual-system supersession and real-LLM deployment posture respectively) without a change to their feature numbering or P0 priority. See §3.9.
 
 **By FRD artefact:**
 - **305 functional requirements** — 273 feature-scoped (`FR-0.1`–`FR-14.19`) plus 32 cross-feature (`FR-Y0.1`–`FR-Y3.13`)
@@ -122,8 +124,11 @@ Each arrow is bidirectional. §3 traces forward (requirement to test); §3.2 and
 | **F12** Decision Web UI — Edit / Approve / Reject with Reason | `FR-12.1`–`FR-12.18` | `components/DecisionPanel`, §7.6 form/error pattern, §3b.6 `permitted_decisions` contract | US-12.1 … US-12.7 | TEST-MAN-05, TEST-E2E-01, TEST-E2E-03, TEST-E2E-05 |
 | **F13** Audit Entry Writer — Append-Only | `FR-13.1`–`FR-13.18` | §2.10 five coupling triggers + mutation triggers, §2.11 `case_sequence`, §2.12 SHA-256 chain, `audit/writer.append(tx, entry)` as only writer (`R-L3`), `auditRead.service`, `verify_audit_chain`; endpoint 10 | US-13.1 … US-13.5 | TEST-DB-01, 02, 03, 05, 06, 07, 13, 14, TEST-ARCH-03, TEST-API-05 |
 | **F14** Per-Case Audit Trail Web UI | `FR-14.1`–`FR-14.19` | `components/AuditTrailRegion`, `chain_verified` surfacing, read-only by construction, no export affordance | US-14.1 … US-14.7 | TEST-MAN-06, TEST-API-05, TEST-DB-15, TEST-E2E-01, TEST-E2E-03 |
+| **F15** *(Phase 7)* Seeded Demonstration Case | `FR-15.1`–`FR-15.11` | `cli/seed-demo-case.ts` (TechArch §1A.1a, §8.9, §8.7 step 5a) — calls F3/F4/F5/F9/F11's own service functions and F13's own audit writer; no migration `INSERT`, no bespoke write path | US-15.1, US-15.2, US-15.3, US-15.4, US-15.5 | TEST-ARCH-11 (unchanged), TEST-ARCH-18 (new), TEST-MAN-10 (new) |
 
 **Forward-coverage check:** 15 of 15 PRD features carry FRD requirements, TechArch components, user stories, and test cases. **Zero features unmapped at any level.**
+
+**Phase 7 addendum to the coverage check (additive):** with F15 added, **16 of 16** PRD features now carry FRD requirements, TechArch components, user stories, and test cases. Zero features unmapped at any level, including the Phase 7 addition. See §3.9 for the full Phase 7 trace, including the F9 (`FR-9.20`) and F2 (superseding note) revisions that do not add rows here because they revise existing F9/F2 requirements rather than introducing a new feature.
 
 ### 3.2 Backward Trace — FRD / TechArch Artefact → Authorising PRD Feature
 
@@ -267,6 +272,67 @@ All **11** Active requirements traced. This is the primary audit row-set: no Act
 | **R1** | The governed loop, walking end to end | 70 | **6 of 6** | JRN-01.1, 01.2, 01.3, 01.4, 01.5, 01.7, 02.1 | SM-1, SM-2, SM-3, SM-4, SM-5, SM-6, SM-7, SM-8, SM-11 |
 | **R2** | The loop holds when the AI does not | 11 (US-1.5, US-3.3, US-6.5, US-8.6, US-9.4, US-10.5, US-10.6, US-11.6, US-11.7, US-12.6, US-14.5) | 6 of 6 — unchanged | JRN-01.6 | SM-13; no loss against SM-2, SM-6 |
 | **R3** | Conformance sign-off and scope evidence | 3 (US-2.6, US-7.3, US-8.5) | 6 of 6 — unchanged | JRN-03.1 | SM-10, SM-12, SM-14 |
+| **R4** *(= Phase 7, per `STORY-MAP/R4-release.md`)* | Demonstration enablement & design-system-independent conformance | 7 (US-2.7, US-9.6, US-15.1, US-15.2, US-15.3, US-15.4, US-15.5) | 6 of 6 — unchanged; adds a second, seeded entry point into the same six stages | JRN-03.1 reinforced (no new journey stage) | Seed-script idempotency + `chain_verified` gate; re-signed per-screen a11y checklist under the new visual system; real-LLM deployment posture confirmed (no metric added or changed) |
+
+---
+
+### 3.9 Phase 7 Traceability Addendum
+
+This subsection was added for Phase 7 ("Redesign UI, seeded demo data, and real LLM integration"). It is purely additive: every row in §3.1–§3.8 above is unchanged. Phase 7 introduces one new feature (F15), one new functional requirement on an existing feature (F9 `FR-9.20`), and one superseding note on an existing feature's rule set (F2), none of which required renumbering or removing anything already baselined.
+
+#### 3.9.1 F15 — Seeded Demonstration Case (new feature, new requirement, reverses PRD §10 #7)
+
+| Trace level | Identifier |
+|---|---|
+| **Roadmap** | Phase 7 — "Redesign UI, seeded demo data, and real LLM integration" (`.planning/ROADMAP.md`) |
+| **Release** | R4 (`project_specs/STORY-MAP/R4-release.md`) |
+| **PRD** | §5.7 F15 (new Category G — Demonstration Enablement); §4.2 deployment model; §10 #7 (reversed, not removed — the original exclusion is retained in PRD history and superseded in place) |
+| **FRD** | `FRD/F15-seeded-demonstration-case.md`, `FR-15.1`–`FR-15.11` |
+| **TechArch** | `01-components.md` §1A.1a (repository placement, absence-test treatment), `08-testing-deployment.md` §8.7 step 5a and §8.9 (full behavioural contract) |
+| **User Stories** | `UserStories/Epic-15-seeded-demonstration-case.md`: US-15.1 (same code paths as production), US-15.2 (idempotent / stage-resumable), US-15.3 (mixed AI/HUMAN provenance decision), US-15.4 (audit trail integrity), US-15.5 (operator-only, narrowly scoped) |
+| **Test evidence** | **Reused, unchanged:** `TEST-ARCH-11` (no migration-file `INSERT INTO`; still passes because F15 is not a migration) · `TEST-ARCH-09` (no `seeds/`/`fixtures/` directory; still passes because the script is a single named file, not a directory). **New:** `TEST-ARCH-18` (repo-wide scan confirms `server/src/cli/seed-demo-case.ts` is the *only* file whose name/path suggests a seed/fixture mechanism) · `TEST-MAN-10` (operator walkthrough: run twice/concurrently with no duplicate writes; stage-resumable partial-seed run; `EDIT_APPROVE` decision with mixed `AI`/`HUMAN` resolution values; `chain_verified: true`; F6 manual entry unaffected) |
+| **Exclusion status** | Supersedes PRD §10 #7 / PROJECT.md Out-of-Scope "Seeded demonstration dataset" — see §3.9.4 below for how §6's existing exclusion row is treated |
+| **Dependencies traced** | F0 (audit/schema invariants apply identically), F3, F4, F5, F9, F11 (same service functions), F13 (same audit chokepoint) — no new table, no new column, no new endpoint |
+
+#### 3.9.2 F9 — `FR-9.20` Real-Provider Deployment Posture (existing feature, new requirement)
+
+| Trace level | Identifier |
+|---|---|
+| **Roadmap / Release** | Phase 7 / R4 |
+| **PRD** | §5.4 F9 Phase 7 update paragraph; §4.1 Tech Stack (AI row); §8 R-9 |
+| **FRD** | `FRD/F09-ai-recommendation-generation.md` Phase 7 note (provider posture) and `FR-9.20` |
+| **TechArch** | `05-ai-integration.md` §5.9 — architecture (§5.1–§5.8) explicitly unchanged; only deployment configuration defaults change (`AI_PROVIDER_URL`, `AI_API_KEY`, `AI_MODEL_ID`); `fake:deterministic` narrows to test-only use |
+| **User Stories** | `UserStories/Epic-09-ai-recommendation-generation.md` — new **US-9.6** ("Know that the recommendation shown came from a real model, not the test fake") |
+| **Test evidence** | **Reused, unchanged:** `TEST-ARCH-06` (no provider SDK type/dependency — still holds, no SDK introduced) · `TEST-ARCH-08` (dependency allowlist unaffected). **New:** `TEST-MAN-11` (deployment configuration review confirming `AI_PROVIDER_URL` resolves to a real HTTPS endpoint with valid `AI_API_KEY`/`AI_MODEL_ID` in the demonstration/production environment, and that `fake:deterministic` appears only in automated test configuration) |
+| **Explicit non-claim** | This addendum does **not** assert any change to NFR-9 (AI dependency resilience) or Invariant I-3 (§5.3) — the degraded-mode architecture, retry/timeout logic, and output schema are unchanged by `FR-9.20`, which governs deployment configuration only |
+
+#### 3.9.3 F2 — Phase 7 Superseding Note on USWDS-Named Rules (existing feature, superseding note + new story)
+
+| Trace level | Identifier |
+|---|---|
+| **Roadmap / Release** | Phase 7 / R4 |
+| **PRD** | §5.1 F2 Phase 7 update paragraph; §4.1 Tech Stack (Frontend row); §3.1 goal 5 |
+| **FRD** | `FRD/F02-uswds-shell-accessibility.md` Phase 7 note — 26 named `FR-2.x` rules (including `FR-2.1`, `FR-2.2`, `FR-2.3`, `FR-2.5`, `FR-2.11`, `FR-2.12`, `FR-2.13`, `FR-2.18`, `FR-2.20`, `FR-2.22`) and SM-12 are **superseded in place**, pending a Phase 7 UI-SPEC; all other `FR-2.x` rules (accessibility-outcome rules, not USWDS-naming rules) are explicitly retained unchanged |
+| **TechArch** | `01-components.md` §1A.1b — build-pipeline constraints (self-hosted assets, CSP `style-src 'self'`) held fixed as a baseline; `docs/uswds-conformance-register.md` flagged for wholesale re-authoring once the new design system's primitives are known |
+| **User Stories** | `UserStories/Epic-02-uswds-shell-accessibility.md` — new **US-2.7** ("Keep meeting federal accessibility standards no matter which visual system renders the shell"); existing US-2.1, US-2.4, US-2.5, US-2.6 are retained verbatim as the Phase-6/USWDS baseline per the epic's own Phase 7 note, not rewritten by this RTM |
+| **Test evidence** | **Reused, unchanged in mechanism, requiring re-execution once the new design ships:** `TEST-MAN-01`…`TEST-MAN-06` (each screen's per-screen accessibility sign-off must be **re-signed**, not carried forward, per US-2.7 AC4) · `TEST-ARCH-09` (still asserts no `.github/workflows`/CI gate — unaffected by the visual redesign) |
+| **Explicit non-claim** | NFR-2 (Section 508 / WCAG 2.1 AA) and NFR-1's underlying conformance *obligation* are unchanged — only the conformance *mechanism* (which concrete component/token library delivers it) is deferred to Phase 7 UI-SPEC. This is not an accessibility regression and does not touch Invariant enforcement in §5. |
+
+#### 3.9.4 Exclusion Coverage — Phase 7 Treatment of §6 Row #7 (no existing row altered)
+
+The existing §6 exclusion table row **#7 "Seeded demonstration dataset"** is retained verbatim below, unmodified, as the historical v1.0 baseline decision. Phase 7 reverses that decision via F15 (PRD §5.7, §10 #7 superseded) rather than deleting or renumbering the exclusion. The reversal is traced here, not by editing §6:
+
+| # | Original exclusion (§6, unchanged) | Phase 7 disposition | Reversing requirement | Evidence the reversal stayed narrow |
+|---|---|---|---|---|
+| **7** | Seeded demonstration dataset | **Reversed** — a single, named, reviewed operator script now exists | `FR-15.1`–`FR-15.11`; PRD §5.7 F15, §4.2, §10 #7 | `FR-15.11` (exactly one demonstration case; not a general fixture tool); `TEST-ARCH-18`; the general-purpose bans this exclusion originally relied on (no `seeds/`/`fixtures/` directory, no migration `INSERT INTO`) remain exactly as strict as before (`TEST-ARCH-09`, `TEST-ARCH-11`, both unchanged) |
+
+#### 3.9.5 NFR Coverage — Phase 7 Touchpoint
+
+| NFR | Phase 7 touched? | What changed | What explicitly did not change |
+|---|---|---|---|
+| **NFR-1** Design system conformance | **Yes** | Visual system replaced (USWDS → newly-approved external design, F2); the per-screen conformance-verification *mechanism* (`docs/uswds-conformance-register.md`) requires wholesale re-authoring and every screen requires re-sign-off (US-2.7) | The conformance *obligation* itself — every interactive control must still have a documented accessible equivalence; see NFR-2 |
+| **NFR-2** Accessibility (508/WCAG 2.1 AA) | Reinforced, not changed | Explicitly reasserted as independent of visual system (US-2.7) | The conformance bar, the manual-review-only enforcement mechanism (`FR-2.26`), and the no-CI-gate policy (§7.4) — all unchanged |
+| **NFR-9** AI dependency resilience | **No — explicitly not claimed** | — | Degraded-mode architecture, retry/timeout logic, enumerated `failure_reason` set, and `test:e2e` scenario 2 are all unchanged by `FR-9.20`, which is a deployment-configuration requirement only (§3.9.2) |
 
 ---
 
@@ -295,6 +361,7 @@ Per-feature detail: the PRD feature, the FRD requirements that specify it, the s
 - **TechArch:** §7 in full; §7.5 colour-independence carriers; §7.6 form/error pattern inherited by F1, F6, F12; §7.7 the review gate; §7.8 explicitly no CI gate
 - **Stories (6):** US-2.1 federal page frame · US-2.2 exactly two destinations · US-2.3 keyboard-only completion · US-2.4 accessible error identification · US-2.5 provenance without colour · US-2.6 per-screen signed review
 - **FRD acceptance criteria:** 9 · **Tests:** TEST-MAN-01…06, TEST-MAN-08, TEST-ARCH-09, TEST-ARCH-15, TEST-ARCH-16, TEST-E2E-05
+- **Phase 7 addendum (additive; does not revise the above):** the 26 FRD requirements listed above are **superseded in place**, not rewritten, by a Phase 7 note pending a Phase 7 UI-SPEC once the newly-approved external design's concrete tokens/components are known. New **US-2.7** carries the outcome-based accessibility guarantee (508/WCAG 2.1 AA independent of visual system) through the gap. Full trace: §3.9.3.
 
 ### 4.2 Category B — Cargo Entry & Validation
 
@@ -344,6 +411,7 @@ Per-feature detail: the PRD feature, the FRD requirements that specify it, the s
 - **TechArch:** §5 provider abstraction; **A-2** prompt integrity manifest (`prompt_version` → SHA-256, checked at startup); **A-1** `cargoexec_ai` pool with no privilege on `decisions`/`decision_values` and no `UPDATE` on `exceptions`; `R-L6` worker cannot import the decision service; `R-L7` no provider SDK type outside the adapter; **C-1** `failure_reason` lives on `recommendations`, joined via `audit_entries.recommendation_id`
 - **Stories (5):** US-9.1 prepared without waiting · US-9.2 stored as a proposal, not a change · US-9.3 exactly what the AI said and which model said it · US-9.4 keep working when the AI is unavailable · US-9.5 **the AI cannot decide and cannot stray outside its remit**
 - **FRD acceptance criteria:** 8 · **Tests:** TEST-UNIT-06, TEST-DB-07, TEST-DB-17, TEST-ARCH-05, TEST-ARCH-06, TEST-ARCH-14, TEST-E2E-02, TEST-MAN-07
+- **Phase 7 addendum (additive; does not revise the above):** new `FR-9.20` requires the demonstration/production deployment to be configured against a real hosted LLM rather than the `fake:deterministic` provider (deployment posture only — no change to the provider abstraction, retry/timeout logic, or output schema above). New **US-9.6** carries this. Full trace: §3.9.2.
 
 **F10 — Exception Case Detail & Recommendation Presentation UI** · P0 · **User-facing** · depends on F2, F7, F9
 - **FRD requirements (18):** `FR-10.1` proposal framing everywhere · `FR-10.2` per-value AI marking · `FR-10.3` comparison rows · `FR-10.4` rationale presentation · `FR-10.5` model metadata · `FR-10.6` findings as stated basis · `FR-10.7` pending behaviour · `FR-10.8` degraded presentation is not an error · `FR-10.9` decision controls always present when open · `FR-10.10` heading structure and reading order · `FR-10.11` closed-case presentation · `FR-10.12` no mutation of anything but the decision · `FR-10.13` deep link and identifier tolerance · **`FR-10.14` no queue-position or aging language** · `FR-10.15` not-found and forbidden states · `FR-10.16` value escaping · `FR-10.17` performance · `FR-10.18` accessibility sign-off
@@ -377,6 +445,15 @@ Per-feature detail: the PRD feature, the FRD requirements that specify it, the s
 - **FRD requirements (19):** `FR-14.1` chronological, server order · `FR-14.2` complete event content · `FR-14.3` provenance per event and per value · `FR-14.4` the AI is never rendered as a person · `FR-14.5` reason displayed verbatim · `FR-14.6` before/after completeness · **`FR-14.7` read-only by construction** · **`FR-14.8` no export** · `FR-14.9` answers the three questions in place · `FR-14.10` integrity statement (`chain_verified`) · `FR-14.11` available for open and closed cases · `FR-14.12` live update only on decision · `FR-14.13` accessible list semantics · `FR-14.14` reading order · `FR-14.15` unambiguous timestamps · `FR-14.16` escaping · `FR-14.17` empty and loading states · `FR-14.18` performance · `FR-14.19` accessibility sign-off
 - **Stories (7):** US-14.1 the whole story in the case itself · US-14.2 AI and humans distinguished per event and value · US-14.3 my reason in full · US-14.4 complete before-and-after · US-14.5 integrity-check failure surfaced · US-14.6 **nothing on the trail can change it or take it away** · US-14.7 answer the oversight questions from the case alone
 - **FRD acceptance criteria:** 9 · **Tests:** TEST-MAN-06, TEST-API-05, TEST-DB-15, TEST-E2E-01, TEST-E2E-03
+
+### 4.7 Category G — Demonstration Enablement (Phase 7)
+
+**F15 — Seeded Demonstration Case** · P0 · Data / Operational tooling · depends on F0, F3, F4, F5, F9, F11, F13 · introduced Phase 7, Release R4
+- **FRD requirements (11):** `FR-15.1` no migration-based insertion · `FR-15.2` same code paths as production · `FR-15.3` idempotency and stage-resumability · `FR-15.4` demonstration specialist provisioning · `FR-15.5` decision type demonstrated: `EDIT_APPROVE` with mixed provenance · `FR-15.6` full lifecycle coverage · `FR-15.7` audit trail integrity preserved · `FR-15.8` no auto-apply exception for the seeded case either · `FR-15.9` demonstration fixture labelling · `FR-15.10` operational invocation only · `FR-15.11` exactly one demonstration case; not a general fixture tool
+- **TechArch:** `server/src/cli/seed-demo-case.ts`, placed and provisioned exactly like `cli/create-specialist.ts` (§1A.1a); calls F3/F4/F5/F9/F11's own service functions and F13's own `append(tx, entry)` chokepoint, in-process, never HTTP; no new table, column, or endpoint; deployment sequence step 5a (§8.7); full behavioural/idempotency contract at §8.9
+- **Stories (5):** US-15.1 built through the same code the live application uses, never a shortcut · US-15.2 run any number of times without creating a duplicate of anything · US-15.3 see one case that genuinely demonstrates a mixed AI/human resolution · US-15.4 trust that the audit trail is real, complete, and indistinguishable from a live one · US-15.5 kept a narrow, operator-only tool the application itself can never reach
+- **FRD acceptance criteria:** 8 · **Tests:** TEST-ARCH-11 (unchanged, reused), TEST-ARCH-09 (unchanged, reused), TEST-ARCH-18 (new), TEST-MAN-10 (new)
+- **Reverses:** PRD §10 #7 / PROJECT.md Out-of-Scope "Seeded demonstration dataset" — see §3.9.1, §3.9.4 for the full reversal trace. The reversal is additive: F6 manual entry is unaffected and remains the only way to create any cargo entry beyond the one seeded case.
 
 ---
 
@@ -545,6 +622,7 @@ Test case identifiers are derived from the FRD's testable assertions (the 127 fe
 | TEST-ARCH-15 | Primary navigation renders exactly two items | `FR-2.7`, §10 #2 |
 | TEST-ARCH-16 | No `dangerouslySetInnerHTML`; no template-literal SQL; no raw hex/px in screen styles | `FR-2.2`, `FR-Y1.6`, NFR-8 |
 | TEST-ARCH-17 | Case values rendered only through `AttributedValue` | `FR-10.2`, **I-2**, NFR-4 |
+| TEST-ARCH-18 *(Phase 7)* | Repo-wide scan confirms `server/src/cli/seed-demo-case.ts` is the *only* file whose name/path suggests a seed/fixture mechanism; the general `seeds/`/`fixtures/`-directory ban (TEST-ARCH-09) and no-migration-`INSERT` ban (TEST-ARCH-11) remain unmodified alongside it | `FR-15.1`, `FR-15.10`, `FR-15.11`, §3.9.1, §3.9.4 |
 
 **`TEST-E2E-*` — Playwright, functional and keyboard-only (`npm run test:e2e`) — Automated · explicitly *not* an accessibility gate**
 
@@ -570,6 +648,8 @@ Test case identifiers are derived from the FRD's testable assertions (the 127 fe
 | TEST-MAN-07 | **AI rationale intelligibility** — reviewing specialists judge each sampled rationale plain-language and decision-useful | Walkthrough review; human judgement, explicitly not automatable | `FR-9.9`, US-9.3, **SM-9** |
 | TEST-MAN-08 | **USWDS conformance register** — every interactive control mapped to a USWDS component or a documented conformant composition | Design review against `docs/uswds-conformance-register.md` | `FR-2.1`, NFR-1, US-2.1, US-2.6, **SM-12** |
 | TEST-MAN-09 | **Scope review against PRD §10** — shipped feature set checked line by line against the eleven exclusions | R3 acceptance gate review, supported by the whole `test:arch` suite | PRD §10, JTBD-03.4, **SM-14** |
+| TEST-MAN-10 *(Phase 7)* | **Seed script operator walkthrough** — run twice/concurrently with no duplicate writes; stage-resumable partial-seed run; `EDIT_APPROVE` decision with at least one `HUMAN`- and one `AI`-origin resolution value; `chain_verified: true`; F6 manual entry unaffected | R4 acceptance gate review; automated suites deliberately never invoke this script (TechArch §8.9) | `FR-15.1`–`FR-15.11`, US-15.1…US-15.5, §3.9.1 |
+| TEST-MAN-11 *(Phase 7)* | **Deployment configuration review** — demonstration/production `AI_PROVIDER_URL`/`AI_API_KEY`/`AI_MODEL_ID` resolve to a real HTTPS LLM endpoint, not `fake:deterministic`; the fake provider confirmed present only in automated test configuration | R4 acceptance gate review; configuration inspection, not a code test | `FR-9.20`, US-9.6, §3.9.2 |
 
 ### 7.2 Coverage Matrix by Feature
 
@@ -590,8 +670,10 @@ Test case identifiers are derived from the FRD's testable assertions (the 127 fe
 | **F12** Decision web UI | 7 | 18 | 9 | 3 (TEST-E2E-01, 03, 05) | 1 (TEST-MAN-05) | **100%** |
 | **F13** Audit entry writer | 5 | 18 | 8 | 10 (TEST-DB-01, 02, 03, 05, 06, 07, 13, 14, TEST-ARCH-03, TEST-API-05) | — | **100%** |
 | **F14** Audit trail web UI | 7 | 19 | 9 | 4 (TEST-API-05, TEST-DB-15, TEST-E2E-01, 03) | 1 (TEST-MAN-06) | **100%** |
+| **F15** *(Phase 7)* Seeded demonstration case | 5 | 11 | 8 | 2, reused (TEST-ARCH-09, 11) + 1 new (TEST-ARCH-18) | 1 new (TEST-MAN-10) | **100%** |
 | **Cross-feature** | — | 32 (`Y0`–`Y3`) | — | TEST-API-06, TEST-ARCH-07, 08, 12, 13, TEST-E2E-06 | TEST-MAN-09 | **100%** |
 | **Total** | **84** | **305** | **127** | **7 unit + 18 db + 6 api + 17 arch + 6 e2e = 54** | **9** | **100%** |
+| **Phase 7 addendum** *(not folded into Total above; additive)* | **+7** (US-2.7, US-9.6, US-15.1…15.5) | **+11** F15 (`FR-15.1`–`15.11`) **+1** F9 (`FR-9.20`) = **+12** | **+8** (F15 AC) | **+1 new** (TEST-ARCH-18) **+2 reused** (TEST-ARCH-09, 11) | **+3 new** (TEST-MAN-10, 11) + **F2's TEST-MAN-01…06 requiring re-sign-off** | **100%** |
 
 ### 7.3 Automated vs Manual Verification — Stated Policy
 
@@ -629,6 +711,7 @@ Test case identifiers are derived from the FRD's testable assertions (the 127 fe
 | Version | Date | Author | Change | Affected traces |
 |---|---|---|---|---|
 | 1.0 | 2026-09-11 | Pivota Spec Framework — RTM Generator | Initial baseline. Traces 11 PROJECT.md Active requirements, 7 constraints, 7 key decisions and 11 exclusions through F0–F14, NFR-1–12, SM-1–14, 305 FRD requirements, 31 `RIV-*` rules, 13 tables, 10 endpoints, 8 audit actions, TechArch D-1–D-3 / A-1–A-2 / C-1–C-4 and the four structural-guarantee layers, 84 user stories, and 63 test cases across six suites | All |
+| 1.1 | 2026-09-16 | Pivota Spec RTM Generator (Phase 7 update) | **Additive update for Phase 7** ("Redesign UI, seeded demo data, and real LLM integration" / Release R4). Adds: new feature **F15** (Category G, `FR-15.1`–`FR-15.11`, US-15.1–US-15.5) reversing PRD §10 #7; new requirement **`FR-9.20`** on existing feature F9 (US-9.6, deployment posture only, NFR-9 explicitly unaffected); Phase 7 superseding note on existing feature F2's 26 USWDS-named `FR-2.x` rules (new US-2.7, NFR-2 unaffected); new test IDs `TEST-ARCH-18`, `TEST-MAN-10`, `TEST-MAN-11`; new Release **R4** row in §3.8; new §3.9 Phase 7 Traceability Addendum. **No existing row in this document was removed, renumbered, or edited** — see §3.9 for the complete addendum and §3.9.4 for how the pre-existing §6 exclusion row is treated. | New: §3.9 (all); Extended (rows added only): §1 header, §2, §3.1, §3.8, §4.1 (F2), §4.4 (F9), §4.7 (new), §7.1, §7.2, §8.1, §9.1 |
 
 **Upstream corrections already reconciled into this baseline** (TechArch §0.4 register status): the FRD was corrected in place so that each resolution is met where the error was. `FR-Y3.9` no longer requires `X-Frame-Options` and new `FR-Y3.9a` forbids it (**D-1**); `FR-1.3` defines two cookie profiles with `governed`/`Lax` as default (**D-2**); F3's receipt process now validates the canonical record and inserts `cargo_entries` once with its final `receipt_outcome` (**D-3**); `Y0` §Roles permits the third connection role `cargoexec_ai` (**A-1**); F13 and `FR-9.11` state that `failure_reason` lives on `recommendations` (**C-1**); F4 declares `primary_field` for `RIV-070`/`RIV-073` (**C-2**); F3 §Validation cites `RIV-101`, `RIV-121`, `RIV-130`/`RIV-131`, `RIV-041` (**C-3**); `Y1` §0 says ten endpoints (**C-4**). **No register entry is now in conflict with FRD text.**
 
@@ -675,6 +758,7 @@ This Requirements Traceability Matrix is submitted for review and sign-off. Appr
 | Test coverage across all features | ✅ 100%; 54 automated + 9 manual test cases | §7.2 |
 | Accessibility verification policy recorded (no CI gate, manual sign-off mandatory) | ✅ Recorded as stated policy | §7.4 |
 | Unmapped requirements, orphan artefacts, or empty traceability cells | ✅ **None** | — |
+| **Phase 7 addendum:** F15 (new feature) traced forward/backward; F9 `FR-9.20` and F2 superseding note traced as revisions to existing features; R4/Phase 7 mapped; NFR-1 touchpoint recorded, NFR-9 explicitly confirmed unaffected; no existing row altered | ✅ Traced | §3.9 |
 
 ### 9.2 Sign-Off
 

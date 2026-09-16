@@ -14,6 +14,29 @@
 
 ---
 
+> ### ⚠ Phase 7 — pending redesign
+>
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the product's visual system with a
+> newly-approved external design. The exact tokens, colours, spacing and component styling of
+> that design are **not yet known to this framework** — they are captured during Phase 7 UX
+> discovery/planning from an external design file this framework cannot currently access. Three
+> things follow, and they hold for every chunk in this document, not only this one:
+>
+> 1. **Every screen/flow spec below describes interaction behaviour** — focus order, state
+>    transitions, error handling, live-region announcements, keyboard paths, DOM structure and
+>    ordering. That behaviour is unaffected by which visual system renders it and **remains
+>    authoritative** through and beyond the redesign.
+> 2. **Every visual/token reference below is Phase-6-era** — the USWDS component register in
+>    §1.2, and any specific colour token, icon name, or component name named anywhere in this
+>    document — and will be superseded once the Phase 7 design is imported and a new
+>    `Y0-patterns.md` token table is authored. Nothing below is deleted for this reason: it
+>    remains historically accurate for what shipped through Phase 6.
+> 3. **No screen in this document is redesigned by this update.** This note, and the inline
+>    flags placed beside concrete visual/token references, are the full extent of this wave's
+>    change to the UX Mockup.
+
+---
+
 ## 1. Overview
 
 CargoExec has **exactly six screens**. Every one of them exists to carry one stage of the
@@ -127,6 +150,14 @@ in the DOM** — no dashboard, reports, metrics, settings, administration or exp
 | 4 | Case detail | `/cases/{ref}` | F10 on F2 | `Screen-03-case-detail.md` | US-10.1 … US-10.8, US-9.3, US-9.4 |
 | 5 | Decision | `/cases/{ref}` § 5 | F12 on F2 | `Screen-04-decision.md` | US-12.1 … US-12.7, US-11.4, US-11.6 |
 | 6 | Per-case audit trail | `/cases/{ref}` § 6 | F14 on F2 | `Screen-05-audit-trail.md` | US-14.1 … US-14.7, US-13.2 |
+
+**F15 (Phase 7, Seeded Demonstration Case) has no screen.** It is an operator-run seed script
+(PRD §5.7 F15, FRD F15) invoked from the command line against the deployment — never an HTTP
+route, a UI control, or a specialist-reachable capability. It has no route, no nav element, and
+no specialist-facing surface of any kind, so it does not appear in the Navigation Map above and
+is not assigned a chunk in this document. The screen inventory above — Screen-00 through
+Screen-05 — is **unchanged and complete** for every specialist-facing surface in the product,
+including after Phase 7.
 
 ## 4. Document index
 

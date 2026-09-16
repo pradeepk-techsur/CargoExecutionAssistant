@@ -400,6 +400,10 @@ Full schemas in `Y1-api.md` §1 Session.
 
 **Priority:** P0 (statutory constraint) · **Surface:** **User-facing interface** / Content & assets · **Dependencies:** none · **PRD trace:** §5.1 F2, NFR-1, NFR-2, NFR-10, NFR-12, SM-10, SM-11, SM-12
 
+**Phase 7 note — superseding UI specification:** As of Phase 7, USWDS is being replaced as the visual system by a newly-approved external design; the specific replacement tokens, component names, and class names are **not yet decided** and are deferred to Phase 7 discovery/UX design (PRD §4.1, §5.1 F2). Accordingly, the FR-2.x rules below that name USWDS specifically by component, token, or class (including but not limited to FR-2.1 "USWDS component provenance", FR-2.2 "design tokens", FR-2.3 "asset pipeline", FR-2.5 "USWDS government banner", FR-2.11 "USWDS required indicator", FR-2.12/FR-2.13 "USWDS error wrapper", FR-2.18 "USWDS token pairings", FR-2.20/FR-2.22 component naming, and SM-12 "USWDS conformance") are **superseded in place** by a Phase-7 UI-SPEC to be produced once the new design system's concrete tokens and components are known. This document intentionally does **not** rewrite those 26 rules line-by-line or invent replacement class/token names — that is Phase 7 planning's job, done against the actual approved design.
+
+What does **not** change, and remains binding on the Phase 7 UI regardless of which visual system implements it: Section 508 / WCAG 2.1 AA conformance in full (NFR-2); self-hosted assets bundled and served by the application with no runtime CDN dependency; the official U.S. government banner rendered above the header on every screen; no bespoke interactive control introduced without a documented accessibility equivalence to a standard control; visible required-field indication; visible keyboard focus meeting AA non-text contrast; colour-independent signalling of provenance, error, and state (never colour alone); status/error announcement via live regions; and the mandatory per-screen manual accessibility review checklist (FR-2.26), since v1 still adds no automated accessibility gate (PRD §10 #1). The rules below are retained verbatim as the Phase-6/USWDS baseline until the Phase-7 UI-SPEC restates them against the new design system.
+
 **Description:** F2 is the shared user-interface foundation every screen is built from: the USWDS asset pipeline and component library, the page shell (official-site banner, header, `main` landmark, footer), navigation, the form and validation-message patterns, error/empty/loading/degraded states, focus management, and the live regions through which status and error messages reach assistive technology. It is the feature that makes Section 508 / WCAG 2.1 AA conformance a property of the delivered interface rather than an aspiration: the accessible patterns are defined and built once here and inherited by F1's sign-in screen, F6, F8, F10, F12, and F14. Conformance is achieved by design and **manual** review — including an assistive-technology walkthrough of every screen — and explicitly not by an automated gate; v1 adds no CI accessibility workflow and no `.github/workflows` file (PRD §10 #1).
 
 **Terminology (feature-specific):**
@@ -963,7 +967,9 @@ Required-information failure is a **business outcome, not an error** — it yiel
 
 **Priority:** P0 · **Surface:** **User-facing interface** · **Dependencies:** F2, F3 · **PRD trace:** §5.2 F6, §11.1, NFR-1, NFR-2, NFR-10, SM-1, SM-11
 
-**Description:** F6 is the screen a cargo specialist actually uses to create a cargo entry: a USWDS form with labelled fields, required-field indication, inline and summarised error messaging, and a submit action. On submission the specialist is told plainly what happened — the entry either passed validation or it opened an exception — with the case reference and a direct link to the case. Because there is no seeded demonstration dataset, this screen is the beginning of every demonstration path, and its explicitness about the receipt outcome is what makes the *validate* and *except* stages of the governed loop visible rather than inferred.
+**Description:** F6 is the screen a cargo specialist actually uses to create a cargo entry: a USWDS form with labelled fields, required-field indication, inline and summarised error messaging, and a submit action. On submission the specialist is told plainly what happened — the entry either passed validation or it opened an exception — with the case reference and a direct link to the case. Through Phase 6, because there was no seeded demonstration dataset, this screen was the beginning of every demonstration path, and its explicitness about the receipt outcome is what makes the *validate* and *except* stages of the governed loop visible rather than inferred.
+
+**Phase 7 note — relationship to F15:** As of Phase 7, a seeded demonstration case (F15) pre-loads the database with one cargo case already carried through the full lifecycle, so later-loop scenarios (recommendation, decision, audit trail) can be shown without hand-walking receipt and validation live every time. F15 is strictly additive: this screen is unchanged by it, remains fully functional, and is the **only** way to create any cargo entry beyond the one seeded case — F15 introduces no form, route, or UI control of its own (F15 FR-15.10). Every requirement below (FR-6.1–FR-6.19) applies exactly as written.
 
 **Terminology (feature-specific):**
 - **Entry form:** the single-page USWDS form rendering all fourteen entry fields in four labelled fieldsets.
@@ -1290,6 +1296,8 @@ Full schemas in `Y1-api.md` §3 Queue & Cases.
 
 **Description:** F9 generates a recommended resolution action for an exception together with a plain-language rationale explaining why that action is recommended. The AI is consumed through a hosted model API behind a provider abstraction; there is no training and no fine-tuning infrastructure (PRD §10 #11). The recommendation is a **draft only**: it is persisted as a proposal attached to the case, every proposed value is marked `AI` in origin, and it never mutates the entry or the exception state. Generation is triggered by the exception coming into being, and its result is recorded with the model identity, prompt version, and timestamp, so the record can later answer "what did the AI say" exactly as it was said. If the provider is unavailable, slow, or returns something unusable, the case remains fully workable and the human decision path is unaffected.
 
+**Phase 7 note — provider posture.** The provider abstraction, HTTP adapter, and retry/timeout/schema-validation logic described in this chunk are unchanged by Phase 7 — this was always the intended shape. What changes is deployment **posture** only: as of Phase 7, the demonstration/production deployment MUST be configured with a real hosted LLM provider (`AI_PROVIDER_URL` pointing at a real HTTPS endpoint, with a valid `AI_API_KEY` and `AI_MODEL_ID`) rather than the deterministic `fake` provider that earlier default configuration pointed at. The `fake:deterministic` provider remains available and is used strictly for automated test runs (PRD §4.1, §5.4 F9). See FR-9.20.
+
 **Terminology (feature-specific):**
 - **Provider abstraction:** the internal `RecommendationProvider` interface (`generate(request) → RecommendationDraft`) behind which the hosted model client sits. The decision and audit layers depend only on this interface.
 - **Recommendation draft:** the provider's parsed, schema-valid output: a recommended action, a rationale, and proposed field values with the rule ids each addresses.
@@ -1348,6 +1356,7 @@ Full schemas in `Y1-api.md` §3 Queue & Cases.
 - **FR-9.17 — Concurrency and idempotence.** The job MUST take a row lock on the recommendation and act only while `status = 'PENDING'`, so a duplicate dispatch performs no second write and produces no second audit entry.
 - **FR-9.18 — Bounded resource use.** Generation MUST run with a bounded worker concurrency and MUST NOT block the HTTP request path. A backlog MUST NOT delay any interactive response (NFR-10); pending cases simply display as pending in F10.
 - **FR-9.19 — Process restart.** A recommendation left `PENDING` by a process restart MUST be presented as pending-then-stale by F10 (FR-10.7) rather than resurrected by a sweeper job: v1 has no recovery scheduler, and a case with no recommendation is fully decidable. This is a deliberate simplification consistent with degraded mode.
+- **FR-9.20 — Real provider required outside automated tests (Phase 7).** The demonstration/production deployment MUST be configured at startup with `AI_PROVIDER_URL` set to a real HTTPS LLM endpoint and a valid `AI_API_KEY`/`AI_MODEL_ID`. The deterministic `fake` provider MUST be used only by the automated test suite's own configuration and MUST NOT be the default, fallback, or unconfigured-state behaviour of a deployed environment. This requirement governs deployment configuration only; it introduces no change to the `RecommendationProvider` interface, the retry/timeout logic (FR-9.5–FR-9.6 process steps), or the output schema (FR-9.7).
 
 ---
 
@@ -1404,6 +1413,7 @@ There is deliberately **no** `POST`/`PUT` recommendation endpoint, no regenerate
 6. The generation code path has no import of, or reference to, the decision service; a test asserts this and asserts that no AI principal exists in `specialists`.
 7. Dispatching the job twice for one exception produces one recommendation and one audit entry.
 8. No log line, response body, or audit entry contains the provider API key.
+9. The demonstration/production deployment's `AI_PROVIDER_URL` resolves to a real HTTPS LLM endpoint with a valid `AI_API_KEY`/`AI_MODEL_ID` configured — not the `fake:deterministic` default; the fake provider appears only in the automated test suite's configuration (FR-9.20).
 
 ---
 ## F10: Exception Case Detail & Recommendation Presentation UI
@@ -2075,6 +2085,108 @@ No write endpoint exists. Full schemas in `Y1-api.md` §4 Audit.
 7. A tampered copy of the database renders the integrity failure alert at the correct sequence.
 8. Recording a decision refreshes the trail in place so the new event appears without a manual reload.
 9. A screen reader announces list position for each event and reads each value table with its column headers.
+
+---
+## F15: Seeded Demonstration Case
+
+**Priority:** P0 · **Surface:** Data / Operational tooling · **Dependencies:** F0, F3, F4, F5, F9, F11, F13 · **PRD trace:** §5.7 F15, §4.2, §10 #7 (superseded), R-9
+
+**Description:** F15 is an idempotent, operator-run seed script that pre-loads the database with exactly one demonstration cargo case that has already progressed through the full governed loop — received → validated-failed → exception opened → AI recommendation generated with rationale → human decision recorded → audit trail written. It exists so that later-loop scenarios (recommendation review, decision, audit trail) can be demonstrated repeatably without hand-typing an entry and its validation failure live every time. This **reverses** the v1.0 exclusion at PRD §10 #7, which kept receipt and validation part of the demonstrated path precisely because no seed data existed; Phase 7 judges that trade no longer worth making once every later stage must also be shown on demand. The reversal is strictly additive: manual entry through F6 is unchanged, remains fully functional, and is the only way to create any cargo entry beyond the one seeded case (F6 §Phase 7 note).
+
+The script produces its effect exclusively by calling the same repository/service functions the running application uses for a live request — never a migration file and never a direct `INSERT`. This is not a style preference: an existing architecture test forbids `INSERT INTO` in migration files (F0 FR-0.18), and going through the real service layer is also what makes the seeded rows structurally indistinguishable from data a specialist and the AI would have produced live, so every invariant that holds for an organic case (append-only audit, per-value provenance, no auto-apply, hash-chain integrity) holds identically for the seeded one.
+
+**Terminology (feature-specific):**
+- **Seed script:** the idempotent, operator-invoked command that creates (or verifies the presence of) the demonstration case. Not a route, not a UI control, not scheduled.
+- **Demonstration case:** the one cargo case the script produces, carried through every stage of the governed loop with fixture content.
+- **Demonstration specialist:** the specialist record — reused if already present, created via the same provisioning path as F1 FR-1.13 if absent — attributed as the actor for the seeded entry and decision.
+- **One-time operator action:** a command run directly against the deployment by a human operator, analogous to F1's `create-specialist` CLI — never invoked by the application itself, never reachable through a session.
+- **Stage-resumable seeding:** the script's behaviour of checking, at each lifecycle stage, whether that stage's row already exists and performing only the stages not yet completed, rather than an all-or-nothing single check.
+
+**Sub-features:**
+- Idempotent, stage-resumable seed command producing exactly one demonstration case
+- Demonstration specialist provisioning (reuse if present, create via the F1 provisioning path if absent)
+- Full lifecycle construction through the real F3 → F4 → F5 → F9 → F11 → F13 service functions
+- No migration-based data insertion; compliant with the existing no-`INSERT INTO`-in-migrations architecture test
+- `EDIT_APPROVE` demonstrated as the decision type, producing a resolution with both `AI`-origin and `HUMAN`-origin values on one case
+- Clear operator-facing logging distinguishing "created" from "already present" at each stage
+- Documentation labelling the seeded case as demonstration fixture content, never organic history
+
+---
+
+### Process — Seeding
+
+1. Operator runs the seed command (e.g. `npm run seed:demo-case`) against a freshly migrated deployment. The script is never invoked by the application itself.
+2. Script resolves the demonstration specialist: looks up by a reserved, clearly-labelled demonstration email. If absent, it creates one through the same account-provisioning path F1 FR-1.13 uses (never a raw `INSERT`), with a display name that visibly marks it as a demonstration account (e.g. "Demo Specialist"). If present, it is reused unchanged.
+3. Script looks up the demonstration cargo entry by a reserved, fixed `entry_number`. If absent, it calls F3's entry-receipt service function with a fixed, deliberately-incomplete set of the fourteen entry field values, attributed to the demonstration specialist — the same call path a live submission takes, so F4 validation, F5 exception creation, and F13's `ENTRY_RECEIVED` / `VALIDATION_COMPLETED` / `EXCEPTION_OPENED` audit writes all fire exactly as they would for a human-typed entry. The fixture values are chosen to genuinely fail at least one `RIV-0x0` rule — the failure is real, not asserted.
+4. If the resulting exception's recommendation is not already `AVAILABLE`, the script invokes F9's generation function in-process for that exception. F9's own concurrency guard (FR-9.17: act only while `status = 'PENDING'`) makes a repeated or redundant call a no-op, so the script needs no separate idempotence check of its own here.
+5. If the exception does not already have a decision, the script invokes F11's decision service function with `decision_type = 'EDIT_APPROVE'`, a fixed reason of at least 10 characters, and a resolution that edits exactly one AI-proposed value (re-stamped `HUMAN` origin per F11's edit-and-approve rule) while leaving at least one other AI-proposed value unedited (retaining `AI` origin) — so the seeded case is the one place in the system that visibly demonstrates a single resolution mixing both origins. If a decision already exists, no further write is attempted; F0 FR-0.12's `UNIQUE (exception_id)` would reject a second one regardless.
+6. At every stage, the audit entry for that stage is written exclusively by F13, in the same transaction as the state change it describes, exactly as for a live actor. The script introduces no audit write of its own and no alternate write path.
+7. Script logs, per stage, whether it created something or found it already present, then a one-line summary (case reference, demonstration specialist email, count of audit entries), and exits `0`. Any unhandled error during a stage causes the script to exit non-zero, naming the stage that failed; because each stage uses that feature's own transaction boundary, a failure never leaves that stage's own write half-done — it only leaves later stages un-attempted, which a subsequent run resumes from.
+
+---
+
+### Functional Requirements
+
+- **FR-15.1 — No migration-based insertion.** The demonstration case MUST NOT be created by a migration file or by any `INSERT INTO` statement outside the application's own repository/service layer. This complies with the existing architecture test that forbids `INSERT INTO` in migration files (F0 FR-0.18); F15 is delivered as a separate, operator-invoked script rather than as a migration.
+- **FR-15.2 — Same code paths as production.** The script MUST create the demonstration case using the identical service/repository functions the running application uses for a live entry (F3), live validation (F4), live exception derivation (F5), live recommendation generation (F9), and live decision processing (F11) — never bespoke seed-only SQL and never a parallel write path. The seeded rows MUST therefore be structurally indistinguishable, in shape, from rows the application would produce from real specialist and AI activity; only their content is fixture data.
+- **FR-15.3 — Idempotency and stage-resumability.** Running the script any number of times, including concurrently, against a database that already contains some or all of the demonstration case's stages MUST produce no duplicate specialist, no duplicate case, no duplicate recommendation, no duplicate decision, and no duplicate audit entry. The script MUST check, before each stage, whether that stage's row already exists and perform only the remaining stages, rather than relying on a single all-or-nothing precondition.
+- **FR-15.4 — Demonstration specialist provisioning.** The script MUST attribute the seeded entry and decision to a specialist record. If no specialist with the reserved demonstration email exists, the script MUST create one through the same account-provisioning path as F1 FR-1.13 — never a raw `INSERT` — with a display name clearly labelled as a demonstration account. If that specialist already exists, the script MUST reuse it rather than creating a duplicate.
+- **FR-15.5 — Decision type demonstrated: EDIT_APPROVE with mixed provenance.** The seeded case's decision MUST be `EDIT_APPROVE`, with at least one resolution value edited (re-stamped `HUMAN` origin) and at least one resolution value left as the AI's original proposal (retaining `AI` origin) — so the seeded case demonstrates, on one resolved exception, AI-origin and human-origin values coexisting in a single record (F11 edit-and-approve; F0 FR-0.2, FR-0.3).
+- **FR-15.6 — Full lifecycle coverage.** The seeded case MUST pass through every stage of the governed loop in order: `ENTRY_RECEIVED` → `VALIDATION_COMPLETED` (failing, ≥ 1 finding) → `EXCEPTION_OPENED` → `RECOMMENDATION_GENERATED` (reaching `AVAILABLE`, not `UNAVAILABLE`) → `RECOMMENDATION_EDITED_AND_APPROVED`. No stage may be skipped, stubbed, or represented by a placeholder row.
+- **FR-15.7 — Audit trail integrity preserved.** Every audit entry the script causes to be written MUST go through F13's single audit-writing chokepoint, MUST participate in the same per-case hash chain as any other case (F0 FR-0.7), and MUST pass the same chain-verification routine (F0 FR-0.8) as an organically produced case. No seed-specific audit bypass, no backdated or fabricated timestamp, and no manually-constructed hash value is permitted — audit timestamps are the actual wall-clock time the script ran (F0 FR-0.16).
+- **FR-15.8 — No auto-apply exception for the seeded case either.** The script MUST NOT write directly to `cargo_entries`, `exceptions.state`, `decisions`, or any other governed table; it may only invoke the same service-layer functions an authenticated specialist's request would invoke, in-process, without HTTP. This preserves F9's structural guarantee (FR-9.1, FR-9.2) and F0's human-in-the-loop constraint trigger (FR-0.9) for the seeded case exactly as for any other: only a human-authored decision call — real or scripted through the identical code path — can resolve it.
+- **FR-15.9 — Demonstration fixture labelling.** Any README, operator runbook, or in-repo documentation describing the seed script MUST state clearly that the seeded case is demonstration fixture data, not organic production history. No `is_seed` or similar column is introduced on any table to carry this label at the data level (no such column exists — PRD §10; F0 §Explicitly absent columns); the labelling obligation is documentation-only.
+- **FR-15.10 — Operational invocation only.** The seed script MUST be runnable only as an operator-invoked command against the deployment (a CLI script or task runner target), analogous to F1 FR-1.13's `create-specialist` command. It MUST NOT be exposed as an HTTP endpoint, a UI control, a scheduled job, or any capability reachable by an authenticated specialist through the running application (F6 §Phase 7 note).
+- **FR-15.11 — Exactly one demonstration case; not a general fixture tool.** The script MUST create exactly one demonstration case and MUST NOT be parameterised to create additional or varied demonstration cases, batch-generate fixture data, or otherwise serve as a general-purpose seeding/factory tool. This keeps the reversal of PRD §10 #7 narrowly scoped to what the PRD's Phase 7 update actually grants.
+
+---
+
+**Inputs:**
+- Operator command-line invocation (no HTTP request, no session, no request body)
+- Fixed demonstration entry field values, hard-coded in the script, deliberately chosen to fail at least one `RIV-0x0` rule
+- Reserved demonstration specialist email and display name, hard-coded in the script
+- A fixed, ≥ 10-character demonstration decision reason, hard-coded in the script
+
+**Outputs:**
+- One demonstration specialist record (created or reused)
+- One demonstration cargo entry with `receipt_outcome = 'EXCEPTION_OPENED'`
+- One validation result with at least one finding
+- One exception in state `RESOLVED`
+- One recommendation in status `AVAILABLE`, with `AI`-origin proposed values
+- One decision of type `EDIT_APPROVE`, with at least one `HUMAN`-origin and at least one `AI`-origin resolution value
+- The full, hash-chained sequence of audit entries F13 would write for that lifecycle
+- Console log output stating, per stage, what was created versus what was already present, and a final summary line
+
+**Validation:**
+- The script MUST verify, at each stage, whether that stage's row already exists before writing (FR-15.3) rather than checking only overall case existence.
+- The fixed demonstration entry values MUST pass through F3/F4's real validation logic unmodified — the script MUST NOT mark the exception as opened directly; the validation failure MUST be genuine.
+- The demonstration decision's reason text MUST satisfy the same ≥ 10-character-after-trim constraint enforced by F0 FR-0.15 and F11's API validation; the script's fixed reason is chosen to already satisfy it.
+- The script MUST refuse (exit non-zero) rather than silently proceed if the schema is not migrated or a dependency (F1 provisioning path, F3/F9/F11 service functions) is unavailable.
+
+**Error States:**
+
+| Scenario | Behaviour | Operator-visible result |
+|---|---|---|
+| Database not migrated / required tables missing | Script aborts before any write | Non-zero exit; message states migration is required |
+| Demonstration case already fully seeded | No stage performs a write | Logs "demonstration case already present"; exits 0 |
+| Demonstration case partially seeded (e.g. entry and exception exist, no decision yet) | Script performs only the remaining stages | Logs which stages ran and which were skipped as already present; exits 0 |
+| Recommendation generation reaches `UNAVAILABLE` rather than `AVAILABLE` (e.g. provider unreachable when seeding) | Script stops before the decision stage, since FR-15.5 requires an `AVAILABLE` recommendation with AI-origin values to demonstrate edit-and-approve | Non-zero exit with a clear message; operator re-runs once the provider is reachable, and the script resumes from the recommendation stage |
+| Concurrent invocation of the script | F3/F9/F11's own row locks and idempotence guards apply exactly as for concurrent live requests | At most one concurrent run performs each stage's write; no duplicate case results |
+| Demonstration specialist email already used by an unrelated, differently-configured specialist | Script reuses the existing record rather than erroring | Logs a warning identifying the reused record; exits 0 |
+
+**API Surface (this feature):** none. F15 is operator tooling, not a route — it is never reachable over HTTP, has no request/response schema, and is not catalogued in `Y1-api.md`.
+
+**Schema Surface (this feature):** introduces no new table and no new column. The script writes only into existing tables — `specialists`, `cargo_entries`, `cargo_entry_field_origins`, `validation_results`, `validation_findings`, `exceptions`, `recommendations`, `recommendation_values`, `decisions`, `decision_values`, `audit_entries`, `audit_entry_values` — exclusively via F3/F4/F5/F9/F11/F13's own repository functions. No `is_seed` or equivalent flag column exists anywhere (F0 §Explicitly absent columns; PRD §10). See `Y0-schema.md` for the underlying DDL, which F15 does not modify.
+
+**Acceptance Criteria:**
+1. Running the seed script against a freshly migrated, empty database produces exactly one case in state `RESOLVED`, with a validation result containing at least one finding, a recommendation in status `AVAILABLE` with `AI`-origin proposed values, and a decision of type `EDIT_APPROVE` with at least one `HUMAN`-origin and at least one `AI`-origin resolution value.
+2. Running the seed script a second time immediately afterward produces no additional case, specialist, recommendation, decision, or audit entry, and exits 0.
+3. The demonstration case's audit trail passes the F0 FR-0.8 chain-verification routine with `chain_verified: true`.
+4. No `INSERT INTO` statement referencing `cargo_entries`, `exceptions`, `recommendations`, `decisions`, or `audit_entries` exists in any migration file, verified by the existing architecture test.
+5. Manually inspecting the demonstration case's rows shows no structural difference from a live-created case other than fixture content (entry field values, rationale text, decision reason text).
+6. Deleting nothing and re-running the script after only the entry/exception stages previously succeeded completes the remaining stages (recommendation, decision) without repeating the entry receipt.
+7. The seed script is not reachable via any HTTP route, and no UI control in F6, F8, F10, F12, or F14 invokes it.
+8. Manual entry through F6 continues to function unchanged and remains the only way to create a cargo entry other than the one seeded case.
 
 ---
 ## Y0: Database Schema (Authoritative DDL)
@@ -3082,7 +3194,6 @@ Each of the following has no adapter, no configuration key, no interface stub, n
 | Supervisory dashboard, metrics sink, throughput or queue-health reporting | PRD §10 #2 |
 | External identity provider, role directory, permission service | PRD §10 #3 |
 | Accessibility CI service, axe-core runner, `.github/workflows` | PRD §10 #1 |
-| Seed/fixture data loader for demonstration content | PRD §10 #7 |
 | Model training, fine-tuning, or feedback pipeline | PRD §10 #11 |
 | Native mobile client or mobile push service | PRD §10 #10 |
 | Duty/tariff calculation or classification ruling service | PRD §10 #9 |

@@ -5,12 +5,13 @@
 |-------|-------|
 | **Product Name** | CargoExecutionAssistant |
 | **Project Acronym** | CargoExec |
-| **Document Version** | 1.0 |
-| **Date** | 2026-09-11 |
-| **Related Personas** | PERSONAS-CargoExec.md (PER-01, PER-02, PER-03) |
-| **Related PRD** | PRD-CargoExec.md (§5 Features, §6 NFRs, §7 Success Metrics, §10 Out of Scope) |
+| **Document Version** | 1.1 |
+| **Date** | 2026-09-11 (Phase 7 update: 2026-09-16) |
+| **Related Personas** | PERSONAS-CargoExec.md v1.1 (PER-01, PER-02, PER-03) |
+| **Related PRD** | PRD-CargoExec.md v1.1 (§5 Features incl. §5.7 F15, §6 NFRs, §7 Success Metrics, §10 Out of Scope) |
 | **Source of Truth** | `.planning/PROJECT.md` |
 | **Downstream Documents** | Journeys-CargoExec, UserStories-CargoExec, STORY-MAP-CargoExec, UX-CargoExec |
+| **Revision Note** | Updated for Phase 7 (visual-system redesign, seeded demonstration case, real LLM posture) — see PRD §5.1 F2, §5.2 F6, §5.4 F9, §5.7 F15, §10 #7 |
 
 ---
 
@@ -225,14 +226,14 @@ When I work entirely by keyboard and assistive technology, I want to complete ev
 - Is told conformance is coming in a later release, so the current release is unusable now regardless of the promise
 
 **Hiring Criteria:**
-- Every interactive component is a USWDS component or a documented USWDS-conformant composition, with USWDS tokens governing typography, spacing and colour
+- Every interactive component conforms to whichever visual design system is shipped — USWDS through Phase 6, the newly-approved external design as of Phase 7 — or a documented conformant composition, with that system's tokens governing typography, spacing and colour
 - Full keyboard operability with a visible focus indicator on every interactive element across every screen
 - Semantic landmarks, correct heading order, accessible names on all controls, and programmatic label and error association
 - Status and error messages exposed to assistive technology via live regions; error summaries move focus
 - AI-versus-human origin is never conveyed by colour alone, in either the case view or the audit trail
-- AA colour contrast, text resizing and reduced-motion behaviour, verified by per-screen design review and an assistive-technology walkthrough of each screen
+- AA colour contrast, text resizing and reduced-motion behaviour, verified by per-screen design review and an assistive-technology walkthrough of each screen — the conformance bar is unchanged by the Phase 7 visual redesign; only the mechanism is
 
-**Success Measure:** Zero WCAG 2.1 AA violations across every screen with 100% of screens reviewed and signed off (SM-10); 100% of product tasks completable by keyboard alone (SM-11); 100% USWDS component conformance (SM-12).
+**Success Measure:** Zero WCAG 2.1 AA violations across every screen with 100% of screens reviewed and signed off (SM-10); 100% of product tasks completable by keyboard alone (SM-11); 100% conformance with the delivered visual design system's component library (SM-12).
 
 **Related Features:** F2 (inherited by F6, F8, F10, F12, F14)
 **Related NFRs:** NFR-1, NFR-2, NFR-4
@@ -381,18 +382,18 @@ When I am deciding whether CBP can build governed applications quickly enough to
 - Reads governed delivery asserted in documents and architecture decks, having learned that an assertion is not evidence (PRD §2.1 #6)
 - Is shown a broad application that arrives partially finished, which answers the delivery-capability question with a "no" (R-7)
 - Is walked through an API transcript because the backend exists and the interface does not, leaving the claim provable only in a form she cannot evaluate (R-7)
-- Is shown a pre-staged dataset, so the receive and validate stages were never actually demonstrated
+- Is shown a dataset that silently substitutes for the receive and validate stages, so those two stages were never actually demonstrated live — as distinct from a deliberately-seeded case (F15) used on purpose to reach later-stage scenarios quickly, alongside a receive/validate stage that is still demonstrated by hand
 
 **Hiring Criteria:**
 - All six stages are carried by shipped features with named user-facing surfaces (F6, F8, F10, F12, F14 on F2) — backend endpoints do not satisfy the interface requirement
 - The walkthrough runs through the browser, start to finish, in one sitting: sign in, hand-type a deliberately incomplete entry, watch it fail validation and open as an exception, open it, read the recommendation and rationale, change a value with a reason, approve, read the audit trail
-- Entries are created by hand during the demonstration — there is no seeded dataset — so receive and validate sit inside the demonstrated path rather than behind it
+- Receive and validate remain independently demonstrable by hand-typing a fresh entry through F6 — that live path is not removed, gated, or replaced; a pre-loaded demonstration case (F15) exists alongside it so recommend, decide and audit can also be reached directly, without hand-walking every earlier stage first each time
 - The loop remains completable with the AI stage degraded, so the governance guarantee does not depend on a third party being healthy
 - Interactive screens respond within 2 seconds under demonstration load; AI generation shows accessible progress instead of a frozen interface
 
 **Success Measure:** 6 of 6 governed loop stages demonstrable end to end in a single unbroken walkthrough with no manual workaround (SM-1), and 100% of cases resolvable with a full audit record while the AI provider is unavailable (SM-13).
 
-**Related Features:** F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14 (on F0, F1, F2)
+**Related Features:** F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13, F14, F15 (on F0, F1, F2)
 **Related NFRs:** NFR-9, NFR-10
 **Priority:** P0
 
@@ -428,7 +429,7 @@ When I press on whether anything in this system can resolve a case without a hum
 ### JTBD-03.3: See Federal Standards Met in What Shipped
 
 **Job Statement:**
-When I evaluate whether governed delivery includes the parts that usually slip, I want USWDS conformance and WCAG 2.1 AA to be observable in the screens I am watching right now — including a keyboard-only pass — so accessibility is something the release already has rather than something the next release is promised to add.
+When I evaluate whether governed delivery includes the parts that usually slip, I want Section 508 / WCAG 2.1 AA conformance to be observable in the screens I am watching right now — under whichever visual design system is shipped, including a keyboard-only pass — so accessibility is something the release already has rather than something the next release is promised to add.
 
 **Served By (product property, not an interface she operates):** Accessibility and design-system conformance established once in the application shell (F2) and inherited by every screen, gated by a per-screen design-and-review checklist and an assistive-technology walkthrough. Priya observes conformance in the delivered screens; she is given no reporting view of it.
 
@@ -438,13 +439,13 @@ When I evaluate whether governed delivery includes the parts that usually slip, 
 - Is offered an automated scan result as a proxy for conformance, which v1 deliberately does not have and would not accept in place of review
 
 **Hiring Criteria:**
-- Every interactive component in the shipped UI is a USWDS component or a documented USWDS-conformant composition, with USWDS tokens governing typography, spacing and colour
+- Every interactive component in the shipped UI conforms to whichever visual design system is delivered — USWDS through Phase 6, the newly-approved external design as of Phase 7 — or a documented conformant composition, with that system's tokens governing typography, spacing and colour
 - Every screen can be operated keyboard-only end to end during the walkthrough, with visible focus throughout
 - Semantic structure, heading order, accessible names, label/error association and live-region status messaging are present in the screens being demonstrated, not scheduled
 - AI-versus-human origin is conveyed beyond colour alone everywhere it appears
-- Every screen has been through manual design review and an assistive-technology walkthrough, and that sign-off is available as evidence — the absence of a CI gate is a recorded decision that makes review mandatory rather than optional
+- Every screen has been through manual design review and an assistive-technology walkthrough, and that sign-off is available as evidence — the absence of a CI gate is a recorded decision that makes review mandatory rather than optional; the review obligation carries over unchanged from the visual system it previously reviewed against to the one it now reviews against
 
-**Success Measure:** Zero WCAG 2.1 AA violations across every reviewed screen with 100% of screens reviewed and signed off (SM-10); 100% of product tasks completable by keyboard alone (SM-11); 100% USWDS component conformance (SM-12).
+**Success Measure:** Zero WCAG 2.1 AA violations across every reviewed screen with 100% of screens reviewed and signed off (SM-10); 100% of product tasks completable by keyboard alone (SM-11); 100% conformance with the delivered visual design system's component library (SM-12).
 
 **Related Features:** F2 (inherited by F6, F8, F10, F12, F14)
 **Related NFRs:** NFR-1, NFR-2, NFR-4
@@ -488,8 +489,9 @@ When I judge whether scope discipline held, I want to be able to confirm that no
 | Exception volume, queue health, aging, throughput, or workload-per-specialist measures | **Excluded** | PRD §10 #2; PRD §7 deliberately contains no operational-scale metric |
 | Any login, view, or report of her own | **Excluded** | PRD §10 #3 — one authenticated role only |
 | A presenter mode, demo mode, or read-along surface for the walkthrough | **Excluded** | PRD §10 #3 and Persona Relationships — PER-03 observes a PER-01 session and never touches the application |
-| A seeded demonstration dataset to make the walkthrough faster | **Excluded** | PRD §10 #7 — hand-created entries keep receive and validate inside the demonstrated path |
 | An in-product scope-compliance or governance-status view | **Excluded** | PRD §10 #2 — a surface reporting on scope discipline would itself breach it; SM-14 is checked against the shipped feature set, not rendered |
+
+*(Phase 7 note: a seeded demonstration dataset was excluded here under v1.0 — PRD §10 #7. That exclusion is superseded by PRD §5.7 F15, which adds a hand-authored seed script pre-loading one demonstration case through the full loop, additively alongside the still-live, hand-typed entry path (F6). This need is no longer excluded and has moved into JTBD-03.1 above.)*
 
 ---
 
@@ -503,17 +505,17 @@ When I judge whether scope discipline held, I want to be able to confirm that no
 | JTBD-01.4 | PER-01 | F11, F12 | Resolution state changes only through an undefaulted, deliberate human decision carrying a mandatory reason on edit and reject | SM-4, SM-5 |
 | JTBD-01.5 | PER-01 | F13, F14 | The complete chronological history of a case — actor, action, time, before/after, reason, origin — is readable inside the case with no external tooling | SM-2, SM-6 |
 | JTBD-01.6 | PER-01 | F9 (degraded), F10, F11, F12 | The decision and audit path stays fully operable and fully recorded when the AI provider is unavailable | SM-13 |
-| JTBD-01.7 | PER-01 | F2 (inherited by F6, F8, F10, F12, F14) | Every product task is completable keyboard-only on USWDS-conformant, WCAG 2.1 AA screens verified by per-screen review | SM-10, SM-11, SM-12 |
+| JTBD-01.7 | PER-01 | F2 (inherited by F6, F8, F10, F12, F14) | Every product task is completable keyboard-only on WCAG 2.1 AA screens, conformant with whichever visual design system is delivered, verified by per-screen review | SM-10, SM-11, SM-12 |
 | JTBD-02.1 | PER-02 *(non-user)* | F1, F11, F13 | No code path resolves a case without an authenticated human decision, and every decision carries an identified actor | SM-4 |
 | JTBD-02.2 | PER-02 *(non-user)* | F0, F13 | Audit history is insert-only with database-level mutation rejection, monotonic sequencing and hash linkage | SM-7, SM-6 |
 | JTBD-02.3 | PER-02 *(non-user)* | F0, F9, F11, F13, F14 | Every resolution value carries `AI` or `HUMAN` origin in storage and rendering, with a mandatory reason on every edit and rejection | SM-3, SM-5, SM-2 |
 | JTBD-02.4 | PER-02 *(non-user)* | F4, F5, F10 | Every exception is derived from a validation failure and carries its per-rule findings as its stated basis | SM-8 |
-| JTBD-03.1 | PER-03 *(non-user)* | F3–F14 (on F0, F1, F2) | All six loop stages are carried by shipped browser surfaces and walkable in one unbroken sitting, including with the AI degraded | SM-1, SM-13 |
+| JTBD-03.1 | PER-03 *(non-user)* | F3–F14, F15 (on F0, F1, F2) | All six loop stages are carried by shipped browser surfaces and walkable in one unbroken sitting, including with the AI degraded, reachable either by hand-typing a fresh entry (F6) or via a pre-loaded demonstration case (F15) that reaches every later stage directly | SM-1, SM-13 |
 | JTBD-03.2 | PER-03 *(non-user)* | F9, F11, F12, F13 | Human-in-the-loop is enforced structurally with no auto-apply path, proven by test rather than policy | SM-4, SM-5 |
-| JTBD-03.3 | PER-03 *(non-user)* | F2 (inherited by all UI features) | USWDS and WCAG 2.1 AA conformance is a property of the delivered screens, signed off per screen | SM-10, SM-11, SM-12 |
+| JTBD-03.3 | PER-03 *(non-user)* | F2 (inherited by all UI features) | Section 508 / WCAG 2.1 AA conformance under the delivered visual design system is a property of the delivered screens, signed off per screen | SM-10, SM-11, SM-12 |
 | JTBD-03.4 | PER-03 *(non-user)* | F1, F7, F8; full F0–F14 set | The shipped feature set contains nothing inside the PRD §10 exclusion list, with key exclusions enforced structurally | SM-14 |
 
-**Feature coverage check:** F0 (01.5, 02.2, 02.3), F1 (02.1, 03.1, 03.4), F2 (01.7, 03.3), F3 (01.1, 03.1), F4 (01.1, 02.4), F5 (01.1, 02.4), F6 (01.1, 03.1), F7 (01.2, 03.4), F8 (01.2, 03.4), F9 (01.3, 01.6, 02.3, 03.2), F10 (01.3, 01.6, 02.4), F11 (01.4, 02.1, 02.3, 03.2), F12 (01.4, 01.6, 03.2), F13 (01.5, 02.1, 02.2, 02.3), F14 (01.5, 02.3). **15 of 15 features covered.**
+**Feature coverage check:** F0 (01.5, 02.2, 02.3), F1 (02.1, 03.1, 03.4), F2 (01.7, 03.3), F3 (01.1, 03.1), F4 (01.1, 02.4), F5 (01.1, 02.4), F6 (01.1, 03.1), F7 (01.2, 03.4), F8 (01.2, 03.4), F9 (01.3, 01.6, 02.3, 03.2), F10 (01.3, 01.6, 02.4), F11 (01.4, 02.1, 02.3, 03.2), F12 (01.4, 01.6, 03.2), F13 (01.5, 02.1, 02.2, 02.3), F14 (01.5, 02.3), F15 (03.1). **16 of 16 features covered.**
 
 **Metric coverage check:** SM-1 (01.1, 01.2, 03.1), SM-2 (01.5, 02.3), SM-3 (01.3, 02.3), SM-4 (01.4, 02.1, 03.2), SM-5 (01.4, 02.3, 03.2), SM-6 (01.5, 02.1, 02.2), SM-7 (02.2), SM-8 (01.1, 02.4), SM-9 (01.3), SM-10 (01.7, 03.3), SM-11 (01.2, 01.7, 03.3), SM-12 (01.7, 03.3), SM-13 (01.6, 03.1), SM-14 (03.4). **14 of 14 metrics covered.**
 
@@ -539,7 +541,7 @@ Candidate Natural Acceptance Criteria for STORY-MAP-CargoExec. **PER-01 criteria
 | JTBD-01.6 | Degradation costs only the suggestion | Given the AI provider is unavailable, when the specialist opens the case, then it shows "no recommendation available" and she can still resolve it directly or reject it with a reason and a full audit record written | Test + walkthrough |
 | JTBD-01.6 | Generation never freezes the interface | Given a slow recommendation request, when the case is open, then accessible progress status is announced and navigation remains available | UI + AT review |
 | JTBD-01.7 | The whole job is keyboard-operable | Given a keyboard-only user, when they sign in, create an entry, open a queue case, edit/approve/reject with a reason and read the audit trail, then every task completes with visible focus and no pointer-only step | Keyboard pass |
-| JTBD-01.7 | Screens conform as delivered | Given each shipped screen, when it is reviewed manually and with assistive technology, then zero WCAG 2.1 AA violations are recorded and every interactive component is USWDS or a documented USWDS-conformant composition | Per-screen sign-off |
+| JTBD-01.7 | Screens conform as delivered | Given each shipped screen, when it is reviewed manually and with assistive technology, then zero WCAG 2.1 AA violations are recorded and every interactive component conforms to the delivered visual design system or a documented conformant composition | Per-screen sign-off |
 | JTBD-02.1 | No route to resolution bypasses a human | Given the full code and schedule surface, when tested for auto-apply, then no scheduled job, background worker, retry path or system actor can transition a case to resolved | Test *(no screen)* |
 | JTBD-02.1 | Every decision names its actor | Given any recorded decision, when its audit entry is inspected, then it carries an authenticated specialist identity, not a system or anonymous actor | Test *(no screen)* |
 | JTBD-02.2 | Mutation is rejected, not merely absent | Given a stored audit entry, when an UPDATE or DELETE is attempted — including directly against the database — then it is rejected by the database privilege model | Test *(no screen)* |
@@ -547,10 +549,12 @@ Candidate Natural Acceptance Criteria for STORY-MAP-CargoExec. **PER-01 criteria
 | JTBD-02.3 | Nothing is unattributed | Given every recorded resolution value across all cases, when provenance is checked in storage and in the rendered view, then each carries `AI` or `HUMAN` with zero unattributed values | Test *(no screen)* |
 | JTBD-02.3 | Every change explains itself | Given every edit and rejection in the record, when reasons are checked, then 100% carry a non-empty reason rendered in the trail | Test *(no screen)* |
 | JTBD-02.4 | Exceptions are derived, never authored | Given the exception creation surface, when tested, then no path opens an exception other than a validation failure on receipt, and every exception carries its per-rule findings | Test *(no screen)* |
-| JTBD-03.1 | The loop walks unbroken | Given a running deployment and a specialist operator, when the walkthrough runs from sign-in to audit trail in one sitting through the browser, then all six stages complete with no manual workaround, no API transcript and no pre-staged data | Walkthrough *(no screen for PER-03)* |
+| JTBD-03.1 | The loop walks unbroken | Given a running deployment and a specialist operator, when the walkthrough runs from sign-in to audit trail in one sitting through the browser, then all six stages complete with no manual workaround, no API transcript, and no silent substitution of a pre-staged case for the live receive/validate demonstration | Walkthrough *(no screen for PER-03)* |
 | JTBD-03.1 | Governance survives provider outage | Given the AI provider is down, when the walkthrough is repeated, then the loop still completes with a full audit record | Walkthrough + test |
+| JTBD-03.1 | Seeded case reaches later stages on demand | Given a freshly-migrated database, when the seed script runs, then exactly one demonstration case exists that has already passed through entry, validation failure, exception, AI recommendation, human decision and audit trail, written through the same append-only writer and per-value provenance rules as any other case | Test + walkthrough |
+| JTBD-03.1 | Manual entry path stays live | Given the seeded demonstration case is present, when a specialist creates a new entry by hand through F6, then receive and validate are demonstrated live exactly as before, unaffected by the presence of the seeded case | UI walkthrough |
 | JTBD-03.2 | The answer is structural | Given the question "can anything resolve without a human", when answered, then the answer is the absence of an auto-apply path evidenced by a passing test, not a policy statement | Test evidence *(no screen)* |
-| JTBD-03.3 | Standards are met in the shipped build | Given every screen in the release, when reviewed, then 100% are signed off with zero WCAG 2.1 AA violations, 100% keyboard task completeness and 100% USWDS conformance | Per-screen sign-off |
+| JTBD-03.3 | Standards are met in the shipped build | Given every screen in the release, when reviewed, then 100% are signed off with zero WCAG 2.1 AA violations, 100% keyboard task completeness and 100% conformance with the delivered visual design system's component library | Per-screen sign-off |
 | JTBD-03.4 | Exclusions held | Given the shipped feature set, when checked line by line against PRD §10, then zero shipped features fall within an exclusion, and no filter, sort, assignment, priority dimension or second role exists in the data model or API | Scope review *(no screen)* |
 
 ---
@@ -568,11 +572,11 @@ Candidate Natural Acceptance Criteria for STORY-MAP-CargoExec. **PER-01 criteria
 | No job would require building a §10 exclusion | ✅ Excluded needs recorded in Out-of-Scope blocks with §10 references, not as jobs |
 | No dashboard, metric, filter, sort, assignment, prioritisation, export, bulk ingestion, second role, or autonomous AI job exists | ✅ None; all such needs recorded as excluded |
 | Jobs are distinct, not duplicated across personas | ✅ PER-01 jobs are operational acts; PER-02 jobs are record properties; PER-03 jobs are delivery-evidence properties — different objects, different verification |
-| All 15 features (F0–F14) traced | ✅ See Outcome-to-Feature Traceability coverage check |
-| NaC Preview complete | ✅ 27 candidate criteria across all 15 jobs, each tagged with its verification route |
+| All 16 features (F0–F15) traced | ✅ See Outcome-to-Feature Traceability coverage check |
+| NaC Preview complete | ✅ 29 candidate criteria across all 15 jobs, each tagged with its verification route |
 
 ---
 
 *Document generated by Pivota Spec Framework — JTBD Generator*
-*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD-CargoExec.md v1.0 and PERSONAS-CargoExec.md v1.0*
-*Last updated: 2026-09-11*
+*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD-CargoExec.md v1.1 and PERSONAS-CargoExec.md v1.1*
+*Last updated: 2026-09-16 (Phase 7: visual-system redesign, seeded demonstration case, real LLM posture — see PRD §5.1 F2, §5.2 F6, §5.4 F9, §5.7 F15, §10 #7)*

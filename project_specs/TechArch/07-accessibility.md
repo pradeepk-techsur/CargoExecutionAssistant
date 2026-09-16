@@ -10,6 +10,10 @@ Three architectural moves carry the burden:
 2. **USWDS components only, no bespoke interactive controls.** Every interactive control is a USWDS component or a composition recorded in the conformance register. Custom widgets are the single largest source of accessibility defects; the architecture removes the ability to introduce one casually.
 3. **Type-level and lint-level enforcement of the two requirements most likely to regress silently** — provenance not conveyed by colour alone, and values rendered without their origin (§3.18).
 
+### 7.1a Phase 7 — accessibility process is unchanged by the pending visual redesign
+
+Phase 7 replaces USWDS as the shell's visual system (PRD §4.1, §5.1 F2; `01-components.md` §1A.1b, `06-tech-stack.md` §6.2a); it does **not** touch anything in this chunk. Restated explicitly so a reader of this chunk alone is not left to guess: the manual, per-screen review gate of §7.7 — a signed record at `docs/a11y/{screen}.md` covering the fixed checklist, including the assistive-technology walkthrough — remains the sole enforcement mechanism, and §7.8's "no CI accessibility gate, **ever**" holds exactly as before; Phase 7 does not introduce `axe-core`, a `.github/workflows` directory, or any other automated gate. What *does* change, once Phase 7's replacement design is chosen: `docs/uswds-conformance-register.md` (§7.3) will need a wholesale re-authoring against the new system's primitives, and every screen's existing sign-off record will need re-verifying against the new markup before that screen is considered delivered again — but the *bar* (zero WCAG 2.1 AA violations, 100% of screens signed off, 100% keyboard task completion) and the *process* that verifies it do not move.
+
 ### 7.2 USWDS integration
 
 | Concern | Design |

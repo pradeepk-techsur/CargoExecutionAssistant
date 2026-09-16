@@ -5,20 +5,20 @@
 |-------|-------|
 | **Product Name** | CargoExecutionAssistant |
 | **Project Acronym** | CargoExec |
-| **Document Version** | 1.0 |
-| **Date** | 2026-09-11 |
+| **Document Version** | 1.1 |
+| **Date** | 2026-09-11 (Phase 7 update: 2026-09-16) |
 | **Related Personas** | PERSONAS-CargoExec.md (PER-01, PER-02, PER-03) |
 | **Related Journeys** | JOURNEYS-CargoExec.md (JRN-01.1–01.7, JRN-02.1, JRN-03.1) |
 | **Related JTBD** | JTBD-CargoExec.md (JTBD-01.1–01.7, 02.1–02.4, 03.1–03.4) |
-| **Related User Stories** | UserStories-CargoExec.md (84 stories, Epics 0–14) |
-| **Related PRD** | PRD-CargoExec.md (§5 Features F0–F14, §7 Success Metrics, §10 Out of Scope) |
+| **Related User Stories** | UserStories-CargoExec.md (91 stories, Epics 0–15; Epic 15 added Phase 7) |
+| **Related PRD** | PRD-CargoExec.md (§5 Features F0–F15, §7 Success Metrics, §10 Out of Scope) |
 | **Source of Truth** | `.planning/PROJECT.md` |
 
 ---
 
 ## Overview
 
-This map places all 84 existing user stories onto the **governed decision loop as the cargo
+This map places all 91 existing user stories onto the **governed decision loop as the cargo
 specialist experiences it**, and annotates each activity with a Natural Acceptance Criterion
 (NaC) derived from a JTBD outcome statement.
 
@@ -32,18 +32,24 @@ order a specialist lives it:
 
 Two lanes sit outside that spine because they are beneath every step of it rather than after any
 one of them: the **record substrate** (Epic 0) the loop writes into, and the **federal UI
-foundation** (Epic 2) every screen inherits.
+foundation** (Epic 2) every screen inherits. **Phase 7 adds a third, differently-shaped
+outside-the-spine lane:** Epic 15's demonstration-case seed script (F15). Unlike Epic 0 and
+Epic 2, it is not beneath or inherited by any specialist-facing step — it is an operator-only,
+no-screen tool, run once from the command line, that reaches the same six loop stages through
+the identical service calls a live request would use. It is placed at the end of the matrix,
+after Federal UI Foundation, precisely because it is outside the cargo specialist's journey
+rather than a step within it.
 
 No story is invented here. Every `US-X.Y` in this document exists in UserStories-CargoExec.md,
-and every one of the 84 appears exactly once.
+and every one of the 91 appears exactly once.
 
 ---
 
 ## Scope Boundary — Read Before Using This Map
 
-**PER-01 (Dana Reyes, cargo specialist) is the only authenticated user and the actor of all 84
-stories.** She operates every screen, every endpoint, and is the actor identity on every audit
-entry.
+**PER-01 (Dana Reyes, cargo specialist) is the only authenticated user of the application and the
+actor of 86 of the 91 stories mapped here.** She operates every screen, every endpoint, and is the
+actor identity on every audit entry her own actions produce.
 
 **PER-02 (Marcus Hale, oversight reviewer) and PER-03 (Priya Raman, delivery sponsor) are
 non-user stakeholders.** In the Persona column of every lane table below they appear only as
@@ -51,13 +57,29 @@ non-user stakeholders.** In the Persona column of every lane table below they ap
 step. Their JTBD outcomes are satisfied by *properties of the record PER-01 produces* and by
 *verification evidence*, and are marked **(no screen)** wherever they appear as NaC.
 
-Nothing excluded by `.planning/PROJECT.md` or PRD §10 appears anywhere in this map: no CI
-accessibility gate, no supervisor dashboard, no queue metrics (volume, aging, throughput,
-workload), no reassignment, no filtering, sorting, assignment or prioritisation, no audit export,
-no bulk/file/API ingestion, no second role, no seeded demonstration data, no autonomous AI
-resolution, no duty or tariff calculation, no native mobile client, and no model training.
-Several map entries exist specifically to **assert the absence** of those capabilities as
-testable behaviour (US-7.3, US-8.5, US-3.4, US-5.3, US-9.5, US-0.5).
+**Phase 7 introduces two narrowly-scoped exceptions to the PER-01-only actor rule, matching
+UserStories-CargoExec.md's own Actor Constraint:** Epic 15's five stories (US-15.1–US-15.5) are
+written from the point of view of an **operator** — someone preparing a demonstration who runs a
+one-time, non-HTTP seed script directly against the deployment — never the authenticated cargo
+specialist and never a second application role; and US-9.6 is written from **PER-03's**
+point of view, asserting a deployment-configuration fact (a real hosted LLM is what the
+walkthrough demonstrates) that no cargo-specialist action can express. Neither exception adds a
+screen, a route, or an account, and neither is counted as a PER-01 backbone step.
+
+Nothing excluded by `.planning/PROJECT.md` or PRD §10 appears anywhere in this map, **with one
+narrow, Phase-7 exception noted below:** no CI accessibility gate, no supervisor dashboard, no
+queue metrics (volume, aging, throughput, workload), no reassignment, no filtering, sorting,
+assignment or prioritisation, no audit export, no bulk/file/API ingestion, no second role, no
+autonomous AI resolution, no duty or tariff calculation, no native mobile client, and no model
+training. Several map entries exist specifically to **assert the absence** of those capabilities
+as testable behaviour (US-7.3, US-8.5, US-3.4, US-5.3, US-9.5, US-0.5).
+
+**Phase-7 exception:** the v1.0 exclusion of a *seeded demonstration dataset* (PRD §10 #7) is
+**superseded, narrowly, by PRD §5.7 F15.** Epic 15 adds one idempotent, operator-only seed script
+that pre-loads exactly one demonstration case through the full governed loop. The reversal is
+strictly additive: manual entry (Epic 6 / F6) is unchanged, remains the only way anyone using the
+running application creates a case, and is asserted unaffected by US-15.5. This is the only
+exclusion in the list above that has moved.
 
 ---
 
@@ -86,9 +108,13 @@ for a non-user persona.
 ---
 ## Story Map Matrix
 
-Each lane below is one step of the governed loop (or one of the two cross-cutting foundations).
+Each lane below is one step of the governed loop (or one of the cross-cutting foundations).
 Every lane table carries the same six columns. **Persona** names the operator first and any
-non-user beneficiary or witness second; only PER-01 ever operates.
+non-user beneficiary or witness second; only PER-01 ever operates a backbone step. **Phase 7
+adds one further lane, "Demonstration Enablement" (Epic 15 / F15), placed at the end of the
+matrix** — it is deliberately not interleaved with Steps 1–9 because it is not a step in the
+cargo specialist's journey: it has no UI, no specialist-facing surface, and its operator is not
+PER-01.
 
 ---
 
@@ -207,6 +233,7 @@ the shipment; her job is to decide whether it is right.*
 | Show generation still in progress without blocking or interrupting | PER-01 | Epic 10 (F10) | US-10.5 | JTBD-01.6 → A slow suggestion never freezes the interface or traps her on the case. | R2 |
 | Decide a case with no recommendation, without being told something failed | PER-01 · PER-03 (witness, no screen) | Epic 10 (F10) | US-10.6 | JTBD-01.6 → "No recommendation available" is a condition of the case, not a block on it or an invitation to park it. | R2 |
 | Keep the case fully workable when the AI provider is unavailable | PER-01 · PER-03 (witness, no screen) | Epic 9 (F9) | US-9.4 | JTBD-01.6 → A third party's outage costs her a suggestion, not the case's accountability. | R2 |
+| Confirm the recommendation shown is a real model's own output, not a scripted stand-in | PER-01 (as demonstrated to) · PER-03 (witness, no screen) | Epic 9 (F9) | US-9.6 | JTBD-03.1 → What is watched in the walkthrough is genuine AI output — the deployment calls a real hosted LLM by default, and the recorded model identity names that provider, never the deterministic test fake. **(no screen)** | R4 |
 
 ---
 
@@ -279,6 +306,26 @@ detail, decision and audit trail.*
 | Be told what went wrong and where, in a way the screen reader announces | PER-01 | Epic 2 (F2) | US-2.4 | JTBD-01.7 → A rejected submission is correctable without hunting the page for what failed. | R1 |
 | Tell an AI value from a human value without relying on colour | PER-01 · PER-02 (beneficiary, no screen) | Epic 2 (F2) | US-2.5 | JTBD-01.3 → Provenance survives a screen reader and a monochrome display, everywhere it appears. | R1 |
 | Review and sign off every screen before it is called done | PER-01 · PER-03 (witness, no screen) | Epic 2 (F2) | US-2.6 | JTBD-03.3 → Conformance is a property of what shipped, evidenced per screen, rather than a promise attached to a later release. **(no screen)** | R3 |
+| Keep meeting federal accessibility standards no matter which visual system renders the shell | PER-01 · PER-03 (witness, no screen) | Epic 2 (F2) | US-2.7 | JTBD-03.3 → Replacing what the application looks like is never experienced as an accessibility regression — the same WCAG 2.1 AA bar applies under the Phase 7 visual redesign, re-signed-off screen by screen. **(no screen)** | R4 |
+
+---
+
+### Demonstration Enablement — Outside the Cargo Specialist's Journey
+
+*Cross-cutting, but unlike Substrate and the Federal UI Foundation, this lane is not beneath or
+inherited by any specialist-facing step. Epic 15 / F15, added Phase 7. Its "activity" is an
+operator running a one-time, idempotent seed script directly against the deployment — never a
+screen, never something Dana does inside the running application. The reversal of PRD §10 #7 it
+enacts is additive: manual entry (Epic 6 / F6) is unaffected and remains the only way anyone
+using the running application creates a case.*
+
+| Activity | Persona | Epic | Stories | NaC | Release |
+|---|---|---|---|---|---|
+| Build the seeded case through the same service calls a live request would use, never a bespoke write path | Operator (no screen) | Epic 15 (F15) | US-15.1 | JTBD-03.1 → The seeded case is governed by the identical invariants as any specialist-created case — no `INSERT INTO` against a governed table, no alternate write path. **(no screen)** | R4 |
+| Run the script any number of times without creating a duplicate of anything | Operator (no screen) | Epic 15 (F15) | US-15.2 | JTBD-03.1 → Re-seeding before a demonstration is always safe — a second run creates nothing twice and exits cleanly. **(no screen)** | R4 |
+| Produce one case that genuinely demonstrates a mixed AI/human resolution | Operator (no screen) | Epic 15 (F15) | US-15.3 | JTBD-03.1 → The seeded case shows a specialist-style correction beside an untouched AI-origin value, present from the first run, without waiting for an organic case to arrive at it. **(no screen)** | R4 |
+| Write the seeded case's history through the same append-only chokepoint as any live case | Operator (no screen) · PER-02 (beneficiary, no screen) | Epic 15 (F15) | US-15.4 | JTBD-03.1 → The seeded trail passes the identical chain-verification test as any organically produced case — no backdated timestamp, no fabricated hash, no alternate audit path. **(no screen)** | R4 |
+| Keep the seed script narrow, operator-only, and unreachable from the running application | Operator (no screen) · PER-01 (beneficiary — manual entry unaffected) | Epic 15 (F15) | US-15.5 | JTBD-03.1 → Manual entry (F6) stays the only way anyone using the running application creates a case — no endpoint, screen, or scheduled job reaches the seed script. **(no screen)** | R4 |
 
 ---
 ## NaC Derivation Table
@@ -351,10 +398,15 @@ journey stage at which the outcome actually matters. NaC serving PER-02 or PER-0
 | JTBD-03.1 | All six loop stages carried by shipped browser surfaces, walked in one sitting | JRN-03.1:Watch receive and validate → Watch audit close the loop | The walkthrough needs no explanation, no workaround, and no promise about a future release **(no screen)** | US-6.3, US-8.1, US-10.3, US-12.1, US-14.1 |
 | JTBD-03.1 | Entries are created by hand during the demonstration | JRN-03.1:Set the terms | Receive and validate sit inside the demonstrated path rather than behind it **(no screen)** | US-3.4, US-6.1 |
 | JTBD-03.1 | The loop remains completable with the AI stage degraded | JRN-03.1:Probe the accountability claim | The governance guarantee does not depend on a third party being healthy **(no screen)** | US-9.4, US-10.6 |
+| JTBD-03.1 *(Phase 7)* | Seeded case reaches later stages on demand, built and audited through the identical service calls and chokepoint as any live case | JRN-03.1:Watch receive and validate → Watch audit close the loop | One demonstration case already carried through entry, validation failure, exception, recommendation, decision and audit trail exists before the walkthrough starts, and re-seeding is always safe **(no screen)** | US-15.1, US-15.2, US-15.4 |
+| JTBD-03.1 *(Phase 7)* | The seeded case demonstrates a mixed AI/human resolution without waiting for one to occur organically | JRN-03.1:Watch the human decide | One resolved case shows a specialist-style correction re-stamped `HUMAN` beside an untouched `AI`-origin value, present from the first run of the walkthrough **(no screen)** | US-15.3 |
+| JTBD-03.1 *(Phase 7)* | Manual entry stays the only way anyone using the running application creates a case | JRN-03.1:Set the terms | The seed script is reachable only by direct operator invocation — no endpoint, screen, or scheduled job — so F6 is unaffected **(no screen)** | US-15.5 |
+| JTBD-03.1 *(Phase 7)* | What is watched in the walkthrough is genuine AI output, not a scripted stand-in | JRN-03.1:Watch receive and validate | The demonstration/production deployment calls a real hosted LLM by default, and the recorded model identity names that real provider, never the deterministic test fake **(no screen)** | US-9.6 |
 | JTBD-03.2 | The accountability answer is structural and backed by test | JRN-03.1:Probe the accountability claim | She is shown a test, not a toggle — a configuration switch would admit the alternative **(no screen)** | US-0.5, US-9.5, US-11.5 |
 | JTBD-03.2 | Reason capture is load-bearing rather than a formality | JRN-03.1:Watch the human decide | The reason is enforced before the case can close and rendered where it is read **(no screen)** | US-11.4, US-14.3 |
 | JTBD-03.3 | USWDS and WCAG 2.1 AA conformance observable in the delivered screens | JRN-03.1:Watch receive and validate | Federal standards are something this release already has, not something the next one is promised to add **(no screen)** | US-2.1, US-2.3 |
 | JTBD-03.3 | Every screen has a manual and assistive-technology review sign-off | JRN-03.1:Check the delivered UI against federal standards | Conformance is evidenced per screen, because there is no CI gate to lean on **(no screen)** | US-2.6 |
+| JTBD-03.3 *(Phase 7)* | Conformance holds regardless of which visual design system renders the shell | JRN-03.1:Check the delivered UI against federal standards | Replacing the visual system is never experienced as an accessibility regression — the same WCAG 2.1 AA bar applies, re-signed-off screen by screen under the new design **(no screen)** | US-2.7 |
 | JTBD-03.4 | Key exclusions are structural, not UI omissions | JRN-03.1:Check what was declined | The narrowness reads as a deliberate purchase of loop completeness, checkable line by line against PRD §10 **(no screen)** | US-7.3, US-8.5, US-2.2 |
 
 ---
@@ -522,35 +574,92 @@ verification route.
 - [ ] No in-product scope-compliance or governance-status view was built to satisfy this release
 
 ---
+
+### Release R4 — Phase 7: Demonstration Enablement & Design-System-Independent Conformance
+
+**Theme:** Two additions made after the governed loop, its resilience, and its conformance
+evidence were already complete (R1–R3): an operator-run seed script that removes the
+"hand-type an entry every time" cost from demonstrating later loop stages, and an explicit
+assertion that the accessibility bar holds regardless of which visual design system renders the
+shell — plus the deployment posture confirming the recommendation shown is real-LLM-backed, not
+the deterministic test fake.
+
+**Stories (7):**
+
+| Epic | Stories | What it adds |
+|---|---|---|
+| Epic 2 (F2) | US-2.7 | Federal accessibility conformance is asserted as independent of the visual design system in use — the Phase 7 shell redesign carries no accessibility regression |
+| Epic 9 (F9) | US-9.6 | The demonstrated recommendation is confirmed to come from a real hosted LLM in the demo/production posture, not the deterministic fake reserved for tests |
+| Epic 15 (F15) | US-15.1, US-15.2, US-15.3, US-15.4, US-15.5 | A seeded demonstration case, built through the same service calls and audit chokepoint as any live case, so every later-loop scenario is demonstrable without hand-typing an entry first |
+
+**Loop stages completed:** still 6 of 6 — unchanged. R4 adds no new loop stage; it adds a second,
+operator-seeded entry point into the same six stages, and reinforces the accessibility guarantee
+across a visual-system change.
+
+**Journeys completed end to end:** no new JRN stage. JRN-03.1's *Check the delivered UI against
+federal standards* stage is reinforced under the new visual system (US-2.7); the seeded case
+gives JRN-03.1's walkthrough a second, faster route through JRN-01.1–01.5 without displacing the
+manual-entry route.
+
+**Personas served:**
+
+| Persona | How R4 serves them |
+|---|---|
+| **PER-01 Dana** — operator of the application | Unaffected in her own capability — manual entry (F6) is unchanged and remains the only way she creates a case; she now also works from a UI that keeps its accessibility guarantee across the Phase 7 visual redesign |
+| **Operator** (Phase 7, non-persona, no screen) | Can seed one demonstration case with a single CLI invocation, safely re-runnable, reaching only the same service functions and audit chokepoint any live request reaches |
+| **PER-02 Marcus** — beneficiary, no screen | The seeded case's audit trail passes the identical chain-verification test as any organic case — no second-class record shape is introduced by seeding |
+| **PER-03 Priya** — witness, no screen | Can watch a demonstration that reaches later loop stages without a live hand-typed precondition, and is told the recommendation shown is genuinely model-produced |
+
+**JTBD addressed:** reinforcement of JTBD-03.1 (the walkthrough needs no workaround — now also
+true starting from a later stage, and the AI output watched is genuinely model-produced),
+reinforcement of JTBD-03.3 (conformance holds under a new visual system).
+
+**Acceptance Gate:**
+- [ ] All NaC for the 7 included stories pass
+- [ ] Seed script produces exactly one demonstration case, idempotently, using only F3/F4/F5/F9/F11's own service functions and F13's own audit writer — no `INSERT INTO` against a governed table anywhere in the script or in any migration
+- [ ] Seeded case's audit trail reports `chain_verified: true` under F0's own verification routine, with no backdated or fabricated timestamp
+- [ ] Manual entry (F6) functions completely unchanged after the seed script has run
+- [ ] Shell re-delivered under the Phase 7 visual system re-passes the full per-screen accessibility checklist (US-2.6) rather than carrying forward a Phase-6 sign-off
+- [ ] Demonstration/production deployment configuration names a real HTTPS LLM endpoint and a real `model_id`, never `fake:deterministic`
+
+---
 ## Coverage Analysis
 
 ### Persona Coverage
 
-| Persona | Access | R1 | R2 | R3 |
-|---|---|---|---|---|
-| **PER-01** Dana Reyes — cargo specialist | **Authenticated operator** | Operator of all 70 stories | Operator of all 11 stories | Operator/subject of all 3 stories |
-| **PER-02** Marcus Hale — oversight reviewer | **Non-user — no screen** | Beneficiary of US-0.1, 0.2, 0.4, 0.5, 1.3, 3.2, 4.1–4.3, 5.1, 5.4, 7.5, 9.3, 10.4, 11.2, 11.4, 13.1–13.5, 14.1–14.4, 14.6, 14.7, 2.5 | Beneficiary of US-11.6, US-14.5 | — (no new guarantee; R1 guarantees unchanged) |
-| **PER-03** Priya Raman — delivery sponsor | **Non-user — no screen** | Witness to US-0.5, 2.1, 2.2, 5.3, 6.2, 3.4, 8.1, 9.2, 9.5, 10.3, 11.5, 12.1, 14.1, 14.7 | Witness to US-9.4, US-10.6 | Witness to US-2.6, US-7.3, US-8.5 |
+| Persona | Access | R1 | R2 | R3 | R4 (Phase 7) |
+|---|---|---|---|---|---|
+| **PER-01** Dana Reyes — cargo specialist | **Authenticated operator** | Operator of all 70 stories | Operator of all 11 stories | Operator/subject of all 3 stories | Beneficiary of US-2.7 (accessibility unchanged), US-15.5 (manual entry unaffected); operates no new screen |
+| **PER-02** Marcus Hale — oversight reviewer | **Non-user — no screen** | Beneficiary of US-0.1, 0.2, 0.4, 0.5, 1.3, 3.2, 4.1–4.3, 5.1, 5.4, 7.5, 9.3, 10.4, 11.2, 11.4, 13.1–13.5, 14.1–14.4, 14.6, 14.7, 2.5 | Beneficiary of US-11.6, US-14.5 | — (no new guarantee; R1 guarantees unchanged) | Beneficiary of US-15.4 (seeded trail passes the identical chain-verification test) |
+| **PER-03** Priya Raman — delivery sponsor | **Non-user — no screen** | Witness to US-0.5, 2.1, 2.2, 5.3, 6.2, 3.4, 8.1, 9.2, 9.5, 10.3, 11.5, 12.1, 14.1, 14.7 | Witness to US-9.4, US-10.6 | Witness to US-2.6, US-7.3, US-8.5 | Actor/witness of US-9.6 (real-LLM posture); witness to US-2.7, US-15.1–US-15.3 |
+| **Operator** *(Phase 7, non-persona)* | **Non-user — no screen, CLI only** | — | — | — | Actor of US-15.1, US-15.2, US-15.3, US-15.4, US-15.5 — runs the seed script; never an authenticated application role |
 
 **Non-user constraint check:** PER-02 and PER-03 appear in **beneficiary** and **witness** cells
 only. Neither is the operator of a single backbone step, and no story, screen, route, permission,
 export or dashboard exists with either as actor. Every NaC serving them is tagged **(no screen)**
-and is verified by automated test, per-screen review sign-off, or walkthrough observation.
+and is verified by automated test, per-screen review sign-off, or walkthrough observation. **The
+Phase 7 Operator row is the same kind of non-user cell** — a CLI-only actor with no screen, route,
+or account, introduced solely to run Epic 15's seed script; it is not a second application role
+and does not touch PER-01's single-role constraint (F1, §10).
 
 ### Loop-Stage Coverage by Release
 
-| Loop stage | Carried by | R1 | R2 | R3 |
-|---|---|---|---|---|
-| Sign in (identity for attribution) | Epic 1 | ✅ complete | hardened | — |
-| Receive | Epics 3, 6 | ✅ complete | hardened | — |
-| Validate | Epic 4 | ✅ complete | — | — |
-| Except → queue → open | Epics 5, 7, 8 | ✅ complete | hardened | scope evidence |
-| Recommend | Epics 9, 10 | ✅ complete | degraded mode | — |
-| Human decide | Epics 11, 12 | ✅ complete | conflict handling | — |
-| Audit | Epics 0, 13, 14 | ✅ complete | integrity surfacing | — |
-| Federal UI foundation (cross-cutting) | Epic 2 | ✅ complete | — | sign-off evidence |
+| Loop stage | Carried by | R1 | R2 | R3 | R4 (Phase 7) |
+|---|---|---|---|---|---|
+| Sign in (identity for attribution) | Epic 1 | ✅ complete | hardened | — | — |
+| Receive | Epics 3, 6 | ✅ complete | hardened | — | operator-seeded second entry point (Epic 15) |
+| Validate | Epic 4 | ✅ complete | — | — | operator-seeded second entry point (Epic 15) |
+| Except → queue → open | Epics 5, 7, 8 | ✅ complete | hardened | scope evidence | operator-seeded second entry point (Epic 15) |
+| Recommend | Epics 9, 10 | ✅ complete | degraded mode | — | real-LLM posture confirmed (US-9.6); operator-seeded (Epic 15) |
+| Human decide | Epics 11, 12 | ✅ complete | conflict handling | — | operator-seeded mixed-resolution case (Epic 15) |
+| Audit | Epics 0, 13, 14 | ✅ complete | integrity surfacing | — | operator-seeded case audited through the identical chokepoint (Epic 15) |
+| Federal UI foundation (cross-cutting) | Epic 2 | ✅ complete | — | sign-off evidence | design-system-independent conformance re-asserted (US-2.7) |
+| Demonstration enablement (cross-cutting, outside the specialist's journey) | Epic 15 | — | — | — | ✅ complete — new in Phase 7 |
 
 **No loop stage is deferred past R1.** R2 and R3 contain hardening, resilience and evidence only.
+**R4 (Phase 7) adds no loop stage either** — it adds a second, operator-only entry point into the
+same six stages (Epic 15) and reinforces the accessibility guarantee across a visual-system
+change (US-2.7); it does not widen the loop itself.
 
 ### Journey Coverage
 
@@ -564,11 +673,13 @@ and is verified by automated test, per-screen review sign-off, or walkthrough ob
 | JRN-01.6 Decide with no recommendation available | PER-01 | User | **R2** |
 | JRN-01.7 Complete a decision keyboard-only with a screen reader | PER-01 | User | R1 (evidence signed off in R3) |
 | JRN-02.1 Oversight reconstruction | PER-02 | **Non-user** | R1 (record properties + test evidence; no surface built) |
-| JRN-03.1 Witnessed walkthrough | PER-03 | **Non-user** | R1 for stages 2–5; R2 for the outage probe; **R3** for *Check what was declined* |
+| JRN-03.1 Witnessed walkthrough | PER-03 | **Non-user** | R1 for stages 2–5; R2 for the outage probe; **R3** for *Check what was declined*; **R4** reinforces *Watch receive and validate* (real-LLM posture, US-9.6) and *Check the delivered UI against federal standards* (design-system-independent conformance, US-2.7) — no new stage added |
 
 **Every journey stage in JRN-01.1 through JRN-01.7 maps to at least one story.** No stage of
 JRN-02.1 or JRN-03.1 became a screen, route, role, permission, API consumer, or user story — as
-required by the JOURNEYS Scope Boundary.
+required by the JOURNEYS Scope Boundary. **Epic 15 (Phase 7) introduces no new journey stage
+either** — its seed script gives JRN-03.1's walkthrough a second, faster route into JRN-01.1–01.5
+without becoming a stage, screen, or story of its own within those journeys.
 
 ### JTBD Coverage
 
@@ -585,12 +696,13 @@ required by the JOURNEYS Scope Boundary.
 | JTBD-02.2 | PER-02 *(no screen)* | R1, R2 | US-0.1, 0.4, 13.1, 13.4, 13.5, 14.5, 14.6 | 3 |
 | JTBD-02.3 | PER-02 *(no screen)* | R1 | US-0.2, 3.2, 9.3, 11.2, 11.4, 13.3, 14.2, 14.3 | 3 |
 | JTBD-02.4 | PER-02 *(no screen)* | R1 | US-3.4, 4.1, 4.2, 4.3, 5.1, 5.3 | 2 |
-| JTBD-03.1 | PER-03 *(no screen)* | R1, R2 | US-3.4, 6.1, 6.3, 8.1, 9.4, 10.3, 10.6, 12.1, 14.1 | 3 |
+| JTBD-03.1 | PER-03 *(no screen)*; Operator *(no screen, Phase 7)* | R1, R2, **R4** | US-3.4, 6.1, 6.3, 8.1, 9.4, 10.3, 10.6, 12.1, 14.1, 9.6, 15.1, 15.2, 15.3, 15.4, 15.5 | 8 |
 | JTBD-03.2 | PER-03 *(no screen)* | R1 | US-0.5, 9.2, 9.5, 11.4, 11.5, 14.3 | 2 |
-| JTBD-03.3 | PER-03 *(no screen)* | R1, **R3** | US-2.1, 2.3, 2.6 | 2 |
+| JTBD-03.3 | PER-03 *(no screen)* | R1, R3, **R4** | US-2.1, 2.3, 2.6, 2.7 | 3 |
 | JTBD-03.4 | PER-03 *(no screen)* | **R3** | US-2.2, 7.3, 8.5 | 1 |
 
-**15 of 15 jobs covered. 14 of 14 success metrics (SM-1 … SM-14) reachable across R1–R3.**
+**15 of 15 jobs covered. 14 of 14 success metrics (SM-1 … SM-14) reachable across R1–R3; SM-1,
+SM-9, SM-10, SM-13 further reinforced in Phase 7's R4.**
 
 ### Gap Analysis
 
@@ -604,25 +716,40 @@ carry at least one story and at least one NaC.
   PRD §10 #2 and #4. Their "coverage" is that the trail PER-01 reads is sufficient on its own
   (US-14.1, US-14.7).
 - **JRN-03.1:Set the terms** — conditions agreed on the walkthrough itself, with no system
-  touchpoint. Covered structurally by the absence of a seeded dataset (US-3.4).
+  touchpoint. Through Phase 6 this was covered structurally by the absence of a seeded dataset
+  (US-3.4). **Phase 7 narrows, but does not remove, that coverage:** the "no seeded dataset"
+  exclusion is superseded by F15 (Epic 15), so this stage is now covered instead by the assertion
+  that the one operator-run seed script that does exist is reachable only outside the running
+  application — never from a screen, endpoint, or scheduled job (US-15.5) — so "the terms" of the
+  demonstration are still set before the walkthrough starts, by an operator, not by the system.
 
-**Orphan stories (mapped to no backbone step):** none. All 84 stories sit on a backbone step or on
-one of the two cross-cutting foundation lanes (Substrate, Federal UI Foundation), both of which
-are beneath every backbone step rather than outside the loop.
+**Orphan stories (mapped to no backbone step):** none. All 91 stories sit on a backbone step or on
+one of the three cross-cutting lanes (Substrate, Federal UI Foundation, and — new in Phase 7 —
+Demonstration Enablement), the last of which is deliberately *outside* the specialist's journey
+rather than beneath a backbone step, because Epic 15 has no specialist-facing surface.
 
-**Personas not served by a release:** none. PER-01 operates in all three; PER-02's guarantees land
-in full in R1 and are reinforced in R2; PER-03 witnesses in R1, R2 and R3.
+**Personas not served by a release:** none. PER-01 operates in R1–R3 and is a beneficiary (not
+operator) of two R4 stories; PER-02's guarantees land in full in R1, are reinforced in R2, and
+gain one further guarantee in R4 (US-15.4); PER-03 witnesses in R1, R2, R3 and R4. The Phase-7
+**Operator** is a CLI-only, non-persona actor confined entirely to R4 (US-15.1–US-15.5) — it is
+never an authenticated application role and never appears outside Epic 15.
 
 **Deliberate absences — checked, not gaps:**
 - No story, lane, activity or NaC introduces a supervisor dashboard, queue metric (volume, aging,
   throughput, workload), reassignment, filter, sort, assignment, prioritisation, audit export,
-  bulk/file/API ingestion, second role, seeded demonstration data, autonomous AI resolution, duty
-  or tariff calculation, native mobile client, or CI accessibility gate.
+  bulk/file/API ingestion, second role, autonomous AI resolution, duty or tariff calculation,
+  native mobile client, or CI accessibility gate.
 - Six stories exist specifically to assert those absences as testable behaviour: US-0.5 (no
   management columns in the schema), US-3.4 (no ingestion path), US-5.3 (no exception authoring),
   US-7.3 (no queue dimensions in the API), US-8.5 (no management language on screen), US-9.5 (no
   autonomous AI resolution). US-2.2 asserts navigation implies nothing that does not exist, and
   US-2.6 asserts the deliberate absence of a CI accessibility workflow.
+- **One exclusion is no longer absolute:** *seeded demonstration data* (PRD §10 #7, v1.0) is
+  **superseded, narrowly, by PRD §5.7 F15** (Phase 7). The reversal is checked, not a gap: it is
+  scoped to exactly one operator-run, idempotent seed script (US-15.1, US-15.2, US-15.5), it
+  writes through the same service calls and audit chokepoint as any live case (US-15.1, US-15.4),
+  and manual entry (F6) is asserted unaffected (US-15.5) — the narrowness itself is the thing
+  being verified, not merely the presence of seed data.
 
 ---
 ## NaC-to-Acceptance Criteria Mapping
@@ -677,8 +804,15 @@ abbreviated; the authoritative wording is in the story.
 | JTBD-03.3 → Conformance is evidenced per screen **(no screen)** | US-2.6 | "Given each of the six screens/regions … a signed checklist record exists naming the reviewer, the date, the screen, and any defects with their resolution (SM-10)" | Yes |
 | JTBD-03.4 → The exclusion is structural, not a UI omission **(no screen)** | US-7.3, US-0.5 | Queue API carries no filter/sort/assignment/priority parameter; schema dump contains no `assigned_to`, `priority`, `sla_due_at`, `age_days`, `role`, `permission`, `exported_at`, `source_system`, `is_seed`, `tariff_*` or `hts_code` column | Yes |
 | JTBD-03.4 → Navigation implies nothing that does not exist **(no screen)** | US-2.2, US-8.5 | Exactly two navigation destinations; no dashboard, reports, metrics, settings, administration or export item; no filtering, sorting, assignment or aging language on the queue | Yes |
+| JTBD-03.3 *(Phase 7)* → Conformance holds regardless of which visual design system renders the shell **(no screen)** | US-2.7 | "Given the shell rendered under the Phase 7 visual system, when it is reviewed against the checklist, then it still meets Section 508 / WCAG 2.1 AA in full … with no criterion relaxed because the visual system changed" | Yes |
+| JTBD-03.1 *(Phase 7)* → What is watched in the walkthrough is genuine AI output, not a scripted stand-in **(no screen)** | US-9.6 | "Given the demonstration/production deployment, when it starts, then it is configured with `AI_PROVIDER_URL` pointing at a real HTTPS LLM endpoint … not the `fake:deterministic` provider"; recorded `model_id` names the real provider's model | Yes |
+| JTBD-03.1 *(Phase 7)* → The seeded case is governed by the identical invariants as any live case **(no screen)** | US-15.1 | "Given the seed script, when its implementation is reviewed, then it contains no `INSERT INTO` statement against `cargo_entries`, `exceptions`, `recommendations`, `decisions`, or `audit_entries` … entry receipt goes through F3's own service function" | Yes |
+| JTBD-03.1 *(Phase 7)* → Re-seeding before a demonstration is always safe **(no screen)** | US-15.2 | "Given that same database, when the script runs a second time immediately afterward, then it creates no additional specialist, case, recommendation, decision, or audit entry … and exits `0`" | Yes |
+| JTBD-03.1 *(Phase 7)* → The seeded case demonstrates a mixed AI/human resolution without waiting for one to occur organically **(no screen)** | US-15.3 | "Given that decision, when its resolution values are read, then at least one value is a specialist-style correction re-stamped `HUMAN` origin and at least one other value is left as the AI's original proposal, retaining `AI` origin" | Yes |
+| JTBD-03.1 *(Phase 7)* → The seeded trail passes the identical chain-verification test as any organic case **(no screen)** | US-15.4 | "Given the seeded case's full audit trail, when the F0 chain-verification routine runs against it, then it reports `chain_verified: true`, the same as any organically produced case" | Yes |
+| JTBD-03.1 *(Phase 7)* → Manual entry stays the only way anyone using the running application creates a case **(no screen)** | US-15.5 | "Given the deployed application's routes and UI, when they are enumerated, then no endpoint, screen, button, or scheduled job invokes the seed script"; "Given the cargo entry web UI … it functions completely unchanged" | Yes |
 
-**Alignment result: 43 of 43 NaC discharged by existing acceptance criteria — zero NaC requiring
+**Alignment result: 51 of 51 NaC discharged by existing acceptance criteria — zero NaC requiring
 a criterion that UserStories-CargoExec.md does not already contain, and zero acceptance criteria
 contradicted by a NaC.**
 
@@ -688,20 +822,20 @@ contradicted by a NaC.**
 
 | Check | Result |
 |---|---|
-| Every UserStory (US-0.1 … US-14.7) appears in the map | ✅ 84 of 84, each exactly once |
+| Every UserStory (US-0.1 … US-15.5) appears in the map | ✅ 91 of 91, each exactly once |
 | Every mapped story has a NaC derived from a JTBD outcome | ✅ every activity row carries a `JTBD-XX.Y →` NaC |
-| NaC Derivation Table has full traceability chains | ✅ 54 chains, JTBD → journey stage → NaC → stories |
-| Release planning groups defined with rationale | ✅ R1 (70), R2 (11), R3 (3), with the single-release rationale stated |
-| No loop stage deferred past the first release | ✅ all six stages complete in R1; R2 is resilience, R3 is evidence |
-| Each release enables at least one complete journey | ✅ R1: JRN-01.1–01.5, 01.7, 02.1; R2: JRN-01.6; R3: JRN-03.1 final stage |
-| Coverage analysis identifies gaps and orphans | ✅ zero JTBD gaps, zero orphan stories, deliberate absences listed separately |
-| NaC-to-Acceptance-Criteria mapping verifies alignment | ✅ 43 of 43 aligned |
-| PER-02 / PER-03 never operate a backbone step | ✅ beneficiary/witness cells only, every non-user NaC tagged **(no screen)** |
-| No excluded capability appears as a step, epic, story or NaC | ✅ checked against `.planning/PROJECT.md` Out of Scope and PRD §10 |
-| Backbone matches the governed loop as the specialist experiences it | ✅ sign in → enter → validate → except/queue → open → read recommendation → decide with reason → audit written → review trail |
+| NaC Derivation Table has full traceability chains | ✅ 59 chains, JTBD → journey stage → NaC → stories |
+| Release planning groups defined with rationale | ✅ R1 (70), R2 (11), R3 (3), R4 (7, Phase 7), with the release rationale stated for each |
+| No loop stage deferred past the first release | ✅ all six stages complete in R1; R2 is resilience, R3 is evidence, R4 (Phase 7) is demonstration enablement and design-system-independent conformance — none widens the loop itself |
+| Each release enables at least one complete journey | ✅ R1: JRN-01.1–01.5, 01.7, 02.1; R2: JRN-01.6; R3: JRN-03.1 final stage; R4: no new journey — reinforces JRN-03.1's existing stages |
+| Coverage analysis identifies gaps and orphans | ✅ zero JTBD gaps, zero orphan stories, deliberate absences listed separately, including the one Phase-7 exclusion reversal (seeded demonstration data) |
+| NaC-to-Acceptance-Criteria mapping verifies alignment | ✅ 51 of 51 aligned |
+| PER-02 / PER-03 never operate a backbone step | ✅ beneficiary/witness cells only, every non-user NaC tagged **(no screen)**; the Phase-7 **Operator** is held to the same rule and operates only the new Demonstration Enablement lane, never a backbone step |
+| No excluded capability appears as a step, epic, story or NaC, beyond the one Phase-7 reversal | ✅ checked against `.planning/PROJECT.md` Out of Scope and PRD §10; the single exception — seeded demonstration data (§10 #7) — is superseded by PRD §5.7 F15 and is itself checked line by line (US-15.1–US-15.5), not merely present |
+| Backbone matches the governed loop as the specialist experiences it | ✅ sign in → enter → validate → except/queue → open → read recommendation → decide with reason → audit written → review trail; the Phase-7 Demonstration Enablement lane sits deliberately outside this spine, since it is not a step the specialist takes |
 
 ---
 
 *Document generated by Pivota Spec Framework — Story Map Generator*
-*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD v1.0, PERSONAS v1.0, JTBD v1.0, JOURNEYS v1.0, UserStories v1.0*
-*Last updated: 2026-09-11*
+*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD v1.1 (Phase 7 update 2026-09-16), PERSONAS v1.0, JTBD v1.0, JOURNEYS v1.0, UserStories v1.0 (91 stories, Epics 0–15)*
+*Last updated: 2026-09-16 (Phase 7: Epic 15 added; US-2.7 and US-9.6 added to Epics 2 and 9)*

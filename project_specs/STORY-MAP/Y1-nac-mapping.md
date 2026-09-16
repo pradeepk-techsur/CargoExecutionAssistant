@@ -50,8 +50,15 @@ abbreviated; the authoritative wording is in the story.
 | JTBD-03.3 → Conformance is evidenced per screen **(no screen)** | US-2.6 | "Given each of the six screens/regions … a signed checklist record exists naming the reviewer, the date, the screen, and any defects with their resolution (SM-10)" | Yes |
 | JTBD-03.4 → The exclusion is structural, not a UI omission **(no screen)** | US-7.3, US-0.5 | Queue API carries no filter/sort/assignment/priority parameter; schema dump contains no `assigned_to`, `priority`, `sla_due_at`, `age_days`, `role`, `permission`, `exported_at`, `source_system`, `is_seed`, `tariff_*` or `hts_code` column | Yes |
 | JTBD-03.4 → Navigation implies nothing that does not exist **(no screen)** | US-2.2, US-8.5 | Exactly two navigation destinations; no dashboard, reports, metrics, settings, administration or export item; no filtering, sorting, assignment or aging language on the queue | Yes |
+| JTBD-03.3 *(Phase 7)* → Conformance holds regardless of which visual design system renders the shell **(no screen)** | US-2.7 | "Given the shell rendered under the Phase 7 visual system, when it is reviewed against the checklist, then it still meets Section 508 / WCAG 2.1 AA in full … with no criterion relaxed because the visual system changed" | Yes |
+| JTBD-03.1 *(Phase 7)* → What is watched in the walkthrough is genuine AI output, not a scripted stand-in **(no screen)** | US-9.6 | "Given the demonstration/production deployment, when it starts, then it is configured with `AI_PROVIDER_URL` pointing at a real HTTPS LLM endpoint … not the `fake:deterministic` provider"; recorded `model_id` names the real provider's model | Yes |
+| JTBD-03.1 *(Phase 7)* → The seeded case is governed by the identical invariants as any live case **(no screen)** | US-15.1 | "Given the seed script, when its implementation is reviewed, then it contains no `INSERT INTO` statement against `cargo_entries`, `exceptions`, `recommendations`, `decisions`, or `audit_entries` … entry receipt goes through F3's own service function" | Yes |
+| JTBD-03.1 *(Phase 7)* → Re-seeding before a demonstration is always safe **(no screen)** | US-15.2 | "Given that same database, when the script runs a second time immediately afterward, then it creates no additional specialist, case, recommendation, decision, or audit entry … and exits `0`" | Yes |
+| JTBD-03.1 *(Phase 7)* → The seeded case demonstrates a mixed AI/human resolution without waiting for one to occur organically **(no screen)** | US-15.3 | "Given that decision, when its resolution values are read, then at least one value is a specialist-style correction re-stamped `HUMAN` origin and at least one other value is left as the AI's original proposal, retaining `AI` origin" | Yes |
+| JTBD-03.1 *(Phase 7)* → The seeded trail passes the identical chain-verification test as any organic case **(no screen)** | US-15.4 | "Given the seeded case's full audit trail, when the F0 chain-verification routine runs against it, then it reports `chain_verified: true`, the same as any organically produced case" | Yes |
+| JTBD-03.1 *(Phase 7)* → Manual entry stays the only way anyone using the running application creates a case **(no screen)** | US-15.5 | "Given the deployed application's routes and UI, when they are enumerated, then no endpoint, screen, button, or scheduled job invokes the seed script"; "Given the cargo entry web UI … it functions completely unchanged" | Yes |
 
-**Alignment result: 43 of 43 NaC discharged by existing acceptance criteria — zero NaC requiring
+**Alignment result: 51 of 51 NaC discharged by existing acceptance criteria — zero NaC requiring
 a criterion that UserStories-CargoExec.md does not already contain, and zero acceptance criteria
 contradicted by a NaC.**
 
@@ -61,20 +68,20 @@ contradicted by a NaC.**
 
 | Check | Result |
 |---|---|
-| Every UserStory (US-0.1 … US-14.7) appears in the map | ✅ 84 of 84, each exactly once |
+| Every UserStory (US-0.1 … US-15.5) appears in the map | ✅ 91 of 91, each exactly once |
 | Every mapped story has a NaC derived from a JTBD outcome | ✅ every activity row carries a `JTBD-XX.Y →` NaC |
-| NaC Derivation Table has full traceability chains | ✅ 54 chains, JTBD → journey stage → NaC → stories |
-| Release planning groups defined with rationale | ✅ R1 (70), R2 (11), R3 (3), with the single-release rationale stated |
-| No loop stage deferred past the first release | ✅ all six stages complete in R1; R2 is resilience, R3 is evidence |
-| Each release enables at least one complete journey | ✅ R1: JRN-01.1–01.5, 01.7, 02.1; R2: JRN-01.6; R3: JRN-03.1 final stage |
-| Coverage analysis identifies gaps and orphans | ✅ zero JTBD gaps, zero orphan stories, deliberate absences listed separately |
-| NaC-to-Acceptance-Criteria mapping verifies alignment | ✅ 43 of 43 aligned |
-| PER-02 / PER-03 never operate a backbone step | ✅ beneficiary/witness cells only, every non-user NaC tagged **(no screen)** |
-| No excluded capability appears as a step, epic, story or NaC | ✅ checked against `.planning/PROJECT.md` Out of Scope and PRD §10 |
-| Backbone matches the governed loop as the specialist experiences it | ✅ sign in → enter → validate → except/queue → open → read recommendation → decide with reason → audit written → review trail |
+| NaC Derivation Table has full traceability chains | ✅ 59 chains, JTBD → journey stage → NaC → stories |
+| Release planning groups defined with rationale | ✅ R1 (70), R2 (11), R3 (3), R4 (7, Phase 7), with the release rationale stated for each |
+| No loop stage deferred past the first release | ✅ all six stages complete in R1; R2 is resilience, R3 is evidence, R4 (Phase 7) is demonstration enablement and design-system-independent conformance — none widens the loop itself |
+| Each release enables at least one complete journey | ✅ R1: JRN-01.1–01.5, 01.7, 02.1; R2: JRN-01.6; R3: JRN-03.1 final stage; R4: no new journey — reinforces JRN-03.1's existing stages |
+| Coverage analysis identifies gaps and orphans | ✅ zero JTBD gaps, zero orphan stories, deliberate absences listed separately, including the one Phase-7 exclusion reversal (seeded demonstration data) |
+| NaC-to-Acceptance-Criteria mapping verifies alignment | ✅ 51 of 51 aligned |
+| PER-02 / PER-03 never operate a backbone step | ✅ beneficiary/witness cells only, every non-user NaC tagged **(no screen)**; the Phase-7 **Operator** is held to the same rule and operates only the new Demonstration Enablement lane, never a backbone step |
+| No excluded capability appears as a step, epic, story or NaC, beyond the one Phase-7 reversal | ✅ checked against `.planning/PROJECT.md` Out of Scope and PRD §10; the single exception — seeded demonstration data (§10 #7) — is superseded by PRD §5.7 F15 and is itself checked line by line (US-15.1–US-15.5), not merely present |
+| Backbone matches the governed loop as the specialist experiences it | ✅ sign in → enter → validate → except/queue → open → read recommendation → decide with reason → audit written → review trail; the Phase-7 Demonstration Enablement lane sits deliberately outside this spine, since it is not a step the specialist takes |
 
 ---
 
 *Document generated by Pivota Spec Framework — Story Map Generator*
-*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD v1.0, PERSONAS v1.0, JTBD v1.0, JOURNEYS v1.0, UserStories v1.0*
-*Last updated: 2026-09-11*
+*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD v1.1 (Phase 7 update 2026-09-16), PERSONAS v1.0, JTBD v1.0, JOURNEYS v1.0, UserStories v1.0 (91 stories, Epics 0–15)*
+*Last updated: 2026-09-16 (Phase 7: Epic 15 added; US-2.7 and US-9.6 added to Epics 2 and 9)*

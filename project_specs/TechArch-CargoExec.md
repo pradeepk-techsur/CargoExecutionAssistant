@@ -348,7 +348,10 @@ Any `4xx`/`5xx` from either lifecycle means **nothing was written** — no parti
         └─ create-specialist CLI (interactive password)
 
  No broker. No cache. No object store. No search index. No scheduler.
- No CI workflow files. No seed data. One web service, one database.
+ No CI workflow files. One web service, one database.
+ (Phase 7: an optional, idempotent, operator-run seed script may pre-load one
+  demonstration case for walkthrough purposes — see 08-testing-deployment.md §8.9.
+  It is not part of this deployment's steady-state topology.)
 ```
 
 Runtime detail, environment variables, and operational procedures are in §8.5–§8.8.
@@ -363,7 +366,7 @@ Restated here because absence is a design output, verified by the architecture t
 - No queue filter, sort, assignment, or prioritisation. `GET /api/exceptions` accepts zero query parameters; the API accepts zero query parameters in total.
 - No export of anything, in any format, at any endpoint, under any `Accept` header or `?format=` parameter.
 - No file/API ingestion, bulk upload, ingestion adapter, multipart handler, CSV parser, or ACE/ATS boundary.
-- No seed script, fixture loader, or demonstration dataset; migrations create schema objects only.
+- No seed script, fixture loader, or demonstration dataset; migrations create schema objects only. **(Phase 7 note: superseded in the narrow way described at F15 — an operator-invoked, idempotent `cli/seed-demo-case.ts` now exists, but it writes exclusively through the same service/repository functions a live request uses, never a migration and never a direct `INSERT`; migrations themselves are unaffected and still create schema objects only. See `01-components.md` §1A.1a and `08-testing-deployment.md` §8.9.)**
 - No autonomous resolution: no scheduler, cron, queue consumer, retry path, or system actor that can write `exceptions.state`.
 - No duty/tariff calculation, HTS or classification field, rate derivation, or risk score — including in the AI output schema, which rejects such fields as schema-invalid.
 - No native mobile client, no mobile push, no app shell for one.
@@ -421,6 +424,7 @@ cargoexec/
 │   │   └── repositories/        one module per table group, SQL only
 │   ├── migrations/              0001_…sql … forward-only, owner role
 │   ├── cli/create-specialist.ts operational provisioning
+│   ├── cli/seed-demo-case.ts    Phase 7 — idempotent demo-case seed (§1A.1a, 08 §8.9)
 │   └── test/                    unit · db-invariant · api · architecture
 ├── web/
 │   ├── vite.config.ts           host 0.0.0.0, port 3000, allowedHosts (§6.5)
@@ -439,11 +443,28 @@ cargoexec/
 
  ABSENT BY DESIGN (asserted by test):
    .github/            no CI workflow files at all
-   seeds/ fixtures/    no demonstration data
+   seeds/ fixtures/    no demonstration-data DIRECTORY, ever (unchanged, see §1A.1a)
    adapters/ingest/    no file or API ingestion
    export/ reports/    no export surface
    rbac/ roles/        one role, no permission model
 ```
+
+### 1A.1a Phase 7 addition — demonstration-case seed script (F15)
+
+Phase 7 adds exactly one new operational CLI script, `server/src/cli/seed-demo-case.ts`, placed alongside `cli/create-specialist.ts` because it is provisioned the same way: an operator-invoked command against a deployed environment, never an HTTP route, never a UI control, never scheduled (PRD §10 #7, superseded; F15). It is **not** the `seeds/`/`fixtures/` directory the architecture tests forbid — that prohibition is a directory-shape ban (§1A.1's `ABSENT BY DESIGN` list) and is **retained unchanged**; a single named CLI file is a different shape from a fixture-loading directory and the two tests below make that distinction explicit rather than incidental:
+
+- `server/test/architecture/absence.spec.ts` (`FORBIDDEN_DIRS` check, TEST-ARCH-09) — still forbids any `seeds/` or `fixtures/` **directory** anywhere in the repo, unmodified in its general form. It is updated only to the extent of confirming `server/src/cli/seed-demo-case.ts` is a file, not a directory, and therefore does not trip the check — no relaxation of the directory ban itself.
+- `server/test/architecture/validation.spec.ts` ("no seeds/ or fixtures/ directory anywhere in the repository", TEST-ARCH-11's neighbour) — same treatment: the repo-wide directory walk is untouched; it is joined by a new, narrowly-scoped assertion that the *only* file whose name contains `seed` is this one named script, so a future contributor cannot quietly add a second seed/fixture mechanism under a different name without the test noticing.
+
+Both tests' general-purpose prohibitions on a seeds/fixtures **directory** and on migration-file `INSERT INTO` (`TEST-ARCH-11`) remain exactly as strict as before. What is added is a single, named, reviewed exception for `cli/seed-demo-case.ts` — not a hole for future scripts. Full behavioural detail, idempotency contract, and the exact test updates are in `08-testing-deployment.md` §8.9.
+
+### 1A.1b Phase 7 — pending visual redesign (F2)
+
+Phase 7 replaces USWDS as the shell's visual system with a newly-approved external design; the concrete tokens, component names, and class names of that replacement are **not yet decided** and are deferred to Phase 7 discovery/UX design (PRD §4.1, §5.1 F2; FRD F2's Phase 7 note). This document does not invent that replacement. Three things are fixed now so implementation has a stable baseline to build against or deliberately supersede:
+
+1. **The current build pipeline is the baseline, not the design.** `web/styles/app.scss` as the single Sass entry point, `web/scripts/copy-uswds-assets.mjs`'s self-hosting of fonts/icons/JS (no CDN), and the CSP `style-src 'self'` header (no `unsafe-inline`) are *constraints on the build*, independent of which component library or token set fills it. Whatever replaces USWDS's Sass/JS/icon-sprite payload MUST still compile to a single self-hosted stylesheet loaded via `<link>` (not a JS-injected `<style>` tag, which `style-src 'self'` with no `unsafe-inline` would reject) and MUST still ship no runtime CDN dependency (FR-2.3's no-CDN requirement does not move just because the token source does). A replacement design system that assumes a CDN font host or an inline-style-injecting runtime is incompatible with this project's CSP as it stands today — that incompatibility is a Phase 7 planning input, not a decision this document makes for it.
+2. **`docs/uswds-conformance-register.md` needs a wholesale re-authoring, not a patch.** The register (§7.3) maps every interactive control to a specific USWDS primitive by name; once the new design system's primitives are chosen, essentially every row changes. This document does not attempt that re-authoring — there is nothing yet to map to — but flags it as required Phase 7 output before any screen can be re-signed-off under FR-2.26's per-screen checklist.
+3. **Section 508 / WCAG 2.1 AA conformance does not move.** It is an architectural constraint independent of which design system delivers it (PRD NFR-1, NFR-2). The testing/sign-off *process* — a signed per-screen record at `docs/a11y/{screen}.md` covering the checklist of `07-accessibility.md` §7.7, with **no CI accessibility gate, ever** (§7.8) — is unchanged by this phase; only the concrete component/token references inside each screen's review will need re-verifying once F2's replacement design lands. See `06-tech-stack.md` §6.2a and `07-accessibility.md` §7.1a for the same note stated against the tech-stack and accessibility chunks respectively.
 
 ### 1A.2 Layering and dependency rules
 
@@ -2442,6 +2463,15 @@ The recommendation is always presented as an **un-applied proposal awaiting a de
 | Configuration (environment only) | `AI_PROVIDER_URL` (must be `https:`), `AI_API_KEY`, `AI_MODEL_ID`, `PROMPT_VERSION`, `AI_TIMEOUT_MS` (default 20000), `AI_WORKER_CONCURRENCY` (default 2) |
 | Absent | No training, fine-tuning, embedding store, vector database, evaluation harness, or feedback-to-model loop. A specialist's edit or rejection is recorded in the audit trail and goes nowhere near the model (FR-Y3.7, PRD §10 #11) |
 
+### 5.9 Phase 7 — deployment posture (F9 FR-9.20)
+
+The architecture in §5.1–§5.8 is **unchanged by Phase 7** — the provider-abstracted HTTP adapter, the OpenAI-compatible chat/completions shape, the no-SDK policy, and the retry/timeout/schema-validation logic were always the stated design and remain exactly as described above. What Phase 7 changes is **deployment posture only**:
+
+- **The demonstration/production `docker-compose.yml` and `.env.example` defaults change.** Today `AI_PROVIDER_URL` defaults to `fake:deterministic` in `docker-compose.yml` and ships empty in `.env.example`. As of Phase 7, the demonstration/production deployment MUST be configured with `AI_PROVIDER_URL` pointing at a real hosted LLM's HTTPS endpoint, with a valid `AI_API_KEY` and `AI_MODEL_ID` — the fake provider MUST NOT be the default, fallback, or unconfigured-state behaviour of a deployed environment (FR-9.20). The specific provider and model are a **Phase 7 planning decision** — this document does not name one.
+- **The fake provider is not removed; its role narrows.** `server/src/ai/fakeProvider.ts` remains exactly as it is and remains the correct choice for the automated test suite's own configuration (`test:unit`, `test:api`, `test:e2e` may all still run with `AI_PROVIDER_URL=fake:deterministic` — nothing about the test environment of §8.2 changes). Its role narrows from "the shipped default" to "test-only" — a configuration-surface change, not a code change.
+- **The no-SDK constraint is unchanged.** `server/src/ai/adapter.http.ts` continues to use the platform `fetch` only; no provider SDK (`openai`, `@anthropic-ai/sdk`, `@azure/openai`, `langchain`, or equivalent) becomes a dependency, and the architecture test forbidding those packages (§6.2, `test/architecture/dependencies.spec.ts`) is unaffected. A real, HTTPS-reachable, OpenAI-compatible endpoint is reachable through plain HTTP exactly as the fake provider is today.
+- **If the chosen real provider's wire shape is not OpenAI-compatible chat/completions**, the only files this document expects to change are the two documented seam functions already isolated inside the adapter for exactly this reason: `renderPromptRequest` (builds the outbound request body from the versioned prompt template and the `RecommendationRequest`) and `extractPayload` (parses the provider's response envelope into the shape §5.3 step 6 validates against `RecommendationDraft`). Every other module in §5.2's component topology — `provider.ts`'s interface, `worker.ts`'s dispatch/idempotence logic, the persistence and audit-coupling steps of §5.3 steps 7–9, and the degradation table of §5.6 — is provider-shape-agnostic and requires no change. This document does not name the specific provider whose shape might require this; that determination is Phase 7 planning's, made against the actual chosen endpoint.
+
 ---
 ## 6. Technology Stack
 
@@ -2476,6 +2506,16 @@ Exact pins (no `^`, no `~`) in `package.json`, with a committed lockfile. Every 
 | Browser tests | **@playwright/test** | `1.48.2` | Keyboard-only walkthrough of the six-stage loop (SM-11). **Functional only — not an accessibility gate**, and `axe-core` is deliberately not a dependency (§7.8). |
 | Container base | **node:22.11-bookworm-slim** | pinned digest | Reproducible image; slim base with no build toolchain in the runtime stage. |
 | Container base (db) | **postgres:16.4-bookworm** | pinned digest | Matches the pinned server version exactly. |
+
+### 6.2a Phase 7 — pending visual redesign, baseline the replacement must preserve or deliberately supersede
+
+Phase 7 replaces `@uswds/uswds@3.11.0` as the shell's visual system with a newly-approved external design (PRD §4.1, §5.1 F2); the exact replacement package, version, and token set are **not yet known** to this framework and are deferred to Phase 7 UX design/planning — this chunk does not pin a version for something that has not been chosen. What is fixed now, because it constrains *any* candidate replacement rather than depending on which one is picked:
+
+- **Self-hosting is a constraint that survives the choice of design system.** Today `web/scripts/copy-uswds-assets.mjs` copies fonts, icons, and JS into the build so nothing is fetched from a CDN at runtime (FR-2.3). Whatever replaces USWDS MUST be self-hostable the same way — vendored into the build output, not loaded from `fonts.googleapis.com`, a component-library CDN, or any third-party origin. A design system that only ships via CDN-hosted assets is disqualified by this constraint, independent of its visual merits.
+- **The CSP is a constraint that survives the choice of design system.** `style-src 'self'` with no `unsafe-inline` (§4.5) means styles must arrive as a compiled, `<link>`-loaded stylesheet — today `web/styles/app.scss` compiled by dart-sass into `web/public/assets/uswds.css`. A replacement whose runtime injects `<style>` tags via JS (common in some CSS-in-JS component libraries) does not satisfy this CSP as it stands and would require either a CSP relaxation (a governance-relevant decision, not a styling one) or a build-time-only variant of that library. This is Phase 7 planning's decision to make, not this document's.
+- **The build pipeline shape (one Sass entry point, one compiled stylesheet, no CDN) is the baseline** a replacement build pipeline must preserve or deliberately, visibly supersede — not silently drift away from. See §6.4 for the current pipeline and `01-components.md` §1A.1b for the corresponding component-architecture note.
+- **`docs/uswds-conformance-register.md` will need a wholesale re-authoring** once the new system's primitives are known (not attempted here — see `01-components.md` §1A.1b).
+- **Section 508 / WCAG 2.1 AA conformance is unaffected** — it is a constraint on the *outcome*, not on which tokens produce it (`07-accessibility.md` §7.1a).
 
 **Dependency allowlist test.** `test/architecture/dependencies.spec.ts` asserts the production dependency set equals the list above and fails on the presence of any of: an ORM or query builder (`typeorm`, `prisma`, `sequelize`, `knex`, `drizzle-orm`, `mikro-orm`), `axe-core` / `@axe-core/*` / `jest-axe`, any CSV/XLSX/PDF writer (`csv-stringify`, `exceljs`, `pdfkit`, `puppeteer`), any multipart parser (`multer`, `busboy`, `formidable`), any scheduler (`node-cron`, `agenda`, `bullmq`, `bull`, `node-schedule`), any broker/cache client (`amqplib`, `kafkajs`, `ioredis`, `redis`), any AI provider SDK (`openai`, `@anthropic-ai/sdk`, `@azure/openai`, `langchain`), any auth federation library (`passport-saml`, `openid-client`, `@node-saml/*`), and any analytics/telemetry/error-reporting SaaS client. Each absence corresponds to an explicit PRD §10 exclusion; the test is how §10 becomes a build constraint.
 
@@ -2587,6 +2627,10 @@ Three architectural moves carry the burden:
 1. **One shell, one set of patterns.** Landmarks, skip link, focus management, form pattern, error summary, live regions, state components, and the provenance badge exist **once** in F2 and are inherited by every screen (F1's sign-in, F6, F8, F10, F12, F14). A screen cannot accidentally have a different heading structure or a different error pattern because it does not own those things.
 2. **USWDS components only, no bespoke interactive controls.** Every interactive control is a USWDS component or a composition recorded in the conformance register. Custom widgets are the single largest source of accessibility defects; the architecture removes the ability to introduce one casually.
 3. **Type-level and lint-level enforcement of the two requirements most likely to regress silently** — provenance not conveyed by colour alone, and values rendered without their origin (§3.18).
+
+### 7.1a Phase 7 — accessibility process is unchanged by the pending visual redesign
+
+Phase 7 replaces USWDS as the shell's visual system (PRD §4.1, §5.1 F2; `01-components.md` §1A.1b, `06-tech-stack.md` §6.2a); it does **not** touch anything in this chunk. Restated explicitly so a reader of this chunk alone is not left to guess: the manual, per-screen review gate of §7.7 — a signed record at `docs/a11y/{screen}.md` covering the fixed checklist, including the assistive-technology walkthrough — remains the sole enforcement mechanism, and §7.8's "no CI accessibility gate, **ever**" holds exactly as before; Phase 7 does not introduce `axe-core`, a `.github/workflows` directory, or any other automated gate. What *does* change, once Phase 7's replacement design is chosen: `docs/uswds-conformance-register.md` (§7.3) will need a wholesale re-authoring against the new system's primitives, and every screen's existing sign-off record will need re-verifying against the new markup before that screen is considered delivered again — but the *bar* (zero WCAG 2.1 AA violations, 100% of screens signed off, 100% keyboard task completion) and the *process* that verifies it do not move.
 
 ### 7.2 USWDS integration
 
@@ -2728,7 +2772,7 @@ npm run test           # all of the above, in that order
 | Roles | Tests connect as `cargoexec_app`, `cargoexec_ai`, **and** `cargoexec_owner` as required, because several assertions are specifically about what the owner also cannot do |
 | Time | Expiry and idle-timeout tests inject a clock; validation is clock-free by construction (`RIV-132` uses the entry's own `received_at`), so rule tests need no time control |
 | AI provider | `FakeProvider` implementing `RecommendationProvider`, able to produce a valid draft, an invalid draft, and each of the seven `failure_reason` values. **No test performs a live provider call**, so the whole suite runs with no network access |
-| Fixtures | Test data is constructed through the public API (`POST /api/entries`) wherever possible, because that path is the only way data enters the product. No seed script or fixture loader exists in the shipped application (PRD §10 #7); test-only builders live under `test/` and are excluded from the production build |
+| Fixtures | Test data is constructed through the public API (`POST /api/entries`) wherever possible, because that path is the only way data enters the product. Test-only builders live under `test/` and are excluded from the production build. **Phase 7 note:** PRD §10 #7's "no seed script or fixture loader" is superseded — `server/src/cli/seed-demo-case.ts` now exists as a named, reviewed, operator-invoked exception (F15). It is not part of the *test* environment described in this table (the automated suites still build their own data through the public API and never invoke the seed script), and it changes nothing about how test suites construct data — see §8.9 |
 
 ### 8.3 Test inventory
 
@@ -2872,8 +2916,14 @@ An HTTP liveness endpoint would be an eleventh route, and the endpoint inventory
               recommended): asserts audit immutability and the absent-column
               list on the real instance
 5. account    create-specialist --email … --display-name …  (password entered
-              interactively). This is the ONLY insert performed operationally;
-              no seed data is created (§10 #7)
+              interactively). This is the ONLY insert performed operationally
+              through Phase 6 (§10 #7, superseded by step 5a below in Phase 7)
+5a. seed      (Phase 7, demonstration deployments only, optional)
+              seed-demo-case  — idempotent; safe to run 0, 1, or many times.
+              Produces exactly one demonstration case carried through the full
+              lifecycle via the real F3→F4→F5→F9→F11→F13 service functions.
+              See §8.9. Not run against a deployment that must contain no
+              fixture content.
 6. start      cargoexec-web: startup self-checks run BEFORE listen —
                  • every required env key present
                  • AI_PROVIDER_URL is https
@@ -2901,6 +2951,23 @@ Failure to start is always preferred to starting in a state where a governance g
 | Backups | An operational concern of the hosting environment. The application provides no purge, retention, rollup, archive, or "clear history" path — audit entries are permanent for the life of the deployment (F13 FR-13.14) |
 | Data reset | Achieved by dropping and recreating the database (the audit tables cannot be truncated). There is no in-application reset, and no seed step to re-run afterwards |
 | Recovery | A `PENDING` recommendation orphaned by a restart stays pending-then-stale; the case remains fully decidable. No sweeper, no recovery scheduler (F9 FR-9.19) |
+
+### 8.9 Phase 7 — seed script: demonstration case (F15)
+
+**What it is.** `server/src/cli/seed-demo-case.ts` is a new, operator-invoked CLI script — placed and provisioned exactly like `create-specialist.ts` (§8.7 step 5): run directly against a deployed environment by a human operator, never invoked by the application itself, never reachable through a session, never an HTTP route, never scheduled. It pre-loads exactly one demonstration cargo case that has already progressed through the full governed loop (received → validated-failed → exception opened → recommendation generated → `EDIT_APPROVE` decision, with mixed AI/HUMAN provenance on the resolution → full audit trail), so later-loop scenarios are repeatably demonstrable without hand-typing an entry live every time (PRD §10 #7, superseded; F15).
+
+**How it avoids tripping the existing absence tests.** Two architecture tests actively forbid a seed/fixture surface, and the script is designed to satisfy both without weakening either:
+
+- `server/test/architecture/absence.spec.ts` (`FORBIDDEN_DIRS` check) forbids a `seeds/` or `fixtures/` **directory** anywhere in the repository. The script is a single file, `server/src/cli/seed-demo-case.ts`, not a directory named `seeds` or `fixtures` — it does not trip this check, and the check's general form is untouched.
+- `server/test/architecture/absence.spec.ts` (`TEST-ARCH-11`) and the migration-scanning logic it shares with `validation.spec.ts` forbid `INSERT INTO` in any migration file. The script contains **no migration file and no direct `INSERT`** of any kind: it calls the same repository/service functions the running application uses for a live request (`receipt.service`'s entry-receipt path for F3/F4/F5, `ai/worker.ts`'s generation function for F9, `decision.service` for F11), exactly as an authenticated specialist's request or the post-commit worker dispatch would. The migration-file scan finds nothing to flag because the script is not a migration.
+
+**Both tests are updated, not weakened.** `absence.spec.ts` and `validation.spec.ts` gain a small, additional, narrowly-scoped assertion alongside their existing (unmodified) general prohibitions: that `server/src/cli/seed-demo-case.ts` is the *only* file in the repository whose name or path suggests a seed/fixture mechanism, so a second, undocumented seed script cannot be added later without a test change drawing attention to it. The general-purpose bans — no `seeds/`/`fixtures/` directory anywhere, no `INSERT INTO` in any migration file — remain exactly as strict as they were before Phase 7. This is a named, reviewed, one-script exception, not a hole opened for future use (see `01-components.md` §1A.1a for the same point stated against the component architecture).
+
+**Idempotency.** The script is safe to run zero, one, or many times, including concurrently. At each lifecycle stage it checks whether that stage's row already exists (by the reserved demonstration specialist email, then by the reserved demonstration `entry_number`, then by the presence of a recommendation and a decision on the resulting exception) and performs only the stages not yet completed. Concurrent invocations rely on the same row locks and idempotence guards that make F3/F9/F11 safe under concurrent *live* requests (§1.5 step 10, §5.3 step 2, §1.6 step 7) — the script introduces no locking or idempotence mechanism of its own. A run that finds every stage already present performs no write and exits `0`.
+
+**What it never does.** It never writes directly to `cargo_entries`, `exceptions.state`, `decisions`, `decision_values`, or any other governed table — only through the same service-layer functions a live request would invoke, in-process, without HTTP (F15 FR-15.8). It never fabricates a timestamp or a hash-chain value; every audit entry it causes is written by `audit/writer.ts`'s single `append(tx, entry)` chokepoint (§1A.3, R-L3), participates in the same per-case hash chain as any organically-created case, and passes the same `verify_audit_chain` routine. No `is_seed` column or equivalent exists anywhere in the schema (§2, unchanged) — the fixture/organic distinction is a documentation obligation (README / operator runbook), never a data-level flag.
+
+**Test suite impact.** None. The automated test suites (`test:unit`, `test:db`, `test:api`, `test:e2e`) continue to build their own data through the public API exactly as §8.2 describes, and never invoke `seed-demo-case.ts`. The script is demonstration/operational tooling, orthogonal to the test harness.
 
 ---
 ## 9. Traceability

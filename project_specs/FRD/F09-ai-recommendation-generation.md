@@ -4,6 +4,8 @@
 
 **Description:** F9 generates a recommended resolution action for an exception together with a plain-language rationale explaining why that action is recommended. The AI is consumed through a hosted model API behind a provider abstraction; there is no training and no fine-tuning infrastructure (PRD §10 #11). The recommendation is a **draft only**: it is persisted as a proposal attached to the case, every proposed value is marked `AI` in origin, and it never mutates the entry or the exception state. Generation is triggered by the exception coming into being, and its result is recorded with the model identity, prompt version, and timestamp, so the record can later answer "what did the AI say" exactly as it was said. If the provider is unavailable, slow, or returns something unusable, the case remains fully workable and the human decision path is unaffected.
 
+**Phase 7 note — provider posture.** The provider abstraction, HTTP adapter, and retry/timeout/schema-validation logic described in this chunk are unchanged by Phase 7 — this was always the intended shape. What changes is deployment **posture** only: as of Phase 7, the demonstration/production deployment MUST be configured with a real hosted LLM provider (`AI_PROVIDER_URL` pointing at a real HTTPS endpoint, with a valid `AI_API_KEY` and `AI_MODEL_ID`) rather than the deterministic `fake` provider that earlier default configuration pointed at. The `fake:deterministic` provider remains available and is used strictly for automated test runs (PRD §4.1, §5.4 F9). See FR-9.20.
+
 **Terminology (feature-specific):**
 - **Provider abstraction:** the internal `RecommendationProvider` interface (`generate(request) → RecommendationDraft`) behind which the hosted model client sits. The decision and audit layers depend only on this interface.
 - **Recommendation draft:** the provider's parsed, schema-valid output: a recommended action, a rationale, and proposed field values with the rule ids each addresses.
@@ -62,6 +64,7 @@
 - **FR-9.17 — Concurrency and idempotence.** The job MUST take a row lock on the recommendation and act only while `status = 'PENDING'`, so a duplicate dispatch performs no second write and produces no second audit entry.
 - **FR-9.18 — Bounded resource use.** Generation MUST run with a bounded worker concurrency and MUST NOT block the HTTP request path. A backlog MUST NOT delay any interactive response (NFR-10); pending cases simply display as pending in F10.
 - **FR-9.19 — Process restart.** A recommendation left `PENDING` by a process restart MUST be presented as pending-then-stale by F10 (FR-10.7) rather than resurrected by a sweeper job: v1 has no recovery scheduler, and a case with no recommendation is fully decidable. This is a deliberate simplification consistent with degraded mode.
+- **FR-9.20 — Real provider required outside automated tests (Phase 7).** The demonstration/production deployment MUST be configured at startup with `AI_PROVIDER_URL` set to a real HTTPS LLM endpoint and a valid `AI_API_KEY`/`AI_MODEL_ID`. The deterministic `fake` provider MUST be used only by the automated test suite's own configuration and MUST NOT be the default, fallback, or unconfigured-state behaviour of a deployed environment. This requirement governs deployment configuration only; it introduces no change to the `RecommendationProvider` interface, the retry/timeout logic (FR-9.5–FR-9.6 process steps), or the output schema (FR-9.7).
 
 ---
 
@@ -118,5 +121,6 @@ There is deliberately **no** `POST`/`PUT` recommendation endpoint, no regenerate
 6. The generation code path has no import of, or reference to, the decision service; a test asserts this and asserts that no AI principal exists in `specialists`.
 7. Dispatching the job twice for one exception produces one recommendation and one audit entry.
 8. No log line, response body, or audit entry contains the provider API key.
+9. The demonstration/production deployment's `AI_PROVIDER_URL` resolves to a real HTTPS LLM endpoint with a valid `AI_API_KEY`/`AI_MODEL_ID` configured — not the `fake:deterministic` default; the fake provider appears only in the automated test suite's configuration (FR-9.20).
 
 ---

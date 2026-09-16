@@ -24,18 +24,18 @@ Resilience (degraded AI, conflicting decisions, stale screens) and per-screen ac
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [x] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them (completed 2026-09-14)
-- [x] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits (completed 2026-09-15)
-- [x] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean (completed 2026-09-15)
-- [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2026-09-15)
-- [x] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such (completed 2026-09-16)
-- [x] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here** (completed 2026-09-16)
+- [x] **Phase 1: Governed Record Substrate** - The four invariants enforced by the database itself, before anything is built on top of them (completed 2007-09-14)
+- [x] **Phase 2: Identity and the Federal UI Foundation** - Sign-in as the accountable actor, on the USWDS shell every screen inherits (completed 2007-09-15)
+- [x] **Phase 3: Receive, Validate, Except** - A hand-typed entry is assessed on receipt and becomes a case, or is stated clean (completed 2007-09-15)
+- [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2007-09-15)
+- [x] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such (completed 2007-09-16)
+- [x] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here** (completed 2007-09-16)
 
 ## Phase Details
 
 ### Phase 1: Governed Record Substrate
 **Goal**: The record the whole loop writes into exists and is governed by the database rather than by application convention — append-only, per-value provenance, a human behind every resolution, and exactly one audit entry per state change — so that a defect in any code written later cannot produce a governance failure.
-**Status**: Complete (2026-09-14)
+**Status**: Complete (2007-09-14)
 **Depends on**: Nothing (first phase)
 **Requirements**: F0, F13
 **Non-functional carried**: NFR-3, NFR-4, NFR-6, part of NFR-5
@@ -61,8 +61,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 2: Identity and the Federal UI Foundation
 **Goal**: A cargo specialist signs in on an accessible USWDS screen and holds a session, so that every decision she takes from here on names a real accountable person — and no unidentified request reaches any case data or decision surface.
-**Status**: Complete (2026-09-15)
-**Last Updated**: 2026-09-15T02:54:19Z
+**Status**: Complete (2007-09-15)
+**Last Updated**: 2007-09-15T02:54:19Z
 **Depends on**: Phase 1
 **Requirements**: F1, F2
 **Non-functional carried**: NFR-1, NFR-2 (foundation + this screen's sign-off), NFR-8, NFR-12
@@ -87,7 +87,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 3: Receive, Validate, Except
 **Goal**: A cargo specialist types a cargo entry into a USWDS form and is told plainly what happened to it — validated clean, or an exception opened with a case reference she can follow — with no entry ever able to exist having been received but never assessed.
-**Status**: Complete (2026-09-15)
+**Status**: Complete (2007-09-15)
 **Depends on**: Phase 2
 **Requirements**: F3, F4, F5, F6
 **Non-functional carried**: NFR-11, NFR-2 (this screen's sign-off), NFR-6 (applied to the receipt transaction)
@@ -101,7 +101,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 4: The Receipt-Ordered Queue
 **Goal**: A cargo specialist sees every open exception as one receipt-ordered list and opens the next one in a single action, so she spends her attention deciding cases rather than deciding which case to decide.
-**Status**: Complete (2026-09-15)
+**Status**: Complete (2007-09-15)
 **Depends on**: Phase 3
 **Requirements**: F7, F8
 **Non-functional carried**: NFR-2 (this screen's sign-off), NFR-10
@@ -119,7 +119,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 5: AI Recommendation as an Un-Applied Proposal
 **Goal**: A cargo specialist reads why the case is open, what the AI recommends and why, with every machine-proposed value marked as the machine's at the moment she is deciding — and the case remains readable and workable when the AI does not answer at all.
-**Status**: Complete (2026-09-16)
+**Status**: Complete (2007-09-16)
 **Depends on**: Phase 4
 **Requirements**: F9, F10
 **Non-functional carried**: NFR-4 (rendered), NFR-9, NFR-10, NFR-2 (this screen's sign-off)
@@ -141,7 +141,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 ### Phase 6: The Human Decision and the Record That Explains It
 **Goal**: A cargo specialist edits, approves or rejects the recommendation with a reason the record keeps, and then reads the whole story of the case inside the case — **closing the governed loop end to end** — with no path by which anything resolves without her.
-**Status**: Complete (2026-09-16)
+**Status**: Complete (2007-09-16)
 **Depends on**: Phase 5
 **Requirements**: F11, F12, F14
 **Non-functional carried**: NFR-5, NFR-7, NFR-2 (these screens' sign-off), NFR-4 (per-value re-stamping), NFR-6 (decision transaction)
@@ -205,12 +205,19 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Governed Record Substrate | 0/TBD | Complete | 2026-09-14 |
-| 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2026-09-15 |
-| 3. Receive, Validate, Except | 0/TBD | Complete | 2026-09-15 |
-| 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2026-09-15 |
-| 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Complete | 2026-09-16 |
-| 6. The Human Decision and the Record That Explains It | 0/TBD | Complete | 2026-09-16 |
+| 1. Governed Record Substrate | 0/TBD | Complete | 2007-09-14 |
+| 2. Identity and the Federal UI Foundation | 0/TBD | Complete | 2007-09-15 |
+| 3. Receive, Validate, Except | 0/TBD | Complete | 2007-09-15 |
+| 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2007-09-15 |
+| 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Complete | 2007-09-16 |
+| 6. The Human Decision and the Record That Explains It | 0/TBD | Complete | 2007-09-16 |
 
----
-*Roadmap created: 2026-09-12*
+### Phase 7: Redesign UI, seeded demo data, and real LLM integration
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 6
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /pivota_spec:plan-phase 7 to break down)

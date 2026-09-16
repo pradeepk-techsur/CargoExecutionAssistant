@@ -2,9 +2,10 @@
 pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: completed
-last_updated: "2026-09-16T21:37:23.160Z"
-last_activity: "2026-09-16 — Phase 6 complete"
+status: executing
+stopped_at: Completed 06-05-PLAN.md — Phase 6 and the v1.0 milestone COMPLETE
+last_updated: "2026-09-16T22:21:28.810Z"
+last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
 progress:
   total_phases: 6
   completed_phases: 6
@@ -24,7 +25,7 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 
 ## Current Position
 
-Phase: 6 of 6 (the human decision and the record that explains it) — COMPLETE (5/5). v1.0 MILESTONE COMPLETE.
+Phase: 6 of 5 (the human decision and the record that explains it) — COMPLETE (5/5). v1.0 MILESTONE COMPLETE.
 Plan: 06-05 COMPLETE (FINAL) — the whole governed loop is proven end to end. `e2e/whole-loop.spec.ts` walks the complete loop TWICE, keyboard-only, in one unbroken browser session per pass: scenario 1 (healthy) signs in through the real form, opens a hand-created failed-validation case from the queue, watches the recommendation resolve AVAILABLE, edit-and-approves with a reason, and reaches the full 5-event audit trail (verbatim reason, specialist named); scenario 2 (AI stopped) forces RECOMMENDATION_UNAVAILABLE via a FAKE_AI_TRIGGERS marker and resolves directly, proving NFR-9 the case stays fully decidable/auditable in every recommendation state. Both prove NO full-page reload during the in-place decision/audit steps (an addInitScript nav-counter). Every progression action is a real keyboard press on a control asserted focused first. NFR-5 reconfirmed (receiptPaths test 4 + aiCapability assertion 1). `docker compose up --build` boots db+web healthy and the app answers 401 — no compose edit needed (the five §6.6 AI keys were already committed; the deferred-items note was stale). `docs/a11y/case-detail.md` re-signed with Decision- and Audit-trail-region §7.7 checklists (each line citing a real Phase 6 test), an AT-walkthrough addendum, and a second sign-off marking all five sections delivered; `docs/uswds-conformance-register.md` gained append-only rows for the three equal-weight decision buttons, the reused edit form, the summary/confirmation panels, the audit value-change table, and the integrity-failure alert. MILESTONE GATE: `npm run test:all` green — unit 297, db 196, api 170, arch 153 (816) + 67 e2e = 883 tests, 0 failures, 0 skipped. 2 deviations auto-fixed (R1: sign-in.spec test-2 goto retry on the aborted-during-session-clear race; R1: retries:2 in playwright.config for the single-worker e2e tier — test-determinism only).
 
 --- prior (06-04) ---
@@ -116,6 +117,10 @@ Progress: [██████████] 100%
 
 ## Accumulated Context
 
+### Roadmap Evolution
+
+- Phase 7 added: Redesign UI, seeded demo data, and real LLM integration — replaces USWDS across all screens with a new approved design, adds a hand-authored seed script demonstrating the full case lifecycle (reversing the v1.0 §10 #7 no-seed-data decision), and wires the existing AI provider adapter to a real hosted LLM. Not yet planned.
+
 ### Decisions
 
 Decisions are logged in PROJECT.md Key Decisions table.
@@ -200,9 +205,11 @@ Recent decisions affecting current work:
   case-detail and audit-trail pages are taller than 8000 px when stitched, and the
   provider rejects any image over 8000 px on a side (`image dimensions exceed max
   allowed size`). Two verify runs on 2026-09-16 died on exactly this.
+
 - **Never open a PNG with the `read` tool.** Reading a screenshot attaches it to the
   next model request; that is what carried the oversize image. Attach the file path
   to the UAT test (`.pivota/uat-shots/{n}-{route}.png`) instead of viewing it.
+
 - If a logged-in browser session is needed for a shot, keep the same constraint in
   the script: `viewport: { width: 1280, height: 800 }`, no `fullPage`.
 

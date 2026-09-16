@@ -5,11 +5,12 @@
 |-------|-------|
 | **Product Name** | CargoExecutionAssistant |
 | **Project Acronym** | CargoExec |
-| **Document Version** | 1.0 |
-| **Date** | 2026-09-11 |
+| **Document Version** | 1.1 |
+| **Date** | 2026-09-11 (Phase 7 update: 2026-09-16) |
 | **Author** | Pivota Spec Framework — PRD Generator |
 | **Source of Truth** | `.planning/PROJECT.md` |
 | **Downstream Documents** | FRD-CargoExec, TechArch-CargoExec, UserStories-CargoExec |
+| **Revision Note** | Updated for Phase 7 (redesign UI, seeded demo data, real LLM integration) — see §4.1, §4.2, §5.1 F2, §5.4 F9, §5.7 F15, §8 R-9, §10 #7, §11 |
 
 ---
 
@@ -69,7 +70,7 @@ At the same time, CBP faces a delivery-capability question that is separate from
 
 These are conditions of the product, not features to be negotiated or traded away:
 
-- **Users are federal agency staff.** USWDS design standards and Section 508 / WCAG 2.1 AA accessibility are baseline, not enhancements.
+- **Users are federal agency staff.** Section 508 / WCAG 2.1 AA accessibility is baseline, not an enhancement, regardless of which visual design system delivers it — USWDS was the mechanism for that conformance through Phase 6; Phase 7 replaces the visual system while holding the accessibility bar fixed (§5.1 F2).
 - **AI is an assistant, not a decider.** It summarises the exception and drafts a resolution; the human retains the final decision on every case.
 - **Provenance must be distinguishable, not merely logged.** A reader of the record must be able to tell an AI-proposed value from a human-entered one by looking at the record itself.
 - **The audit trail is the product.** It is append-only, viewable per case, and detailed enough to answer "who decided this, what did the AI say, and what did the human change" without external tooling.
@@ -88,7 +89,7 @@ These are conditions of the product, not features to be negotiated or traded awa
 2. **Guarantee the accountable human decision.** Enforce human-in-the-loop structurally rather than procedurally: no code path resolves an exception without a recorded human decision, so "the AI decided this" is not a possible outcome.
 3. **Make the record self-explaining.** Every resolution carries what the AI recommended, what the human chose, the reason for any edit or rejection, and per-value AI-vs-human origin — readable in the UI, in one place, by the person who needs it.
 4. **Make the audit trail trustworthy by construction.** Append-only storage so that the record of a decision cannot be revised after the fact, with mutation attempts rejected rather than merely discouraged.
-5. **Meet federal standards as delivered, not as promised.** USWDS components and Section 508 / WCAG 2.1 AA conformance in the shipped UI, achieved by design and review.
+5. **Meet federal standards as delivered, not as promised.** Section 508 / WCAG 2.1 AA conformance in the shipped UI, achieved by design and review — a hard requirement independent of which visual design system implements it. USWDS was that mechanism through Phase 6; Phase 7 replaces the visual system under a newly-approved external design while the conformance obligation itself does not move (§5.1 F2).
 6. **Hold scope discipline as a first-class goal.** One role, manual entry, one receipt-ordered queue. Every capability declined in §10 is a deliberate purchase of loop completeness.
 
 ### 3.2 What Success Looks Like
@@ -105,10 +106,10 @@ Indicative stack, to be confirmed and detailed in TechArch-CargoExec. Selection 
 
 | Layer | Technology |
 |-------|------------|
-| **Frontend** | React + TypeScript with USWDS (U.S. Web Design System) components; semantic HTML with full keyboard and assistive-technology support |
+| **Frontend** | React + TypeScript; semantic HTML with full keyboard and assistive-technology support. Through Phase 6, USWDS (U.S. Web Design System) supplied the visual system; **Phase 7 replaces the visual system with a newly-approved external design** while Section 508 / WCAG 2.1 AA conformance remains mandatory and unchanged (§5.1 F2) — the specific conformance mechanism (themed reuse of USWDS interactive primitives vs. an independent accessibility program) is a decision for Phase 7 planning, not this document |
 | **Backend** | Node.js + TypeScript HTTP API (service layer enforcing validation, decision, and audit invariants) |
 | **Database** | PostgreSQL — relational, with append-only constraints and revoked UPDATE/DELETE privileges on the audit table |
-| **AI** | Hosted large-language-model API behind a provider-abstracted recommendation service (consumed only — no training, no fine-tuning) |
+| **AI** | Hosted large-language-model API behind a provider-abstracted recommendation service (consumed only — no training, no fine-tuning). **Phase 7 makes calling a real hosted LLM in the demonstration/production environment an explicit deliverable** (§5.4 F9); the deterministic fake provider remains available for automated tests only |
 | **Authentication** | Server-side session authentication for the single `cargo specialist` role |
 | **Deployment** | Containerised web application (single web service + database), suitable for local demonstration and a governed hosted environment |
 
@@ -117,7 +118,7 @@ Indicative stack, to be confirmed and detailed in TechArch-CargoExec. Selection 
 | Model | Description |
 |-------|-------------|
 | **Single-tenant web application** | One web service, one database, one AI provider dependency. Accessed via browser by authenticated cargo specialists. Web only — no native mobile client (§10). |
-| **Demonstration deployment** | Run for live walkthroughs. Data is created by hand during the demo; there is no seeded dataset (§10), so the entry form is part of the demonstration path, not a bypass around it. |
+| **Demonstration deployment** | Run for live walkthroughs. **As of Phase 7**, a hand-authored seed script pre-loads a demonstration case that has already progressed through the full lifecycle (entry → validation failure → exception → AI recommendation → human decision → audit trail), so every stage of the loop is visible without re-typing every stage live (§10 #7, F15). Manual entry through F6 remains fully demonstrable alongside it — the seed script is additive, not a replacement for the live entry path. |
 
 ### 4.3 Architectural Invariants
 
@@ -133,7 +134,7 @@ These constrain the design and are verified in the FRD's acceptance criteria:
 
 ## 5. Feature Requirements
 
-Fifteen features across six categories. Every feature traces to at least one Active requirement in `.planning/PROJECT.md`, and every Active requirement is covered by at least one feature (see §12). The user-facing web interface is carried by named features of its own (F2, F6, F8, F10, F12, F14) — backend endpoints do not satisfy it.
+Sixteen features across seven categories (Phase 7 adds F15). Every v1 feature traces to at least one Active requirement in `.planning/PROJECT.md`, and every Active requirement is covered by at least one feature (see §12); F15 additionally traces to the Phase 7 supersession of PROJECT.md's Out of Scope item on seeded demonstration data (§10 #7). The user-facing web interface is carried by named features of its own (F2, F6, F8, F10, F12, F14) — backend endpoints do not satisfy it.
 
 ### 5.0 Priority Convention
 
@@ -177,16 +178,18 @@ Fifteen features across six categories. Every feature traces to at least one Act
 
 #### F2: USWDS Application Shell & Accessibility Foundation
 - **Surface**: User-facing interface / Content & assets
-- **Description**: The shared web UI foundation every screen is built on: USWDS assets and component library, page layout, banner and header, navigation, form and validation-message patterns, error and empty states, and focus management. This is the feature that makes Section 508 / WCAG 2.1 AA conformance a property of the delivered interface rather than an aspiration — semantic landmarks, an accessible name for every control, visible focus, complete keyboard operability, correct heading order, and screen-reader-announced status and error messaging are established once here and inherited by F6, F8, F10, F12, and F14. Conformance is achieved by design and manual review, including assistive-technology walkthrough of each screen; v1 adds no automated accessibility gate and no CI workflow (§10).
+- **Description**: The shared web UI foundation every screen is built on: page layout, banner and header, navigation, form and validation-message patterns, error and empty states, and focus management. This is the feature that makes Section 508 / WCAG 2.1 AA conformance a property of the delivered interface rather than an aspiration — semantic landmarks, an accessible name for every control, visible focus, complete keyboard operability, correct heading order, and screen-reader-announced status and error messaging are established once here and inherited by F6, F8, F10, F12, and F14. Conformance is achieved by design and manual review, including assistive-technology walkthrough of each screen; v1 adds no automated accessibility gate and no CI workflow (§10).
+
+  **Phase 7 update:** the shared shell is redesigned against a newly-approved external visual design, replacing USWDS as the visual system. This preserves the conformance requirement rather than relaxing it: Section 508 / WCAG 2.1 AA conformance stays mandatory and unchanged regardless of which visual system delivers it. Whether that conformance is achieved by continuing to reuse USWDS's interactive primitives under new theming, or by an independently-built accessibility program for the new design system, is a decision deferred to Phase 7 discovery/planning — it is not resolved by this PRD update.
 - **Capabilities**:
-  - USWDS component library, design tokens, typography, and asset pipeline
+  - Component library, design tokens, typography, and asset pipeline — USWDS-based through Phase 6; **Phase 7 replaces these with the newly-approved external visual design**, with exact tokens/components captured during Phase 7 planning
   - Standard page shell: official-site banner, header, main landmark, footer, sign-out affordance
   - Accessible form patterns: label association, required-field indication, inline error text, error summary with focus movement
   - Keyboard operability across all interactive components, with a visible focus indicator
   - Status and error announcements exposed to assistive technology via live regions
   - Colour contrast, text resizing, and reduced-motion behaviour meeting WCAG 2.1 AA
   - Accessibility design-and-review checklist applied per screen (manual process, not a CI gate)
-- **Requirement trace**: The UI follows USWDS and meets Section 508 / WCAG 2.1 AA
+- **Requirement trace**: The UI follows USWDS and meets Section 508 / WCAG 2.1 AA (Phase 7: read as — the UI meets Section 508 / WCAG 2.1 AA regardless of visual design system; USWDS was the mechanism through Phase 6, see description above)
 - **Dependencies**: None
 - **Priority**: **P0** (statutory constraint for federal applications)
 
@@ -238,7 +241,7 @@ Fifteen features across six categories. Every feature traces to at least one Act
 
 #### F6: Cargo Entry Web UI
 - **Surface**: **User-facing interface**
-- **Description**: The screen a cargo specialist actually uses to create a cargo entry — a USWDS form with labelled fields, required-field indication, inline and summarised error messaging, and a submit action. On submission the specialist is told plainly what happened to their entry: it either passed validation or it opened an exception, with a direct link to the resulting case. Because there is no seeded demonstration dataset (§10), this screen is the beginning of every demonstration path, and its clarity about receipt outcome is what makes the validate-and-except stages of the loop visible rather than inferred.
+- **Description**: The screen a cargo specialist actually uses to create a cargo entry — a form with labelled fields, required-field indication, inline and summarised error messaging, and a submit action, built on the shared shell (F2). On submission the specialist is told plainly what happened to their entry: it either passed validation or it opened an exception, with a direct link to the resulting case. Through Phase 6, this screen was the only way to see the receive/validate/except stages, because there was no seeded dataset (§10 #7, superseded). **As of Phase 7**, a seed script (F15) additionally pre-loads a demonstration case that has already passed through the whole lifecycle — manual entry via this screen remains fully demonstrable and is not removed; the seed script exists alongside it so later-loop scenarios (recommendation, decision, audit trail) can also be shown without hand-walking every earlier stage first.
 - **Capabilities**:
   - USWDS cargo entry form with accessible labels, hints, and required-field marking
   - Client-side affordances that never substitute for server-side validation (F4 is authoritative)
@@ -287,6 +290,8 @@ Fifteen features across six categories. Every feature traces to at least one Act
 #### F9: AI Resolution Recommendation Generation
 - **Surface**: Integrations / Background-async
 - **Description**: Generation of a recommended resolution action for an exception, together with a plain-language rationale explaining why that action is recommended. The AI is consumed through a hosted model API behind a provider abstraction; there is no training or fine-tuning infrastructure (§10). The recommendation is a **draft only** — it is persisted as a proposal attached to the case with every proposed value marked `AI` in origin, and it never mutates the entry or the exception state. Generation is triggered by the exception coming into being and its result is recorded with the model identity and timestamp, so the record can later answer "what did the AI say" exactly as it was said.
+
+  **Phase 7 update:** the architecture does not change — a provider-abstracted HTTP adapter calling an OpenAI-compatible chat/completions shape, no vendor SDK, provider swappable — this was always the stated intent. What changes is **posture**: the shipped demonstration/production environment is configured to call a real hosted LLM, rather than the deterministic fake provider that earlier default configuration pointed at. The fake provider remains available and is used strictly for automated tests. No new dependency, no training or fine-tuning is introduced.
 - **Capabilities**:
   - Recommendation request built from the entry values and the validation findings
   - Recommended resolution action plus a plain-language rationale intelligible to a non-technical reader
@@ -295,6 +300,7 @@ Fifteen features across six categories. Every feature traces to at least one Act
   - Recommendation-generated audit entry written via F13
   - **Degraded mode**: if the AI provider is unavailable, slow, or returns an unusable response, the exception remains fully workable — the case shows that no recommendation is available and the specialist resolves it directly; no failure blocks the human decision path
   - Provider abstraction so the model dependency can be swapped without touching the decision or audit layers
+  - **(Phase 7)** Demonstration/production configuration calls a real hosted LLM by default; the deterministic fake provider is reserved for automated test runs only
 - **Requirement trace**: AI generates a recommended resolution action for each exception, with a plain-language rationale
 - **Dependencies**: F0, F5, F13
 - **Priority**: **P0**
@@ -384,12 +390,29 @@ Fifteen features across six categories. Every feature traces to at least one Act
 
 ---
 
+### 5.7 Category G — Demonstration Enablement (Phase 7)
+
+#### F15: Seeded Demonstration Case
+- **Surface**: Data / Operational tooling
+- **Description**: A hand-authored seed script that pre-loads the database with a demonstration cargo case that has already progressed through the full governed loop — entry → validation failure → exception → AI recommendation → human decision → audit trail — so that every stage of the user journey, including the later ones, can be shown without re-typing the earlier ones live every time. This **reverses** the v1.0 decision recorded at §10 #7, which excluded any seeded dataset so that receive and validate stayed part of the demonstrated path rather than a pre-staged precondition. Phase 7's reasoning: that trade-off made sense while the loop was still being proven stage by stage, but it makes every walkthrough of a later stage (recommendation, decision, audit) pay the full cost of hand-typing an entry and its validation failure first, which is what a repeatable demonstration of every scenario cannot afford. The reversal is strictly **additive** — the manual entry path (F6) is not removed, is not deprecated, and remains fully demonstrable on its own; the seed script exists alongside it.
+- **Capabilities**:
+  - Idempotent seed script runnable against a freshly-migrated database, producing one demonstration case carried through every loop stage (entry, validation failure, exception, AI recommendation, human decision, audit trail)
+  - Seeded values carry the same `AI` / `HUMAN` per-value provenance rules as any other case (F0, NFR-4) — the seed script is a data-loading mechanism, not a bypass of governance invariants
+  - Seeded audit entries are written through the same append-only writer as any other case (F13); no seed-specific write path exists
+  - Manual entry through F6 remains available and unaffected — the seed script does not replace, gate, or short-circuit the live entry path
+  - Seed data is clearly a demonstration fixture (not represented as organic production history) in any documentation or README describing its use
+- **Requirement trace**: Supersedes PROJECT.md Out of Scope — "Seeded demonstration dataset" (§10 #7); enables repeatable demonstration of every loop stage
+- **Dependencies**: F0, F3, F4, F5, F9, F11, F13
+- **Priority**: **P0**
+
+---
+
 ## 6. Non-Functional Requirements
 
 | ID | Category | Requirement |
 |----|----------|-------------|
-| **NFR-1** | **Design system conformance** | The UI conforms to USWDS. Every interactive component is a USWDS component or a documented USWDS-conformant composition; USWDS design tokens govern typography, spacing, and colour. Verified by per-screen design review against a USWDS checklist. |
-| **NFR-2** | **Accessibility (Section 508 / WCAG 2.1 AA)** | Every screen meets WCAG 2.1 AA: full keyboard operability, visible focus, correct semantic structure and heading order, accessible names on all controls, AA colour contrast, programmatic label/error association, and status messages exposed to assistive technology. **Met by design and manual review — including an assistive-technology walkthrough of each screen — and explicitly NOT by an automated CI gate in v1** (see §10). Information conveying AI-vs-human origin is never carried by colour alone. |
+| **NFR-1** | **Design system conformance** | Through Phase 6, the UI conformed to USWDS: every interactive component was a USWDS component or a documented USWDS-conformant composition, with USWDS design tokens governing typography, spacing, and colour, verified by per-screen design review against a USWDS checklist. **Phase 7 replaces the visual design system** with a newly-approved external design; the specific components/tokens and the per-screen conformance-review mechanism for the new system are defined during Phase 7 planning. The conformance obligation itself does not lessen — see NFR-2. |
+| **NFR-2** | **Accessibility (Section 508 / WCAG 2.1 AA)** | Every screen meets WCAG 2.1 AA: full keyboard operability, visible focus, correct semantic structure and heading order, accessible names on all controls, AA colour contrast, programmatic label/error association, and status messages exposed to assistive technology. **Met by design and manual review — including an assistive-technology walkthrough of each screen — and explicitly NOT by an automated CI gate in v1** (see §10). Information conveying AI-vs-human origin is never carried by colour alone. **This requirement is independent of the visual design system in use** — it held under USWDS through Phase 6 and continues unchanged under the Phase 7 visual redesign (NFR-1); only the conformance mechanism, not the conformance bar, is subject to Phase 7 planning. |
 | **NFR-3** | **Audit immutability (append-only)** | Audit entries are insert-only. No application code path, API endpoint, or UI affordance updates or deletes an audit entry, and UPDATE/DELETE privileges are revoked on the audit store so that a direct mutation attempt is rejected by the database. Per-case entries are monotonically sequenced; tamper-evidence is provided by sequence and prior-entry hash linkage. |
 | **NFR-4** | **AI-vs-human provenance distinguishability** | Every recorded value carries an `AI` or `HUMAN` origin at value granularity, persisted in the record and rendered distinguishably in both the case view and the audit trail. Provenance is a structural property of the record, not incidental log metadata, and a mixed AI/human resolution is attributable field by field. |
 | **NFR-5** | **Human-in-the-loop enforcement (no auto-apply)** | No AI recommendation may take effect without a human decision. Resolution state transitions are reachable only via an authenticated specialist's approve, edit-and-approve, or reject action. No scheduled job, background worker, retry path, or system actor can resolve an exception; the absence of an auto-apply path is verified by test. |
@@ -438,7 +461,7 @@ CargoExec is a demonstration of governed delivery, so success is measured by **c
 | **R-6** | AI provider latency or outage blocks the demonstration or stalls the queue | Medium | Degraded mode keeps every case workable without a recommendation, and no AI failure blocks entry, validation, decision, or audit (F9, NFR-9). SM-13 requires the loop be completable with the AI stage down. Provider abstraction permits substitution. |
 | **R-7** | The backend is built and the user-facing UI is under-delivered, leaving the loop provable only via API calls | High | The UI is carried by named features with their own acceptance criteria (F2, F6, F8, F10, F12, F14) and is tracked as a distinct capability surface in §11. A stakeholder walkthrough through the browser — not an API transcript — is the SM-1 and SM-2 acceptance evidence. |
 | **R-8** | Reason capture becomes a formality — a single character satisfying a required field | Medium | Reasons are required at the API boundary with a 10-character minimum after trimming, enforced in storage as well (F11, F0), rendered in the audit trail where they are read (F14), and judged for decision-usefulness during walkthrough review (SM-9 for rationale, SM-5 for reasons). |
-| **R-9** | No seeded dataset makes live demonstration slow or error-prone | Low | Deliberate: entries are created by hand (§10). The entry form is optimised for clear, fast completion and states its receipt outcome explicitly (F6), making manual creation part of the demonstrated loop rather than an obstacle to it. |
+| **R-9** | Live demonstration is slow or error-prone because every scenario must be hand-typed through every earlier stage first | Low | **Superseded decision (Phase 7):** through Phase 6 this was accepted deliberately — entries were created by hand so receipt and validation stayed part of the demonstrated path (§10 #7, original rationale). Phase 7 reverses that: a seed script (F15) pre-loads a demonstration case already carried through the full lifecycle, so recommendation, decision, and audit-trail scenarios are repeatably demonstrable without re-walking receipt and validation live every time. Manual entry via F6 is not removed and remains fully demonstrable on its own. |
 | **R-10** | Required-information validation rules are ambiguous, so exceptions appear arbitrary | Medium | The rule set is defined explicitly and evaluated deterministically with per-rule findings (F4, NFR-11); findings are carried onto the exception as its stated basis (F5) and shown to the specialist on the case screen (F10). |
 | **R-11** | An exception is decided twice, or concurrently, producing a contradictory record | Medium | Idempotency and conflict handling on the decision endpoint (F11); decision controls are unavailable on closed cases (F12); monotonic per-case audit sequencing keeps event order unambiguous (F13). |
 | **R-12** | Sensitive entry data or provider credentials leak into logs or the audit trail | Medium | Credentials and AI provider keys are excluded from the audit trail and all logs (NFR-8); the audit trail records case values by design and is protected by authentication (F1) with no export surface (§10). |
@@ -464,16 +487,17 @@ CargoExec is a demonstration of governed delivery, so success is measured by **c
 | **F12** | Decision Web UI — Edit, Approve, Reject with Reason Capture | P0 | E — Human Decision | **User-facing UI** |
 | **F13** | Audit Entry Writer — Append-Only on Every State Change | P0 | F — Audit Trail | API / Data |
 | **F14** | Per-Case Audit Trail Web UI | P0 | F — Audit Trail | **User-facing UI** |
+| **F15** | Seeded Demonstration Case | P0 | G — Demonstration Enablement (Phase 7) | Data / Operational tooling |
 
 ### 9.1 Priority Summary
 
 | Priority | Count | Features |
 |----------|-------|----------|
-| **P0** | 15 | F0–F14 |
+| **P0** | 16 | F0–F15 |
 | **P1** | 0 | — |
 | **P2 / P3** | 0 | None — see §5.0 and §10 |
 
-Every v1 feature is P0 because the product's purpose is a **complete** governed loop: each feature carries one of the six loop stages, the statutory UI standard, or the accountability guarantee, and removing any one of them breaks the demonstration rather than reducing it. Capabilities that would have ranked lower were excluded outright (§10) rather than carried as a deprioritised backlog.
+Every v1 feature is P0 because the product's purpose is a **complete** governed loop: each feature carries one of the six loop stages, the statutory UI standard, or the accountability guarantee, and removing any one of them breaks the demonstration rather than reducing it. Capabilities that would have ranked lower were excluded outright (§10) rather than carried as a deprioritised backlog. F15 (Phase 7) is P0 for a related but distinct reason: without it, later-loop stages cannot be repeatably demonstrated without hand-walking every earlier stage each time.
 
 ### 9.2 Recommended Build Order
 
@@ -485,6 +509,7 @@ Dependency-driven; all items are P0, so this is sequencing rather than triage.
 4. **Recommend** — F9 (AI recommendation), F10 (case detail + recommendation UI)
 5. **Decide** — F11 (decision API), F12 (decision UI)
 6. **Prove** — F14 (audit trail UI), then the full end-to-end walkthrough against §7
+7. **Demonstrate repeatably (Phase 7)** — F15 (seeded demonstration case), so every scenario in the walkthrough is reachable without hand-typing every earlier stage
 
 ---
 
@@ -500,11 +525,13 @@ The following are **explicitly excluded from v1**. This list is binding and exha
 | **4** | **Queue filtering, sorting, assignment, or prioritisation** | A single receipt-ordered list is sufficient to demonstrate queue → open → decide. Queue management is a separate product; the ordering dimension does not exist in the data model or the API (§4.3). |
 | **5** | **Audit export in any format** — no export file, no oversight package, no reporting extract | The audit trail is viewable in the UI (F14) and must answer oversight questions in place (NFR-7). An export surface would substitute a file for the in-product traceability the product exists to prove. |
 | **6** | **File or API ingestion** — no bulk upload, no ingestion adapter, no interface boundary to ACE/ATS | Manual entry only (F3, F6). Ingestion adapters and system boundaries are integration work that does not prove the decision loop. |
-| **7** | **Seeded demonstration dataset** | Entries are created by hand during the demonstration, which keeps the receive and validate stages part of the demonstrated path instead of a pre-staged precondition. |
+| **7** | ~~Seeded demonstration dataset~~ — **superseded in Phase 7** | Through Phase 6: entries were created by hand during the demonstration, which kept the receive and validate stages part of the demonstrated path instead of a pre-staged precondition. **Phase 7 reverses this decision:** a hand-authored seed script (F15) pre-loads a demonstration case already carried through the full lifecycle (entry → validation failure → exception → AI recommendation → human decision → audit trail), so every scenario in the user journey — not only the ones reachable by hand-typing in a single live session — is repeatably demonstrable. This is additive: manual entry through F6 is not removed and remains fully demonstrable in its own right. |
 | **8** | **Autonomous AI resolution without human approval** | Directly contradicts the core value. An autonomous resolver removes the accountable human decision the product exists to guarantee (NFR-5). |
 | **9** | **Duty / tariff calculation or classification rulings** | Substantive customs determinations are outside the governed-decision-loop demonstration and would add domain complexity that obscures rather than proves the loop. |
 | **10** | **Native mobile apps** | Web only (NFR-12). A second client platform multiplies the accessibility and UI surface with no gain in loop provability. |
 | **11** | **Model training or fine-tuning infrastructure** | AI is consumed through a hosted provider API, not trained (F9). Training infrastructure is unrelated to demonstrating governed delivery. |
+
+**Note (Phase 7):** item #7 above is superseded by F15 and §4.2 — it is the sole exception to this list's exhaustiveness. Every other exclusion in this list remains binding and unchanged.
 
 ---
 
@@ -518,10 +545,10 @@ Per `pivota_spec-framework/references/scope-coverage.md`: every capability surfa
 | **Programmatic API / contract** — entry creation, validation, exception derivation, queue, recommendation, decision, audit read | F3, F4, F5, F7, F9, F11, F13 | ✅ feature(s) |
 | **Background / async** — AI recommendation generation triggered by exception creation, with degraded mode | F9 | ✅ feature |
 | **Data** — schema for entries, exceptions, recommendations, decisions; append-only audit store; migrations | F0, F13 | ✅ feature(s) |
-| **Integrations — AI provider** | F9 (provider-abstracted hosted model API) | ✅ feature |
+| **Integrations — AI provider** | F9 (provider-abstracted hosted model API; Phase 7: real hosted LLM in demo/production, fake provider reserved for automated tests) | ✅ feature |
 | **Integrations — authentication** | F1 (single-role session authentication) | ✅ feature |
-| **Content / assets** — USWDS component library, design tokens, accessible layout patterns | F2 | ✅ feature |
-| **Seed content / demonstration dataset** | — | ⛔ EXCLUDED: §10 #7 (entries created by hand during the demo) |
+| **Content / assets** — visual design system, design tokens, accessible layout patterns | F2 (USWDS through Phase 6; Phase 7 replaces the visual system, conformance mechanism deferred to Phase 7 planning) | ✅ feature |
+| **Seed content / demonstration dataset** | F15 (Phase 7) | ✅ feature — **was** ⛔ EXCLUDED under §10 #7 through Phase 6; superseded (see §10 note) |
 | **CI / automation surface (accessibility gate, workflow files)** | — | ⛔ EXCLUDED: §10 #1 (conformance by design and review in v1) |
 | **Supervisory / analytics interface** | — | ⛔ EXCLUDED: §10 #2 (one role, no supervisory view) |
 | **Export / reporting surface** | — | ⛔ EXCLUDED: §10 #5 (audit viewable in UI only) |
@@ -582,8 +609,10 @@ Every Active requirement in `.planning/PROJECT.md` maps to at least one feature,
 | Single ordered queue — no filter, sort, assignment, prioritisation | F7, F8, §4.3 #5, §10 #4 |
 | USWDS + 508/WCAG 2.1 AA by design, no CI accessibility gate | F2, NFR-2, §10 #1 |
 
+**Phase 7 note:** `.planning/PROJECT.md`'s Out of Scope entry on seeded demonstration data (line 47, "Entries are created by hand during the demo") is superseded by this PRD's §10 #7 and §4.2. `.planning/PROJECT.md` itself is expected to be updated to reflect this reversal during Phase 7 planning; this PRD revision updates the PRD only.
+
 ---
 
 *Document generated by Pivota Spec Framework*
 *Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11)*
-*Last updated: 2026-09-11*
+*Last updated: 2026-09-11; Phase 7 targeted update: 2026-09-16 (redesign UI, seeded demo data, real LLM integration — see §4.1, §4.2, §5.1 F2, §5.4 F9, §5.7 F15, §8 R-9, §10 #7, §11)*

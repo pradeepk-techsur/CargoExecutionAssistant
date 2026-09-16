@@ -80,7 +80,6 @@ Each of the following has no adapter, no configuration key, no interface stub, n
 | Supervisory dashboard, metrics sink, throughput or queue-health reporting | PRD §10 #2 |
 | External identity provider, role directory, permission service | PRD §10 #3 |
 | Accessibility CI service, axe-core runner, `.github/workflows` | PRD §10 #1 |
-| Seed/fixture data loader for demonstration content | PRD §10 #7 |
 | Model training, fine-tuning, or feedback pipeline | PRD §10 #11 |
 | Native mobile client or mobile push service | PRD §10 #10 |
 | Duty/tariff calculation or classification ruling service | PRD §10 #9 |

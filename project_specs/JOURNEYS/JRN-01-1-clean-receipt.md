@@ -8,7 +8,7 @@
 ### JRN-01.1: Sign In and File a Clean Entry
 
 **Persona:** PER-01 (Dana Reyes)
-**Scenario:** It is the start of Dana's shift. She has a paper cargo entry in front of her that she believes is complete, and she wants it into the system before she starts working the queue. She signs in, types the entry into the USWDS form, and submits it. Validation runs on receipt and every required-information rule is satisfied, so no exception is opened. What Dana needs from this journey is not speed — it is to be told, without interpretation, that the entry passed, so she does not spend the next hour wondering whether something is quietly sitting unassessed. This is the branch of the loop where *receive → validate* completes and stops.
+**Scenario:** It is the start of Dana's shift. She has a paper cargo entry in front of her that she believes is complete, and she wants it into the system before she starts working the queue. She signs in, types the entry into the cargo entry form, and submits it. Validation runs on receipt and every required-information rule is satisfied, so no exception is opened. What Dana needs from this journey is not speed — it is to be told, without interpretation, that the entry passed, so she does not spend the next hour wondering whether something is quietly sitting unassessed. This is the branch of the loop where *receive → validate* completes and stops.
 
 **Related Jobs:** JTBD-01.1, JTBD-01.7
 

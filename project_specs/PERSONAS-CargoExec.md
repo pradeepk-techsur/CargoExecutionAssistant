@@ -5,9 +5,9 @@
 |-------|-------|
 | **Product Name** | CargoExecutionAssistant |
 | **Project Acronym** | CargoExec |
-| **Document Version** | 1.0 |
-| **Date** | 2026-09-11 |
-| **Related PRD** | PRD-CargoExec.md (§2.2 Target Users, §2.1 Pain Points, §5 Features, §7 Success Metrics) |
+| **Document Version** | 1.1 |
+| **Date** | 2026-09-11 (Phase 7 update: 2026-09-16) |
+| **Related PRD** | PRD-CargoExec.md v1.1 (§2.2 Target Users, §2.1 Pain Points, §5 Features incl. §5.7 F15, §7 Success Metrics) |
 | **Source of Truth** | `.planning/PROJECT.md` |
 | **Downstream Documents** | JTBD-CargoExec, Journeys-CargoExec, UserStories-CargoExec, UX-CargoExec |
 
@@ -41,7 +41,7 @@ Therefore this document contains:
 **Status:** **Authenticated system user — the only role in CargoExec v1.**
 
 **Role & Context:**
-Dana is a cargo specialist at a CBP field office, responsible for working cargo entries that arrive incomplete or internally inconsistent. She spends most of her working day at a desktop workstation in a shared office, moving between a browser and a set of reference materials, and she is accustomed to federal applications that look and behave like USWDS: an official-site banner, plain labels, and no surprises. She works cases one at a time rather than in batches, and she is the one whose name ends up next to a decision when someone asks about it a year later.
+Dana is a cargo specialist at a CBP field office, responsible for working cargo entries that arrive incomplete or internally inconsistent. She spends most of her working day at a desktop workstation in a shared office, moving between a browser and a set of reference materials, and she is accustomed to a federal application that looks and behaves like a trustworthy, standards-conformant government tool — an official-site banner, plain labels, and no surprises — a conformance expectation (Section 508 / WCAG 2.1 AA) that holds regardless of which visual design system delivers it. She works cases one at a time rather than in batches, and she is the one whose name ends up next to a decision when someone asks about it a year later.
 
 In CargoExec her working loop is deliberately small and complete. She signs in as a cargo specialist (F1), types a cargo entry into the entry form (F6), and is told immediately whether it passed the required-information rules or opened an exception (F3, F4, F5). Open exceptions appear in a single list in receipt order (F8) — she works from the top, because there is no filter, no sort, no assignment and no priority badge to work from, and she does not want one for a list this size. She opens a case (F10), reads the AI's recommended resolution action and its plain-language rationale, checks the validation findings that put the case there, and then approves, edits-and-approves, or rejects it (F12), writing a reason whenever she edits or rejects. Before she moves on she can open the case's audit trail (F14) and read back exactly what she just did.
 
@@ -69,7 +69,7 @@ Dana is not suspicious of AI, but she is accountable for it. Her working assumpt
 **Technical Expertise:** Intermediate — fluent in browser-based federal line-of-business applications and forms; comfortable with structured data entry and review screens; does not use command-line tools, query tools, or export/reporting utilities, and should never need one to answer a question about her own case. Some specialists in this role work with assistive technology full-time, so keyboard-only and screen-reader operability is a working requirement, not an accommodation added later.
 
 **Top Tasks:**
-1. **Create a cargo entry and read its receipt outcome** (multiple times per session, critical) — complete the USWDS entry form, submit, and see explicitly whether it validated clean or opened an exception, with the case reference and a link (F6)
+1. **Create a cargo entry and read its receipt outcome** (multiple times per session, critical) — complete the cargo entry form, submit, and see explicitly whether it validated clean or opened an exception, with the case reference and a link (F6)
 2. **Open the next exception from the receipt-ordered queue** (multiple times per session, critical) — scan the single list, identify a case by reference, receipt time and failure summary, and activate the row by keyboard or pointer (F8)
 3. **Read the case and the AI recommendation before deciding** (every case, critical) — review entry values, validation findings, and the AI's proposed action and rationale, with AI-origin marking visible on every proposed value (F10)
 4. **Decide the case — approve, edit-and-approve, or reject — with a reason** (every case, critical) — choose deliberately among three equally-presented actions, edit proposed values where needed, and write a non-empty reason for any edit or rejection (F12, F11)
@@ -160,8 +160,8 @@ She also cares about what was deliberately *not* built. A shipped feature that f
 - See all six governed loop stages — receive → validate → except → recommend → human decide → audit — demonstrated end to end in one unbroken sitting, through the browser rather than an API transcript (F3, F4, F5, F9, F11, F13, and the UI features F6, F8, F10, F12, F14; SM-1)
 - See the human-in-the-loop guarantee as a structural property rather than a procedural promise: no path exists by which the AI resolves anything on its own (F11, NFR-5, SM-4)
 - See the record explain itself — AI proposal, human choice, reason, and per-value provenance, read aloud from the audit trail in the case, not from an export (F14, NFR-7, SM-2)
-- See federal standards met as delivered rather than promised: USWDS components and WCAG 2.1 AA conformance in the shipped screens she is watching (F2, NFR-1, NFR-2, SM-10, SM-12)
-- See that the demonstration path includes creating the data by hand, so receive and validate are demonstrated rather than pre-staged (F6; PRD §10 #7)
+- See federal standards met as delivered rather than promised: Section 508 / WCAG 2.1 AA conformance in the shipped screens she is watching, under whichever visual design system delivers it — USWDS through Phase 6, the newly-approved design system as of Phase 7 (F2, NFR-1, NFR-2, SM-10, SM-12)
+- See the full loop reachable two ways: a pre-loaded demonstration case that walks every stage — including recommend, decide, and audit — without re-typing earlier stages live, and the receive/validate stages independently demonstrable by hand-creating a fresh entry through F6 (F15; PRD §10 #7, superseded by F15)
 - Confirm scope discipline held — that nothing shipped falls inside the §10 exclusion list (SM-14)
 - See the loop remain completable when the AI provider is unavailable, so the governance guarantee does not depend on a third party being healthy (F9 degraded mode, NFR-9, SM-13)
 
@@ -179,14 +179,14 @@ She also cares about what was deliberately *not* built. A shipped feature that f
 1. **Watch the full governed loop walk end to end in one sitting** (per demonstration, critical) — sign-in through audit trail, with no workaround or verbal bridging (SM-1)
 2. **Probe the accountability guarantee** (per demonstration, critical) — ask whether anything can resolve without a human, and receive a structural answer backed by test evidence rather than a policy answer (NFR-5, SM-4)
 3. **Watch the audit trail answer the oversight questions in place** (per demonstration, high) — who decided, what the AI said, what the human changed, why (F14, SM-2)
-4. **Check the delivered UI against federal standards** (per demonstration, high) — USWDS conformance and accessible operation, including a keyboard-only pass (SM-10, SM-11, SM-12)
+4. **Check the delivered UI against federal standards** (per demonstration, high) — Section 508 / WCAG 2.1 AA conformance under the delivered visual design system, and accessible operation including a keyboard-only pass (SM-10, SM-11, SM-12)
 5. **Check what was declined** (post-demonstration, medium) — confirm zero shipped features fall within the §10 exclusions (SM-14)
 
 **Success Criteria:**
 - 6 of 6 loop stages demonstrable end to end with no manual workaround (SM-1)
 - 100% decision traceability answerable from the UI during the walkthrough (SM-2)
 - Zero auto-apply incidents (SM-4); zero unaudited transitions (SM-6); 100% of mutation attempts rejected (SM-7)
-- Zero WCAG 2.1 AA violations across every reviewed screen, with 100% of screens reviewed and signed off (SM-10); 100% of product tasks completable by keyboard alone (SM-11); 100% USWDS component conformance (SM-12)
+- Zero WCAG 2.1 AA violations across every reviewed screen, with 100% of screens reviewed and signed off (SM-10); 100% of product tasks completable by keyboard alone (SM-11); 100% conformance with the delivered visual design system's component library (SM-12)
 - 100% of cases resolvable with a full audit record while the AI provider is unavailable (SM-13)
 - Zero features shipped that fall within a §10 exclusion (SM-14)
 
@@ -194,7 +194,6 @@ She also cares about what was deliberately *not* built. A shipped feature that f
 - A programme or delivery dashboard of any kind — **excluded**, PRD §10 #2 (no supervisory or analytics interface exists)
 - Exception volume, queue health, aging, throughput, or workload-per-specialist measures — **excluded**, PRD §10 #2; §7 deliberately contains no operational-scale metric
 - Any login, view, or report of her own — **excluded**, PRD §10 #3 (one authenticated role only)
-- A seeded demonstration dataset to make the walkthrough faster — **excluded**, PRD §10 #7 (hand-created entries keep receive and validate inside the demonstrated path)
 
 ---
 
@@ -223,7 +222,7 @@ She also cares about what was deliberately *not* built. A shipped feature that f
 |---------|-----------------|--------------------|--------------------|
 | **F0**: Case Data Model & Append-Only Audit Store | Primary | Beneficiary (non-user) — immutability & per-value provenance guarantee | Beneficiary (non-user) — governance-by-construction evidence |
 | **F1**: Cargo Specialist Authentication & Session | Primary | — | — |
-| **F2**: USWDS Application Shell & Accessibility Foundation | Primary | — | Beneficiary (non-user) — observes delivered 508/WCAG + USWDS conformance |
+| **F2**: USWDS Application Shell & Accessibility Foundation *(Phase 7: visual system replaced; 508/WCAG conformance unchanged)* | Primary | — | Beneficiary (non-user) — observes delivered 508/WCAG conformance under the shipped visual design system |
 | **F3**: Manual Cargo Entry Creation (API) | Primary | — | — |
 | **F4**: Required-Information Validation on Receipt | Primary | Beneficiary (non-user) — every exception has a stated validation basis | — |
 | **F5**: Exception Creation from Validation Failure | Primary | Beneficiary (non-user) — exception derivation integrity | — |
@@ -260,5 +259,5 @@ She also cares about what was deliberately *not* built. A shipped feature that f
 ---
 
 *Document generated by Pivota Spec Framework — Personas Generator*
-*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD-CargoExec.md v1.0*
-*Last updated: 2026-09-11*
+*Source of truth: `.planning/PROJECT.md` (last updated 2026-09-11); derived from PRD-CargoExec.md v1.1*
+*Last updated: 2026-09-16 (Phase 7: UI redesign, seeded demonstration data, real LLM — see PRD §5.1 F2, §5.4 F9, §5.7 F15, §10 #7)*

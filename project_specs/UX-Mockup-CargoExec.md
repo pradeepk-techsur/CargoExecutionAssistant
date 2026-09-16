@@ -14,6 +14,29 @@
 
 ---
 
+> ### ⚠ Phase 7 — pending redesign
+>
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the product's visual system with a
+> newly-approved external design. The exact tokens, colours, spacing and component styling of
+> that design are **not yet known to this framework** — they are captured during Phase 7 UX
+> discovery/planning from an external design file this framework cannot currently access. Three
+> things follow, and they hold for every chunk in this document, not only this one:
+>
+> 1. **Every screen/flow spec below describes interaction behaviour** — focus order, state
+>    transitions, error handling, live-region announcements, keyboard paths, DOM structure and
+>    ordering. That behaviour is unaffected by which visual system renders it and **remains
+>    authoritative** through and beyond the redesign.
+> 2. **Every visual/token reference below is Phase-6-era** — the USWDS component register in
+>    §1.2, and any specific colour token, icon name, or component name named anywhere in this
+>    document — and will be superseded once the Phase 7 design is imported and a new
+>    `Y0-patterns.md` token table is authored. Nothing below is deleted for this reason: it
+>    remains historically accurate for what shipped through Phase 6.
+> 3. **No screen in this document is redesigned by this update.** This note, and the inline
+>    flags placed beside concrete visual/token references, are the full extent of this wave's
+>    change to the UX Mockup.
+
+---
+
 ## 1. Overview
 
 CargoExec has **exactly six screens**. Every one of them exists to carry one stage of the
@@ -127,6 +150,14 @@ in the DOM** — no dashboard, reports, metrics, settings, administration or exp
 | 4 | Case detail | `/cases/{ref}` | F10 on F2 | `Screen-03-case-detail.md` | US-10.1 … US-10.8, US-9.3, US-9.4 |
 | 5 | Decision | `/cases/{ref}` § 5 | F12 on F2 | `Screen-04-decision.md` | US-12.1 … US-12.7, US-11.4, US-11.6 |
 | 6 | Per-case audit trail | `/cases/{ref}` § 6 | F14 on F2 | `Screen-05-audit-trail.md` | US-14.1 … US-14.7, US-13.2 |
+
+**F15 (Phase 7, Seeded Demonstration Case) has no screen.** It is an operator-run seed script
+(PRD §5.7 F15, FRD F15) invoked from the command line against the deployment — never an HTTP
+route, a UI control, or a specialist-reachable capability. It has no route, no nav element, and
+no specialist-facing surface of any kind, so it does not appear in the Navigation Map above and
+is not assigned a chunk in this document. The screen inventory above — Screen-00 through
+Screen-05 — is **unchanged and complete** for every specialist-facing surface in the product,
+including after Phase 7.
 
 ## 4. Document index
 
@@ -1456,6 +1487,11 @@ Nothing on this screen mutates state. The only interactive elements are links pl
 Every displayed value carries the shared badge — **text + icon + programmatic name, never
 colour alone** (US-2.5, US-10.4, NFR-4). Full specification in `Y0-patterns.md`.
 
+> ⚠ **Phase 7 — pending redesign:** the badge text and the never-colour-alone requirement below
+> are the authoritative interaction behaviour and are unaffected by the redesign. The specific
+> icon names and border-style cue in the table are Phase-6 USWDS choices, pending replacement
+> once the Phase 7 design is imported (see `00-overview.md`).
+
 | Value source | Badge text | Icon | Redundant non-colour cue | Where |
 |---|---|---|---|---|
 | Typed by the specialist | **Specialist-entered** | `person` | solid border | Submitted-entry list; "You submitted" column |
@@ -1989,6 +2025,19 @@ a print stylesheet, a "print view" or a "copy trail" control (US-14.6, PRD §10 
 8. Recording a decision refreshes the trail in place without a manual reload (US-14.1).
 ## Y0: Interaction Patterns
 
+> ### ⚠ Phase 7 — pending redesign
+>
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the visual system; the new tokens, colours and
+> component styling are not yet known to this framework and will be captured during Phase 7
+> planning. **The ten patterns below describe interaction behaviour** — focus movement, live-
+> region timing and wording, state transitions, keyboard paths, DOM ordering — which is
+> unaffected by which visual system renders it and **remains authoritative**. Where a pattern
+> names a concrete USWDS colour token, icon, or component as its *current* implementation (most
+> visibly Pattern 1's colour-token row below), that reference is Phase-6-era and will be
+> superseded by a new token table once the Phase 7 design is imported; it is left in place here
+> as the historically accurate record of what shipped through Phase 6, not as a constraint on
+> the redesign. See `00-overview.md` for the full note.
+
 Patterns are defined once in the F2 shell and inherited without variation by every screen
 (US-2.1 … US-2.6). A screen that re-implements one of these divergently is a defect.
 
@@ -2012,7 +2061,7 @@ composition of stock components; not a bespoke control.
 | **Icon** (`aria-hidden="true"`) | `settings` (gear) | `person` | `edit` (pencil) |
 | **Border shape** | dashed 2px | solid 2px | solid 2px + "Changed" marker |
 | **Programmatic name** | tag text read as-is by AT | tag text read as-is | tag text read as-is |
-| *(colour, token-based, AA)* | `indigo-60v` bg / white text | `gray-cool-70` bg / white text | `gold-20v` bg / `ink` text |
+| *(colour, token-based, AA)* — **Phase-6 USWDS tokens, pending Phase 7 replacement** | `indigo-60v` bg / white text | `gray-cool-70` bg / white text | `gold-20v` bg / `ink` text |
 
 ```
   [ ⚙ AI-suggested ]        dashed border   ← machine proposal, never applied
@@ -2749,6 +2798,22 @@ US-12.5, US-4.4
 ## Y4: Design Assumptions, Deliberate Absences, and Traceability
 
 ---
+
+> **Phase 7 — F15 has no UI.** PRD §5.7 F15 (Seeded Demonstration Case) and FRD F15 add an
+> idempotent, operator-run seed script to the product. It has no screen, no flow, and no
+> specialist-facing surface of any kind — it is invisible to the UI layer entirely, reachable
+> only as a command-line invocation against the deployment (FRD F15 FR-15.10). The screen
+> inventory this document designs — Screen-00 through Screen-05 — is **unchanged and complete**
+> for all specialist-facing surfaces; F15 does not add, remove, or alter any of them. See
+> `00-overview.md` §3 for the corresponding note in the screen index.
+>
+> **Phase 7 — pending redesign.** PRD §5.1 F2 replaces USWDS as the visual system. Assumptions
+> A-5, A-6 and A-7 below name concrete USWDS icons and colour tokens; those are Phase-6-era
+> implementation choices, left in place as the historically accurate record of what shipped
+> through Phase 6. The *underlying requirement* each assumption satisfies — a distinct icon per
+> origin (FR-2.20), a non-colour border cue, and colour that is never the sole carrier — is a
+> behavioural constraint that is unaffected by the redesign and must be re-satisfied by whatever
+> icon/colour choices the Phase 7 design specifies. See `00-overview.md` for the full note.
 
 ### 1. Design assumptions
 

@@ -35,6 +35,7 @@ the shipment; her job is to decide whether it is right.*
 | Show generation still in progress without blocking or interrupting | PER-01 | Epic 10 (F10) | US-10.5 | JTBD-01.6 → A slow suggestion never freezes the interface or traps her on the case. | R2 |
 | Decide a case with no recommendation, without being told something failed | PER-01 · PER-03 (witness, no screen) | Epic 10 (F10) | US-10.6 | JTBD-01.6 → "No recommendation available" is a condition of the case, not a block on it or an invitation to park it. | R2 |
 | Keep the case fully workable when the AI provider is unavailable | PER-01 · PER-03 (witness, no screen) | Epic 9 (F9) | US-9.4 | JTBD-01.6 → A third party's outage costs her a suggestion, not the case's accountability. | R2 |
+| Confirm the recommendation shown is a real model's own output, not a scripted stand-in | PER-01 (as demonstrated to) · PER-03 (witness, no screen) | Epic 9 (F9) | US-9.6 | JTBD-03.1 → What is watched in the walkthrough is genuine AI output — the deployment calls a real hosted LLM by default, and the recorded model identity names that provider, never the deterministic test fake. **(no screen)** | R4 |
 
 ---
 
@@ -107,5 +108,25 @@ detail, decision and audit trail.*
 | Be told what went wrong and where, in a way the screen reader announces | PER-01 | Epic 2 (F2) | US-2.4 | JTBD-01.7 → A rejected submission is correctable without hunting the page for what failed. | R1 |
 | Tell an AI value from a human value without relying on colour | PER-01 · PER-02 (beneficiary, no screen) | Epic 2 (F2) | US-2.5 | JTBD-01.3 → Provenance survives a screen reader and a monochrome display, everywhere it appears. | R1 |
 | Review and sign off every screen before it is called done | PER-01 · PER-03 (witness, no screen) | Epic 2 (F2) | US-2.6 | JTBD-03.3 → Conformance is a property of what shipped, evidenced per screen, rather than a promise attached to a later release. **(no screen)** | R3 |
+| Keep meeting federal accessibility standards no matter which visual system renders the shell | PER-01 · PER-03 (witness, no screen) | Epic 2 (F2) | US-2.7 | JTBD-03.3 → Replacing what the application looks like is never experienced as an accessibility regression — the same WCAG 2.1 AA bar applies under the Phase 7 visual redesign, re-signed-off screen by screen. **(no screen)** | R4 |
+
+---
+
+### Demonstration Enablement — Outside the Cargo Specialist's Journey
+
+*Cross-cutting, but unlike Substrate and the Federal UI Foundation, this lane is not beneath or
+inherited by any specialist-facing step. Epic 15 / F15, added Phase 7. Its "activity" is an
+operator running a one-time, idempotent seed script directly against the deployment — never a
+screen, never something Dana does inside the running application. The reversal of PRD §10 #7 it
+enacts is additive: manual entry (Epic 6 / F6) is unaffected and remains the only way anyone
+using the running application creates a case.*
+
+| Activity | Persona | Epic | Stories | NaC | Release |
+|---|---|---|---|---|---|
+| Build the seeded case through the same service calls a live request would use, never a bespoke write path | Operator (no screen) | Epic 15 (F15) | US-15.1 | JTBD-03.1 → The seeded case is governed by the identical invariants as any specialist-created case — no `INSERT INTO` against a governed table, no alternate write path. **(no screen)** | R4 |
+| Run the script any number of times without creating a duplicate of anything | Operator (no screen) | Epic 15 (F15) | US-15.2 | JTBD-03.1 → Re-seeding before a demonstration is always safe — a second run creates nothing twice and exits cleanly. **(no screen)** | R4 |
+| Produce one case that genuinely demonstrates a mixed AI/human resolution | Operator (no screen) | Epic 15 (F15) | US-15.3 | JTBD-03.1 → The seeded case shows a specialist-style correction beside an untouched AI-origin value, present from the first run, without waiting for an organic case to arrive at it. **(no screen)** | R4 |
+| Write the seeded case's history through the same append-only chokepoint as any live case | Operator (no screen) · PER-02 (beneficiary, no screen) | Epic 15 (F15) | US-15.4 | JTBD-03.1 → The seeded trail passes the identical chain-verification test as any organically produced case — no backdated timestamp, no fabricated hash, no alternate audit path. **(no screen)** | R4 |
+| Keep the seed script narrow, operator-only, and unreachable from the running application | Operator (no screen) · PER-01 (beneficiary — manual entry unaffected) | Epic 15 (F15) | US-15.5 | JTBD-03.1 → Manual entry (F6) stays the only way anyone using the running application creates a case — no endpoint, screen, or scheduled job reaches the seed script. **(no screen)** | R4 |
 
 ---

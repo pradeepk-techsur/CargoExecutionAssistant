@@ -5,13 +5,13 @@
 |-------|-------|
 | **Product Name** | CargoExecutionAssistant |
 | **Project Acronym** | CargoExec |
-| **Document Version** | 1.0 |
-| **Date** | 2026-09-11 |
-| **Related PRD** | `project_specs/PRD-CargoExec.md` (§5 Features F0–F14, §6 NFRs, §7 Success Metrics) |
-| **Related FRD** | `project_specs/FRD-CargoExec.md` (chunked under `project_specs/FRD/`, F00–F14 + Y0–Y3) |
+| **Document Version** | 1.1 |
+| **Date** | 2026-09-11 (Phase 7 update: 2026-09-16) |
+| **Related PRD** | `project_specs/PRD-CargoExec.md` (§5 Features F0–F15, §6 NFRs, §7 Success Metrics) |
+| **Related FRD** | `project_specs/FRD-CargoExec.md` (chunked under `project_specs/FRD/`, F00–F15 + Y0–Y3) |
 | **Related Personas** | `project_specs/PERSONAS-CargoExec.md` (PER-01 only — see Actor Constraint) |
 | **Source of Truth** | `.planning/PROJECT.md` |
-| **Feature Coverage** | F0–F14 (all fifteen PRD features) |
+| **Feature Coverage** | F0–F15 (all sixteen PRD features) |
 
 ---
 
@@ -40,12 +40,25 @@ Boundary; PRD §10 #3). Therefore:
   the specialist's story with the stakeholder benefit stated in the **so that** clause — for
   example "so that a later reviewer can reconstruct the decision without asking me for an
   extract". A benefit clause, never an actor.
-- **Nothing excluded by `.planning/PROJECT.md` or PRD §10 has a story**: no CI accessibility
-  gate, no supervisor dashboard, no queue metrics/aging/throughput/workload, no reassignment,
-  no filtering, sorting, assignment or prioritisation, no audit export, no bulk/file/API
-  ingestion, no second role, no seeded demo data, no autonomous AI resolution, no duty or
-  tariff calculation, no native mobile client, and no model training. Several stories exist
-  specifically to *assert the absence* of these capabilities as testable behaviour.
+- **Nothing excluded by `.planning/PROJECT.md` or PRD §10 has a story, with one deliberate
+  Phase 7 reversal**: no CI accessibility gate, no supervisor dashboard, no queue
+  metrics/aging/throughput/workload, no reassignment, no filtering, sorting, assignment or
+  prioritisation, no audit export, no bulk/file/API ingestion, no second authenticated role, no
+  autonomous AI resolution, no duty or tariff calculation, no native mobile client, and no model
+  training. Several stories exist specifically to *assert the absence* of these capabilities as
+  testable behaviour. **Phase 7 reverses exactly one item on this list — seeded demonstration
+  data — via new Epic 15 (F15; PRD §5.7, §10 #7 superseded).** Every other exclusion above still
+  has zero stories, and F15's reversal is additive: manual entry (F6/Epic 6) is unchanged and
+  remains the only way to create any cargo entry beyond the one seeded case (US-15.5).
+- **Phase 7 adds two narrowly-scoped, non-cargo-specialist stories; neither introduces a second
+  authenticated role.** Epic 15's five stories (US-15.1 … US-15.5) are written from the point of
+  view of an **operator** running a one-time, non-HTTP seed script — never the authenticated
+  cargo specialist, never a UI feature, and never reachable through a session, screen, or
+  endpoint (FRD F15 FR-15.10). Epic 9's new US-9.6 is written from the point of view of the
+  **delivery sponsor** (PER-03) because it asserts a deployment-*configuration* fact — a real
+  hosted LLM behind the recommendation the sponsor is shown — that no cargo-specialist action can
+  express; the recommendation-generation mechanism and every other Epic 9 story are unchanged.
+  Outside these two additions, the single-actor rule above is unbroken.
 
 Accessibility criteria (keyboard operability, focus management, error identification, live-region
 announcement, colour independence) appear as real acceptance criteria on the UI stories. They are
@@ -68,6 +81,7 @@ explicitly not by an automated CI gate** (PRD §10 #1, NFR-2, F2 FR-2.25/FR-2.26
 | Human decide | Epics 11, 12 |
 | Audit | Epics 0, 13, 14 |
 | Federal UI foundation (cross-cutting) | Epic 2 |
+| Demonstration enablement (operator, pre-loads the whole loop; Phase 7) | Epic 15 |
 
 ---
 ## Epic 0: Case Data Model & Append-Only Audit Store (F0)
@@ -240,6 +254,19 @@ The accessible, USWDS-conformant foundation every screen inherits. Conformance i
 what ships, achieved by design and **manual** review with an assistive-technology walkthrough per
 screen — there is no automated accessibility gate and no CI workflow in v1 (PRD §10 #1).
 
+> **Phase 7 note — visual system replaced, accessibility bar unchanged.** As of Phase 7, USWDS is
+> being replaced as the visual system by a newly-approved external design; the specific
+> replacement tokens, components, and class names are not yet decided and are deferred to Phase 7
+> discovery/UX planning (PRD §4.1, §5.1 F2). The stories below that name USWDS specifically by
+> component, token, or class — US-2.1, US-2.4, US-2.5, US-2.6 — are **retained verbatim as the
+> Phase-6/USWDS baseline** and are superseded in place, not rewritten here, pending the Phase-7
+> UI-SPEC that restates them against the new design system's actual tokens and components (FRD F2
+> §Phase 7 note; FR-2.1, FR-2.2, FR-2.3, FR-2.5, FR-2.11, FR-2.12, FR-2.13, FR-2.18, FR-2.20,
+> FR-2.22). What does **not** move, independent of which design system implements it, is asserted
+> outcome-based by new **US-2.7** below: full Section 508 / WCAG 2.1 AA conformance, no bespoke
+> interactive control without a documented accessible equivalent, and the mandatory per-screen
+> manual review — never an automated gate.
+
 ### US-2.1: Work in a page frame that looks and behaves like a federal application
 **As a** cargo specialist, **I want to** work inside a standard USWDS page shell with an official-site banner and correct landmarks, **so that** the application behaves the way every other federal system I use behaves and my assistive technology can navigate it structurally.
 
@@ -328,6 +355,21 @@ screen — there is no automated accessibility gate and no CI workflow in v1 (PR
 - [ ] Given the repository, when it is inspected, then there is no `.github/workflows` directory, no axe-core job, and no accessibility test runner in the build pipeline — the checklist is the enforcement mechanism and is therefore mandatory.
 - [ ] Given the shared state components (`Loading`, `Empty`, `ErrorState`, `Degraded`, `ReadOnlyNotice`), when any screen needs one, then it uses the shell's component rather than re-implementing it, and a load exceeding 300 ms renders the USWDS loading indicator with `aria-busy="true"` and an announced "Loading…".
 - [ ] Given any interactive screen (sign-in, entry form, queue, case detail, audit trail), when it is measured under demonstration load, then render completes within 2 seconds.
+
+**Priority:** P0 | **Feature Ref:** F2
+
+---
+
+### US-2.7: Keep meeting federal accessibility standards no matter which visual system renders the shell
+**As a** cargo specialist, **I want to** work in a shell that conforms to Section 508 / WCAG 2.1 AA regardless of which visual design system implements it, **so that** replacing what the application looks like never becomes a regression in who can use it.
+
+**Acceptance Criteria:**
+- [ ] Given the shell rendered under the Phase 7 visual system, when it is reviewed against the checklist, then it still meets Section 508 / WCAG 2.1 AA in full — landmarks, skip link, single `h1` and descending heading order, label/hint association, required-field indication, error-summary focus movement, full keyboard operability, visible focus, AA contrast, colour-independent signalling, and live-region announcement — with no criterion relaxed because the visual system changed (PRD §4.1, §5.1 F2; NFR-1, NFR-2).
+- [ ] Given any interactive control introduced under the new visual system, when it is reviewed, then it is either drawn from that design system's own accessible component set, or a documented accessible-equivalence record exists naming the standard control or ARIA pattern it reproduces — a bespoke, undocumented control is not permitted under either design system (FRD F2 §Phase 7 note).
+- [ ] Given the provenance badge, validation-error indication, and exception-state signalling that US-2.5 requires to be colour-independent, when the new visual system replaces their styling, then the same colour-independence property holds — text label plus icon, never colour alone — regardless of which token set supplies the colour.
+- [ ] Given the per-screen accessibility review checklist (US-2.6), when a screen is re-delivered under the new visual system, then it is re-signed-off against that same checklist rather than carrying forward a Phase-6 sign-off for content that has visually changed.
+- [ ] Given the FRD's Phase 7 note superseding the 26 USWDS-named rules in place, when this gap between USWDS removal and the Phase-7 UI-SPEC is reviewed, then this story — not a rewrite of US-2.1, US-2.4, US-2.5, or US-2.6 — is what continues to assert the accessibility bar during it.
+- [ ] Given the repository, when it is inspected after the Phase 7 redesign ships, then there is still no `.github/workflows` accessibility gate and no axe-core job — conformance continues to be demonstrated by the manual checklist alone (PRD §10 #1).
 
 **Priority:** P0 | **Feature Ref:** F2
 
@@ -892,6 +934,20 @@ opens, persisted as a proposal marked `AI`, and never applied to anything.
 **Priority:** P0 | **Feature Ref:** F9
 
 ---
+
+### US-9.6: Know that the recommendation shown came from a real model, not the test fake
+**As a** delivery sponsor, **I want to** see that the recommendation demonstrated to me was produced by a real hosted LLM rather than the deterministic fake used only for automated tests, **so that** the AI capability CargoExec is demonstrating is the genuine thing, not a scripted stand-in.
+
+**Acceptance Criteria:**
+- [ ] Given the demonstration/production deployment, when it starts, then it is configured with `AI_PROVIDER_URL` pointing at a real HTTPS LLM endpoint and a valid `AI_API_KEY`/`AI_MODEL_ID` — not the `fake:deterministic` provider (FR-9.20).
+- [ ] Given the `fake:deterministic` provider, when its configuration is reviewed, then it appears only in the automated test suite's own configuration, never as the default, fallback, or unconfigured-state behaviour of a deployed environment (FR-9.20).
+- [ ] Given this posture change, when the `RecommendationProvider` interface, retry/timeout logic, and output schema are reviewed, then none of them changed to introduce it — FR-9.20 governs deployment configuration only, not architecture (PRD §4.1, §5.4 F9 Phase 7 note).
+- [ ] Given a walkthrough of the demonstrated case, when the recommended action and rationale are read, then they are the real model's own output — not a canned string returned by the deterministic fake — and the recorded `model_id` names the real provider's model, not a fake or test identifier.
+- [ ] Given every other Epic 9 story (US-9.1 … US-9.5), when this posture change is applied, then their acceptance criteria are unaffected — degraded mode, provenance, provider abstraction, and audit behaviour are identical regardless of which concrete provider is configured.
+
+**Priority:** P0 | **Feature Ref:** F9
+
+---
 ## Epic 10: Exception Case Detail & Recommendation Presentation UI (F10)
 
 Screen `/cases/{caseReference}` — where the work happens. Reading order is normative: findings →
@@ -1431,10 +1487,90 @@ The trail is answered in place — read-only, no export, no second system.
 **Priority:** P0 | **Feature Ref:** F14
 
 ---
+## Epic 15: Seeded Demonstration Case (F15)
+
+An idempotent, operator-run seed script — never a UI feature, never something the cargo
+specialist does inside the running application — that pre-loads exactly one demonstration case
+already carried through the full governed loop (received → validated-failed → exception → AI
+recommendation → human decision → audit trail), so every later-loop scenario can be demonstrated
+repeatably without hand-typing an entry and its validation failure live first. This **reverses**
+PRD §10 #7 (Phase 7); the reversal is strictly additive — manual entry through F6 (Epic 6) is
+unchanged and remains the only way to create any cargo entry beyond the one seeded case.
+
+### US-15.1: Build the demonstration case through the same code the live application uses, never a shortcut
+**As an** operator preparing a demonstration, **I want to** have the seed script create the case only by calling the real entry-receipt, validation, exception, recommendation, and decision service functions — never a migration `INSERT` and never a bespoke write path, **so that** the seeded case is governed by exactly the same invariants as a case a specialist and the AI produced live.
+
+**Acceptance Criteria:**
+- [ ] Given the seed script, when its implementation is reviewed, then it contains no `INSERT INTO` statement against `cargo_entries`, `exceptions`, `recommendations`, `decisions`, or `audit_entries`, and no migration file inserts any of them — verified by the existing architecture test that forbids `INSERT INTO` in migration files (FR-15.1, F0 FR-0.18).
+- [ ] Given the script's calls, when they are traced, then entry receipt goes through F3's own service function, validation through F4, exception derivation through F5, recommendation generation through F9, and the decision through F11 — the identical functions an authenticated HTTP request would invoke, called in-process without HTTP (FR-15.2, FR-15.8).
+- [ ] Given the resulting rows, when they are compared to a live-created case's rows, then no structural difference exists other than fixture content — the same columns populated the same way, the same constraints satisfied (FR-15.2).
+- [ ] Given the script, when it runs, then it never writes directly to `cargo_entries`, `exceptions.state`, `decisions`, or any other governed table outside those service calls, preserving F9's structural no-auto-apply guarantee and F0's human-in-the-loop constraint trigger exactly as for any other case (FR-15.8, F0 FR-0.9).
+- [ ] Given the fixture entry values, when they are submitted through F3, then they genuinely fail at least one `RIV-0x0` rule through F4's real evaluation — the failure is real, not asserted or hand-set.
+
+**Priority:** P0 | **Feature Ref:** F15
+
+---
+
+### US-15.2: Run the script any number of times without creating a duplicate of anything
+**As an** operator preparing a demonstration, **I want to** be able to run the seed script repeatedly — against an empty database, a partially-seeded one, or a fully-seeded one — and have it create nothing twice, **so that** re-running it before a walkthrough is always safe.
+
+**Acceptance Criteria:**
+- [ ] Given a freshly migrated, empty database, when the script runs once, then it produces exactly one demonstration specialist, one demonstration cargo entry, one validation result, one exception, one recommendation, and one decision (FR-15.3, FR-15.6).
+- [ ] Given that same database, when the script runs a second time immediately afterward, then it creates no additional specialist, case, recommendation, decision, or audit entry, logs that the demonstration case is already present, and exits `0` (FR-15.3).
+- [ ] Given a database where only the entry and exception stages have been seeded, when the script runs, then it performs only the remaining stages (recommendation, decision) without repeating entry receipt — checking each stage's existence individually rather than relying on one all-or-nothing precondition (FR-15.3).
+- [ ] Given a reserved demonstration email that already belongs to a specialist record, when the script runs, then it reuses that record — created, if absent, only through the same account-provisioning path F1's `create-specialist` CLI uses, never a raw `INSERT` (FR-15.4).
+- [ ] Given two concurrent invocations of the script, when both run against the same database, then F3/F9/F11's own row locks and idempotence guards mean at most one invocation performs each stage's write, and no duplicate case results.
+
+**Priority:** P0 | **Feature Ref:** F15
+
+---
+
+### US-15.3: See one case that genuinely demonstrates a mixed AI/human resolution
+**As an** operator preparing a demonstration, **I want to** have the seeded case's decision be an edit-and-approve that changes one AI-proposed value while leaving another AI-proposed value untouched, **so that** the one thing a live walkthrough most needs to show — a resolution mixing AI-origin and human-origin values on one case — is present without waiting for an organic case to arrive at it.
+
+**Acceptance Criteria:**
+- [ ] Given the seeded exception's recommendation reaches `AVAILABLE` with `AI`-origin proposed values, when the script records the decision, then it invokes F11's decision service with `decision_type = 'EDIT_APPROVE'` (FR-15.5).
+- [ ] Given that decision, when its resolution values are read, then at least one value is a specialist-style correction re-stamped `HUMAN` origin and at least one other value is left as the AI's original proposal, retaining `AI` origin — one resolved case exhibiting both origins side by side (FR-15.5, F0 FR-0.2, FR-0.3).
+- [ ] Given the decision's reason text, when it is checked, then it satisfies the same ≥10-character-after-trim floor that F11's API and F0's storage constraint enforce for any specialist's edit-and-approve (FR-15.5, F0 FR-0.15).
+- [ ] Given the recommendation has not yet reached `AVAILABLE` when the script runs (for example, the provider is unreachable), when the script reaches the decision stage, then it stops before recording a decision rather than recording one against an `UNAVAILABLE` or still-`PENDING` recommendation, exits non-zero naming the stage, and is safe to re-run once the provider is reachable.
+- [ ] Given an exception that already has a decision, when the script is run again, then no second `decisions` row is attempted — `UNIQUE (exception_id)` would reject it regardless, and the script's own stage check already skips it.
+
+**Priority:** P0 | **Feature Ref:** F15
+
+---
+
+### US-15.4: Trust that the seeded case's audit trail is real, complete, and indistinguishable from a live one
+**As an** operator preparing a demonstration, **I want to** have every stage of the seeded case write through the same append-only audit chokepoint as a live case, with a genuine hash chain and no fabricated timestamp, **so that** a stakeholder who opens the audit trail during the demonstration is reading the same kind of record they would get from any other case.
+
+**Acceptance Criteria:**
+- [ ] Given each stage the script completes, when its audit entry is inspected, then it was written exclusively by F13, in the same transaction as the state change it describes, exactly as for a live actor — the script introduces no audit write of its own and no alternate write path (FR-15.7).
+- [ ] Given the seeded case's full audit trail, when the F0 chain-verification routine runs against it, then it reports `chain_verified: true`, the same as any organically produced case (FR-15.7, F0 FR-0.8).
+- [ ] Given the timestamps on the seeded case's audit entries, when they are checked, then they are the actual wall-clock time the script ran — no backdated, future-dated, or manually-constructed timestamp or hash value exists anywhere in the seeded case (FR-15.7, F0 FR-0.16).
+- [ ] Given any README, operator runbook, or in-repo documentation describing the seed script, when it is read, then it states plainly that the seeded case is demonstration fixture data, not organic production history — and no `is_seed` or similar column exists on any table to carry that label at the data level (FR-15.9).
+- [ ] Given the seeded case, when it is opened in the case detail screen (F10) and its audit trail (F14), then both render it exactly as they would render any other resolved case — no seed-specific UI path, banner, or exception exists.
+
+**Priority:** P0 | **Feature Ref:** F15
+
+---
+
+### US-15.5: Keep the seed script a narrow, operator-only tool that the application itself can never reach
+**As an** operator preparing a demonstration, **I want to** have the seed script runnable only as a direct command-line invocation against the deployment — never as an HTTP endpoint, a UI control, or a scheduled job — and scoped to exactly one demonstration case, **so that** the reversal of the "no seeded data" exclusion stays as narrow as the PRD actually grants, and manual entry remains the only way anyone using the running application creates a case.
+
+**Acceptance Criteria:**
+- [ ] Given the deployed application's routes and UI, when they are enumerated, then no endpoint, screen, button, or scheduled job invokes the seed script — it is reachable only by an operator running it directly against the deployment, analogous to F1's `create-specialist` command (FR-15.10).
+- [ ] Given the script's design, when it is reviewed, then it accepts no parameters that would let it create additional or varied demonstration cases, batch-generate fixture data, or otherwise act as a general-purpose factory — it creates exactly one demonstration case and nothing else (FR-15.11).
+- [ ] Given the cargo entry web UI (F6/Epic 6), when it is used after the seed script has run, then it functions completely unchanged and remains the only way to create any cargo entry beyond the one seeded case — the seed script neither gates, replaces, nor short-circuits it (FR-15.2 process note; F6 §Phase 7 note).
+- [ ] Given a database that is not yet migrated, or a dependency the script needs (F1's provisioning path, F3/F9/F11's service functions) that is unavailable, when the script runs, then it refuses and exits non-zero rather than silently proceeding or partially writing.
+- [ ] Given the review queue (F7/F8) after seeding, when it is opened, then the seeded case appears in it only while its exception is `OPEN` (before the decision stage completes) and is correctly excluded once resolved — the queue treats the seeded case exactly as it treats any other, with no special-casing.
+
+**Priority:** P0 | **Feature Ref:** F15
+
+---
 ## Story Index
 
-**84 stories across 15 epics (one epic per PRD feature, F0–F14). Every story's actor is the cargo
-specialist — PER-01, Dana Reyes.**
+**91 stories across 16 epics (one epic per PRD feature, F0–F15; Epic 15 added Phase 7). Every
+story's actor is the cargo specialist — PER-01, Dana Reyes — with two narrowly-scoped Phase 7
+exceptions: Epic 15 (operator) and US-9.6 (delivery sponsor); see 00-header.md §Actor Constraint.**
 
 ### Summary by Epic
 
@@ -1442,20 +1578,21 @@ specialist — PER-01, Dana Reyes.**
 |------|---------|---------|----|----|
 | Epic 0 — Case Data Model & Append-Only Audit Store | F0 | 5 | 5 | 0 |
 | Epic 1 — Cargo Specialist Authentication & Session | F1 | 5 | 4 | 1 |
-| Epic 2 — USWDS Application Shell & Accessibility Foundation | F2 | 6 | 6 | 0 |
+| Epic 2 — USWDS Application Shell & Accessibility Foundation | F2 | 7 | 7 | 0 |
 | Epic 3 — Manual Cargo Entry Creation | F3 | 4 | 3 | 1 |
 | Epic 4 — Required-Information Validation on Receipt | F4 | 4 | 4 | 0 |
 | Epic 5 — Exception Creation from Validation Failure | F5 | 4 | 4 | 0 |
 | Epic 6 — Cargo Entry Web UI | F6 | 6 | 5 | 1 |
 | Epic 7 — Review Queue (API) | F7 | 5 | 5 | 0 |
 | Epic 8 — Review Queue Web UI | F8 | 6 | 5 | 1 |
-| Epic 9 — AI Resolution Recommendation Generation | F9 | 5 | 5 | 0 |
+| Epic 9 — AI Resolution Recommendation Generation | F9 | 6 | 6 | 0 |
 | Epic 10 — Exception Case Detail & Recommendation Presentation UI | F10 | 8 | 7 | 1 |
 | Epic 11 — Human Decision Processing (API) | F11 | 7 | 6 | 1 |
 | Epic 12 — Decision Web UI with Reason Capture | F12 | 7 | 6 | 1 |
 | Epic 13 — Audit Entry Writer | F13 | 5 | 5 | 0 |
 | Epic 14 — Per-Case Audit Trail Web UI | F14 | 7 | 7 | 0 |
-| **Total** | **F0–F14** | **84** | **77** | **7** |
+| Epic 15 — Seeded Demonstration Case (Phase 7) | F15 | 5 | 5 | 0 |
+| **Total** | **F0–F15** | **91** | **84** | **7** |
 
 ### Full Index
 
@@ -1477,6 +1614,7 @@ specialist — PER-01, Dana Reyes.**
 | US-2.4 | Be told clearly what went wrong and where, in a way my screen reader announces | P0 | F2 |
 | US-2.5 | Tell an AI value from a human value without relying on colour | P0 | F2 |
 | US-2.6 | Have every screen reviewed and signed off for accessibility before it is called done | P0 | F2 |
+| US-2.7 | Keep meeting federal accessibility standards no matter which visual system renders the shell | P0 | F2 |
 | US-3.1 | Have my entry received and assessed in one indivisible step | P0 | F3 |
 | US-3.2 | Have my keystrokes recorded exactly as typed and attributed to me | P0 | F3 |
 | US-3.3 | Be told plainly when the entry number already exists | P1 | F3 |
@@ -1511,6 +1649,7 @@ specialist — PER-01, Dana Reyes.**
 | US-9.3 | Know exactly what the AI said, and which model said it | P0 | F9 |
 | US-9.4 | Keep working the case when the AI is unavailable | P0 | F9 |
 | US-9.5 | Be certain the AI cannot decide, and cannot stray outside its remit | P0 | F9 |
+| US-9.6 | Know that the recommendation shown came from a real model, not the test fake | P0 | F9 |
 | US-10.1 | Read why this case is open | P0 | F10 |
 | US-10.2 | Read back the values I submitted | P0 | F10 |
 | US-10.3 | Read the recommended action and why the AI recommends it | P0 | F10 |
@@ -1545,6 +1684,11 @@ specialist — PER-01, Dana Reyes.**
 | US-14.5 | Be told if the record's integrity check fails | P0 | F14 |
 | US-14.6 | Find nothing on the trail that can change it or take it away | P0 | F14 |
 | US-14.7 | Answer the oversight questions from the case alone | P0 | F14 |
+| US-15.1 | Build the demonstration case through the same code the live application uses, never a shortcut | P0 | F15 |
+| US-15.2 | Run the script any number of times without creating a duplicate of anything | P0 | F15 |
+| US-15.3 | See one case that genuinely demonstrates a mixed AI/human resolution | P0 | F15 |
+| US-15.4 | Trust that the seeded case's audit trail is real, complete, and indistinguishable from a live one | P0 | F15 |
+| US-15.5 | Keep the seed script a narrow, operator-only tool that the application itself can never reach | P0 | F15 |
 
 ---
 
@@ -1556,21 +1700,22 @@ specialist — PER-01, Dana Reyes.**
 |---|---|
 | F0 | US-0.1 … US-0.5 |
 | F1 | US-1.1 … US-1.5 |
-| F2 | US-2.1 … US-2.6 |
+| F2 | US-2.1 … US-2.7 |
 | F3 | US-3.1 … US-3.4 |
 | F4 | US-4.1 … US-4.4 |
 | F5 | US-5.1 … US-5.4 |
 | F6 | US-6.1 … US-6.6 |
 | F7 | US-7.1 … US-7.5 |
 | F8 | US-8.1 … US-8.6 |
-| F9 | US-9.1 … US-9.5 |
+| F9 | US-9.1 … US-9.6 |
 | F10 | US-10.1 … US-10.8 |
 | F11 | US-11.1 … US-11.7 |
 | F12 | US-12.1 … US-12.7 |
 | F13 | US-13.1 … US-13.5 |
 | F14 | US-14.1 … US-14.7 |
+| F15 | US-15.1 … US-15.5 |
 
-Fifteen of fifteen features covered; every story references at least one feature.
+Sixteen of sixteen features covered; every story references at least one feature.
 
 ### `.planning/PROJECT.md` Active requirement coverage
 
@@ -1586,9 +1731,16 @@ Fifteen of fifteen features covered; every story references at least one feature
 | Every state change writes an append-only audit entry: who, what, when, before/after, AI-vs-human origin | US-0.1, US-0.2, US-0.4, US-13.1, US-13.2, US-13.4, US-13.5 |
 | The audit trail is viewable per case in the UI | US-14.1, US-14.2, US-14.4, US-14.6, US-14.7 |
 | Authenticated users sign in as a cargo specialist | US-1.1, US-1.2, US-1.3, US-1.4 |
-| The UI follows USWDS and meets Section 508 / WCAG 2.1 AA | US-2.1 … US-2.6, and the accessibility criteria on US-6.6, US-8.2, US-10.8, US-12.7, US-14.7 |
+| The UI follows USWDS and meets Section 508 / WCAG 2.1 AA (Phase 7: regardless of visual design system) | US-2.1 … US-2.7, and the accessibility criteria on US-6.6, US-8.2, US-10.8, US-12.7, US-14.7 |
 
-Eleven of eleven Active requirements covered.
+Eleven of eleven Active requirements covered. **Phase 7 additionally supersedes one PROJECT.md Out
+of Scope item** (§10 #7, seeded demonstration dataset), covered below.
+
+### Phase 7 supersession coverage
+
+| Superseded exclusion | Covered by |
+|---|---|
+| PROJECT.md §Out of Scope — "Seeded demonstration dataset" (PRD §10 #7, superseded by §5.7 F15) | US-15.1 … US-15.5 |
 
 ### Success-metric coverage (PRD §7)
 
@@ -1603,9 +1755,9 @@ Eleven of eleven Active requirements covered.
 | SM-7 Audit immutability | US-0.1, US-13.4 |
 | SM-8 Exception derivation integrity | US-0.5, US-5.1 |
 | SM-9 Rationale intelligibility | US-9.3 |
-| SM-10 Accessibility conformance | US-2.6, US-6.6, US-8.2, US-10.8, US-12.7, US-14.7 |
+| SM-10 Accessibility conformance | US-2.6, US-2.7, US-6.6, US-8.2, US-10.8, US-12.7, US-14.7 |
 | SM-11 Keyboard completeness | US-2.3, US-6.6, US-8.2, US-12.7 |
-| SM-12 USWDS conformance | US-2.1, US-2.6 |
+| SM-12 USWDS conformance (Phase 7: design-system-independent) | US-2.1, US-2.6, US-2.7 |
 | SM-13 Degraded-mode loop completability | US-9.4, US-10.6, US-11.7 |
 | SM-14 Scope discipline | US-3.4, US-5.2, US-5.3, US-7.3, US-8.5, US-10.7, US-13.4, US-14.6 |
 
@@ -1613,15 +1765,15 @@ Eleven of eleven Active requirements covered.
 
 | Check | Result |
 |---|---|
-| Every story's actor is the cargo specialist (PER-01) | ✅ 84 of 84 |
+| Every story's actor is the cargo specialist (PER-01), with two narrowly-scoped Phase 7 exceptions | ✅ 86 of 91 are PER-01; Epic 15 (5 stories) is written from the operator running a one-time, non-HTTP seed script (FR-15.10), and US-9.6 is written from the delivery sponsor's point of view for a deployment-configuration fact only — neither adds a second authenticated role (see 00-header.md §Actor Constraint) |
 | PER-02 (oversight reviewer) appears as an actor | ✅ Never — referenced only in **so that** benefit clauses (US-0.1, US-14.7) |
-| PER-03 (delivery sponsor) appears as an actor | ✅ Never |
+| PER-03 (delivery sponsor) appears as an actor | ⚠️ Once — US-9.6 only, for a deployment-configuration assertion no cargo-specialist action can express; no screen, route, or account is implied (see 00-header.md §Actor Constraint) |
 | A story implies a second role, permission, or RBAC check | ✅ None — US-1.2 and US-1.3 assert binary authorisation and the absence of a role column |
 | A story implies a supervisor dashboard, queue metric, aging, throughput, workload, reassignment, or prioritisation | ✅ None — US-5.2, US-7.3, US-8.5, US-10.8 assert their absence |
 | A story implies queue filtering or sorting | ✅ None — US-7.3 and US-8.5 assert rejection and absence |
 | A story implies audit export | ✅ None — US-13.4 and US-14.6 assert no export surface |
 | A story implies file, bulk, or API ingestion | ✅ None — US-3.4 and US-6.2 assert manual entry only |
-| A story implies seeded demonstration data | ✅ None — US-3.4 asserts no seed data; US-8.3 treats the empty queue as normal |
+| A story implies seeded demonstration data | ⚠️ Reversed in Phase 7, narrowly — Epic 15 (US-15.1 … US-15.5) is the deliberate exception (PRD §10 #7 superseded); manual entry (F6/Epic 6) remains the sole live-entry path, asserted unaffected by US-15.5 |
 | A story implies autonomous AI resolution | ✅ None — US-9.2, US-9.5, US-11.5 assert structural impossibility |
 | A story implies duty, tariff, or classification determination | ✅ None — US-4.1 and US-9.5 assert their exclusion |
 | A story implies a CI accessibility gate or `.github/workflows` | ✅ None — US-2.6 asserts manual review and the absence of a gate |
@@ -1640,17 +1792,21 @@ story granularity.
 | **P1** | Required for the loop to hold up under realistic failure conditions — a duplicate entry number, a lost network response, a second browser tab, a bounded list, a slow model — but the loop is demonstrable end to end without it. |
 | **P2 / P3** | **None.** A capability that would have ranked P2 or lower in a product this narrow was excluded outright rather than deprioritised (PRD §10). Carrying a P2 backlog here would misrepresent the scope. |
 
-Every one of the fifteen features is P0 (PRD §9.1), so priority at story level is sequencing and
-hardening detail within P0 features — never a suggestion that a feature is optional.
+Every one of the sixteen features is P0 (PRD §9.1), so priority at story level is sequencing and
+hardening detail within P0 features — never a suggestion that a feature is optional. Phase 7 adds
+seven stories (US-2.7, US-9.6, US-15.1 … US-15.5), all P0, for the same reason: each asserts either
+the statutory accessibility bar (US-2.7), the deployment posture the demonstration depends on
+(US-9.6), or the governed-loop invariants the seed script must not weaken (Epic 15) — none is
+sequencing-optional hardening.
 
 ### Priority Breakdown
 
 | Priority | Stories | Share |
 |----------|---------|-------|
-| **P0** | 77 | 92% |
+| **P0** | 84 | 92% |
 | **P1** | 7 | 8% |
 | **P2 / P3** | 0 | — |
-| **Total** | **84** | **100%** |
+| **Total** | **91** | **100%** |
 
 ### The Seven P1 Stories
 
@@ -1671,15 +1827,16 @@ than triage; the P1 stories in each band are taken after that band's P0 stories.
 
 | Band | Stories |
 |---|---|
-| 1 — Foundation | US-0.1 … US-0.5, US-13.1 … US-13.5, US-1.1 … US-1.4, US-2.1 … US-2.6, then US-1.5 |
+| 1 — Foundation | US-0.1 … US-0.5, US-13.1 … US-13.5, US-1.1 … US-1.4, US-2.1 … US-2.7, then US-1.5 |
 | 2 — Receive & validate | US-4.1 … US-4.4, US-5.1 … US-5.4, US-3.1, US-3.2, US-3.4, US-6.1 … US-6.4, US-6.6, then US-3.3, US-6.5 |
 | 3 — Queue | US-7.1 … US-7.5, US-8.1 … US-8.5, then US-8.6 |
-| 4 — Recommend | US-9.1 … US-9.5, US-10.1 … US-10.4, US-10.6 … US-10.8, then US-10.5 |
+| 4 — Recommend | US-9.1 … US-9.6, US-10.1 … US-10.4, US-10.6 … US-10.8, then US-10.5 |
 | 5 — Decide | US-11.1 … US-11.5, US-11.7, US-12.1 … US-12.5, US-12.7, then US-11.6, US-12.6 |
 | 6 — Prove | US-14.1 … US-14.7, then the full end-to-end walkthrough against PRD §7 |
+| 7 — Demonstration enablement (Phase 7) | US-15.1 … US-15.5, run once Bands 1–6 exist for the seed script to seed against |
 
 ---
 
 *Document generated by Pivota Spec Framework — User Stories Generator*
-*Source of truth: `.planning/PROJECT.md`; derived from PRD-CargoExec.md v1.0, FRD-CargoExec.md v1.0, and PERSONAS-CargoExec.md v1.0*
-*Last updated: 2026-09-11*
+*Source of truth: `.planning/PROJECT.md`; derived from PRD-CargoExec.md v1.1, FRD-CargoExec.md v1.1, and PERSONAS-CargoExec.md v1.0*
+*Last updated: 2026-09-16 (Phase 7 amendment: F2 UI redesign posture, F9 real-LLM posture, new F15 seeded demonstration case)*

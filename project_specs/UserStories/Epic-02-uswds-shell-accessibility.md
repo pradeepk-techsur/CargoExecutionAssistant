@@ -4,6 +4,19 @@ The accessible, USWDS-conformant foundation every screen inherits. Conformance i
 what ships, achieved by design and **manual** review with an assistive-technology walkthrough per
 screen — there is no automated accessibility gate and no CI workflow in v1 (PRD §10 #1).
 
+> **Phase 7 note — visual system replaced, accessibility bar unchanged.** As of Phase 7, USWDS is
+> being replaced as the visual system by a newly-approved external design; the specific
+> replacement tokens, components, and class names are not yet decided and are deferred to Phase 7
+> discovery/UX planning (PRD §4.1, §5.1 F2). The stories below that name USWDS specifically by
+> component, token, or class — US-2.1, US-2.4, US-2.5, US-2.6 — are **retained verbatim as the
+> Phase-6/USWDS baseline** and are superseded in place, not rewritten here, pending the Phase-7
+> UI-SPEC that restates them against the new design system's actual tokens and components (FRD F2
+> §Phase 7 note; FR-2.1, FR-2.2, FR-2.3, FR-2.5, FR-2.11, FR-2.12, FR-2.13, FR-2.18, FR-2.20,
+> FR-2.22). What does **not** move, independent of which design system implements it, is asserted
+> outcome-based by new **US-2.7** below: full Section 508 / WCAG 2.1 AA conformance, no bespoke
+> interactive control without a documented accessible equivalent, and the mandatory per-screen
+> manual review — never an automated gate.
+
 ### US-2.1: Work in a page frame that looks and behaves like a federal application
 **As a** cargo specialist, **I want to** work inside a standard USWDS page shell with an official-site banner and correct landmarks, **so that** the application behaves the way every other federal system I use behaves and my assistive technology can navigate it structurally.
 
@@ -92,6 +105,21 @@ screen — there is no automated accessibility gate and no CI workflow in v1 (PR
 - [ ] Given the repository, when it is inspected, then there is no `.github/workflows` directory, no axe-core job, and no accessibility test runner in the build pipeline — the checklist is the enforcement mechanism and is therefore mandatory.
 - [ ] Given the shared state components (`Loading`, `Empty`, `ErrorState`, `Degraded`, `ReadOnlyNotice`), when any screen needs one, then it uses the shell's component rather than re-implementing it, and a load exceeding 300 ms renders the USWDS loading indicator with `aria-busy="true"` and an announced "Loading…".
 - [ ] Given any interactive screen (sign-in, entry form, queue, case detail, audit trail), when it is measured under demonstration load, then render completes within 2 seconds.
+
+**Priority:** P0 | **Feature Ref:** F2
+
+---
+
+### US-2.7: Keep meeting federal accessibility standards no matter which visual system renders the shell
+**As a** cargo specialist, **I want to** work in a shell that conforms to Section 508 / WCAG 2.1 AA regardless of which visual design system implements it, **so that** replacing what the application looks like never becomes a regression in who can use it.
+
+**Acceptance Criteria:**
+- [ ] Given the shell rendered under the Phase 7 visual system, when it is reviewed against the checklist, then it still meets Section 508 / WCAG 2.1 AA in full — landmarks, skip link, single `h1` and descending heading order, label/hint association, required-field indication, error-summary focus movement, full keyboard operability, visible focus, AA contrast, colour-independent signalling, and live-region announcement — with no criterion relaxed because the visual system changed (PRD §4.1, §5.1 F2; NFR-1, NFR-2).
+- [ ] Given any interactive control introduced under the new visual system, when it is reviewed, then it is either drawn from that design system's own accessible component set, or a documented accessible-equivalence record exists naming the standard control or ARIA pattern it reproduces — a bespoke, undocumented control is not permitted under either design system (FRD F2 §Phase 7 note).
+- [ ] Given the provenance badge, validation-error indication, and exception-state signalling that US-2.5 requires to be colour-independent, when the new visual system replaces their styling, then the same colour-independence property holds — text label plus icon, never colour alone — regardless of which token set supplies the colour.
+- [ ] Given the per-screen accessibility review checklist (US-2.6), when a screen is re-delivered under the new visual system, then it is re-signed-off against that same checklist rather than carrying forward a Phase-6 sign-off for content that has visually changed.
+- [ ] Given the FRD's Phase 7 note superseding the 26 USWDS-named rules in place, when this gap between USWDS removal and the Phase-7 UI-SPEC is reviewed, then this story — not a rewrite of US-2.1, US-2.4, US-2.5, or US-2.6 — is what continues to assert the accessibility bar during it.
+- [ ] Given the repository, when it is inspected after the Phase 7 redesign ships, then there is still no `.github/workflows` accessibility gate and no axe-core job — conformance continues to be demonstrated by the manual checklist alone (PRD §10 #1).
 
 **Priority:** P0 | **Feature Ref:** F2
 

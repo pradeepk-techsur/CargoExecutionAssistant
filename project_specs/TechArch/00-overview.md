@@ -348,7 +348,10 @@ Any `4xx`/`5xx` from either lifecycle means **nothing was written** — no parti
         └─ create-specialist CLI (interactive password)
 
  No broker. No cache. No object store. No search index. No scheduler.
- No CI workflow files. No seed data. One web service, one database.
+ No CI workflow files. One web service, one database.
+ (Phase 7: an optional, idempotent, operator-run seed script may pre-load one
+  demonstration case for walkthrough purposes — see 08-testing-deployment.md §8.9.
+  It is not part of this deployment's steady-state topology.)
 ```
 
 Runtime detail, environment variables, and operational procedures are in §8.5–§8.8.
@@ -363,7 +366,7 @@ Restated here because absence is a design output, verified by the architecture t
 - No queue filter, sort, assignment, or prioritisation. `GET /api/exceptions` accepts zero query parameters; the API accepts zero query parameters in total.
 - No export of anything, in any format, at any endpoint, under any `Accept` header or `?format=` parameter.
 - No file/API ingestion, bulk upload, ingestion adapter, multipart handler, CSV parser, or ACE/ATS boundary.
-- No seed script, fixture loader, or demonstration dataset; migrations create schema objects only.
+- No seed script, fixture loader, or demonstration dataset; migrations create schema objects only. **(Phase 7 note: superseded in the narrow way described at F15 — an operator-invoked, idempotent `cli/seed-demo-case.ts` now exists, but it writes exclusively through the same service/repository functions a live request uses, never a migration and never a direct `INSERT`; migrations themselves are unaffected and still create schema objects only. See `01-components.md` §1A.1a and `08-testing-deployment.md` §8.9.)**
 - No autonomous resolution: no scheduler, cron, queue consumer, retry path, or system actor that can write `exceptions.state`.
 - No duty/tariff calculation, HTS or classification field, rate derivation, or risk score — including in the AI output schema, which rejects such fields as schema-invalid.
 - No native mobile client, no mobile push, no app shell for one.

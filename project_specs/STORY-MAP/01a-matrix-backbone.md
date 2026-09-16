@@ -1,8 +1,12 @@
 ## Story Map Matrix
 
-Each lane below is one step of the governed loop (or one of the two cross-cutting foundations).
+Each lane below is one step of the governed loop (or one of the cross-cutting foundations).
 Every lane table carries the same six columns. **Persona** names the operator first and any
-non-user beneficiary or witness second; only PER-01 ever operates.
+non-user beneficiary or witness second; only PER-01 ever operates a backbone step. **Phase 7
+adds one further lane, "Demonstration Enablement" (Epic 15 / F15), placed at the end of the
+matrix in 01b** — it is deliberately not interleaved with Steps 1–9 because it is not a step in
+the cargo specialist's journey: it has no UI, no specialist-facing surface, and its operator is
+not PER-01.
 
 ---
 

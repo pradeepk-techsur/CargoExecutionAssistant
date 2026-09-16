@@ -107,6 +107,11 @@
 Every displayed value carries the shared badge — **text + icon + programmatic name, never
 colour alone** (US-2.5, US-10.4, NFR-4). Full specification in `Y0-patterns.md`.
 
+> ⚠ **Phase 7 — pending redesign:** the badge text and the never-colour-alone requirement below
+> are the authoritative interaction behaviour and are unaffected by the redesign. The specific
+> icon names and border-style cue in the table are Phase-6 USWDS choices, pending replacement
+> once the Phase 7 design is imported (see `00-overview.md`).
+
 | Value source | Badge text | Icon | Redundant non-colour cue | Where |
 |---|---|---|---|---|
 | Typed by the specialist | **Specialist-entered** | `person` | solid border | Submitted-entry list; "You submitted" column |

@@ -24,7 +24,7 @@ npm run test           # all of the above, in that order
 | Roles | Tests connect as `cargoexec_app`, `cargoexec_ai`, **and** `cargoexec_owner` as required, because several assertions are specifically about what the owner also cannot do |
 | Time | Expiry and idle-timeout tests inject a clock; validation is clock-free by construction (`RIV-132` uses the entry's own `received_at`), so rule tests need no time control |
 | AI provider | `FakeProvider` implementing `RecommendationProvider`, able to produce a valid draft, an invalid draft, and each of the seven `failure_reason` values. **No test performs a live provider call**, so the whole suite runs with no network access |
-| Fixtures | Test data is constructed through the public API (`POST /api/entries`) wherever possible, because that path is the only way data enters the product. No seed script or fixture loader exists in the shipped application (PRD §10 #7); test-only builders live under `test/` and are excluded from the production build |
+| Fixtures | Test data is constructed through the public API (`POST /api/entries`) wherever possible, because that path is the only way data enters the product. Test-only builders live under `test/` and are excluded from the production build. **Phase 7 note:** PRD §10 #7's "no seed script or fixture loader" is superseded — `server/src/cli/seed-demo-case.ts` now exists as a named, reviewed, operator-invoked exception (F15). It is not part of the *test* environment described in this table (the automated suites still build their own data through the public API and never invoke the seed script), and it changes nothing about how test suites construct data — see §8.9 |
 
 ### 8.3 Test inventory
 
@@ -168,8 +168,14 @@ An HTTP liveness endpoint would be an eleventh route, and the endpoint inventory
               recommended): asserts audit immutability and the absent-column
               list on the real instance
 5. account    create-specialist --email … --display-name …  (password entered
-              interactively). This is the ONLY insert performed operationally;
-              no seed data is created (§10 #7)
+              interactively). This is the ONLY insert performed operationally
+              through Phase 6 (§10 #7, superseded by step 5a below in Phase 7)
+5a. seed      (Phase 7, demonstration deployments only, optional)
+              seed-demo-case  — idempotent; safe to run 0, 1, or many times.
+              Produces exactly one demonstration case carried through the full
+              lifecycle via the real F3→F4→F5→F9→F11→F13 service functions.
+              See §8.9. Not run against a deployment that must contain no
+              fixture content.
 6. start      cargoexec-web: startup self-checks run BEFORE listen —
                  • every required env key present
                  • AI_PROVIDER_URL is https
@@ -197,5 +203,22 @@ Failure to start is always preferred to starting in a state where a governance g
 | Backups | An operational concern of the hosting environment. The application provides no purge, retention, rollup, archive, or "clear history" path — audit entries are permanent for the life of the deployment (F13 FR-13.14) |
 | Data reset | Achieved by dropping and recreating the database (the audit tables cannot be truncated). There is no in-application reset, and no seed step to re-run afterwards |
 | Recovery | A `PENDING` recommendation orphaned by a restart stays pending-then-stale; the case remains fully decidable. No sweeper, no recovery scheduler (F9 FR-9.19) |
+
+### 8.9 Phase 7 — seed script: demonstration case (F15)
+
+**What it is.** `server/src/cli/seed-demo-case.ts` is a new, operator-invoked CLI script — placed and provisioned exactly like `create-specialist.ts` (§8.7 step 5): run directly against a deployed environment by a human operator, never invoked by the application itself, never reachable through a session, never an HTTP route, never scheduled. It pre-loads exactly one demonstration cargo case that has already progressed through the full governed loop (received → validated-failed → exception opened → recommendation generated → `EDIT_APPROVE` decision, with mixed AI/HUMAN provenance on the resolution → full audit trail), so later-loop scenarios are repeatably demonstrable without hand-typing an entry live every time (PRD §10 #7, superseded; F15).
+
+**How it avoids tripping the existing absence tests.** Two architecture tests actively forbid a seed/fixture surface, and the script is designed to satisfy both without weakening either:
+
+- `server/test/architecture/absence.spec.ts` (`FORBIDDEN_DIRS` check) forbids a `seeds/` or `fixtures/` **directory** anywhere in the repository. The script is a single file, `server/src/cli/seed-demo-case.ts`, not a directory named `seeds` or `fixtures` — it does not trip this check, and the check's general form is untouched.
+- `server/test/architecture/absence.spec.ts` (`TEST-ARCH-11`) and the migration-scanning logic it shares with `validation.spec.ts` forbid `INSERT INTO` in any migration file. The script contains **no migration file and no direct `INSERT`** of any kind: it calls the same repository/service functions the running application uses for a live request (`receipt.service`'s entry-receipt path for F3/F4/F5, `ai/worker.ts`'s generation function for F9, `decision.service` for F11), exactly as an authenticated specialist's request or the post-commit worker dispatch would. The migration-file scan finds nothing to flag because the script is not a migration.
+
+**Both tests are updated, not weakened.** `absence.spec.ts` and `validation.spec.ts` gain a small, additional, narrowly-scoped assertion alongside their existing (unmodified) general prohibitions: that `server/src/cli/seed-demo-case.ts` is the *only* file in the repository whose name or path suggests a seed/fixture mechanism, so a second, undocumented seed script cannot be added later without a test change drawing attention to it. The general-purpose bans — no `seeds/`/`fixtures/` directory anywhere, no `INSERT INTO` in any migration file — remain exactly as strict as they were before Phase 7. This is a named, reviewed, one-script exception, not a hole opened for future use (see `01-components.md` §1A.1a for the same point stated against the component architecture).
+
+**Idempotency.** The script is safe to run zero, one, or many times, including concurrently. At each lifecycle stage it checks whether that stage's row already exists (by the reserved demonstration specialist email, then by the reserved demonstration `entry_number`, then by the presence of a recommendation and a decision on the resulting exception) and performs only the stages not yet completed. Concurrent invocations rely on the same row locks and idempotence guards that make F3/F9/F11 safe under concurrent *live* requests (§1.5 step 10, §5.3 step 2, §1.6 step 7) — the script introduces no locking or idempotence mechanism of its own. A run that finds every stage already present performs no write and exits `0`.
+
+**What it never does.** It never writes directly to `cargo_entries`, `exceptions.state`, `decisions`, `decision_values`, or any other governed table — only through the same service-layer functions a live request would invoke, in-process, without HTTP (F15 FR-15.8). It never fabricates a timestamp or a hash-chain value; every audit entry it causes is written by `audit/writer.ts`'s single `append(tx, entry)` chokepoint (§1A.3, R-L3), participates in the same per-case hash chain as any organically-created case, and passes the same `verify_audit_chain` routine. No `is_seed` column or equivalent exists anywhere in the schema (§2, unchanged) — the fixture/organic distinction is a documentation obligation (README / operator runbook), never a data-level flag.
+
+**Test suite impact.** None. The automated test suites (`test:unit`, `test:db`, `test:api`, `test:e2e`) continue to build their own data through the public API exactly as §8.2 describes, and never invoke `seed-demo-case.ts`. The script is demonstration/operational tooling, orthogonal to the test harness.
 
 ---

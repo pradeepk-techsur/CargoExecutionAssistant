@@ -5,13 +5,14 @@
 |-------|-------|
 | **Product Name** | CargoExecutionAssistant |
 | **Project Acronym** | CargoExec |
-| **Document Version** | 1.0 |
-| **Date** | 2026-09-11 |
+| **Document Version** | 1.1 |
+| **Date** | 2026-09-11 (Phase 7 update: 2026-09-16) |
 | **Related Personas** | PERSONAS-CargoExec.md (PER-01, PER-02, PER-03) |
 | **Related JTBD** | JTBD-CargoExec.md (JTBD-01.1–01.7, 02.1–02.4, 03.1–03.4) |
-| **Related PRD** | PRD-CargoExec.md (§5 Features F0–F14, §6 NFRs, §7 Success Metrics, §10 Out of Scope) |
+| **Related PRD** | PRD-CargoExec.md (§5 Features F0–F15, §6 NFRs, §7 Success Metrics, §10 Out of Scope) |
 | **Source of Truth** | `.planning/PROJECT.md` |
 | **Downstream Documents** | STORY-MAP-CargoExec, UX-CargoExec, UserStories-CargoExec |
+| **Revision Note** | Updated for Phase 7 — visual system replacing USWDS (wording made system-independent where USWDS was named only as a visual detail; accessibility bar unchanged), and JRN-03.1 updated for the seeded demonstration case (F15), which supersedes PROJECT.md's prior "no seeded dataset" exclusion. See inline Phase 7 notes below. |
 
 ---
 
@@ -24,7 +25,7 @@ CargoExec v1 has **exactly one authenticated role: the cargo specialist (PER-01)
 | Screen | Feature | What it is |
 |--------|---------|------------|
 | **Sign-in** | F1 on F2 | Credential sign-in establishing the authenticated identity the audit trail attributes decisions to |
-| **Entry form** | F6 on F2 | USWDS cargo entry form; submitting it triggers atomic receipt (F3 → F4 → F5) |
+| **Entry form** | F6 on F2 | The cargo entry form; submitting it triggers atomic receipt (F3 → F4 → F5) |
 | **Queue** | F8 on F2 | The single receipt-ordered list of open exceptions — no filter, no sort, no assignment, no priority badge |
 | **Case detail** | F10 on F2 | Entry values, validation findings, and the AI's proposal and rationale, marked AI-origin |
 | **Decision** | F12 on F2 | Approve / Edit / Reject controls with mandatory reason capture, hosted within the case |
@@ -32,7 +33,9 @@ CargoExec v1 has **exactly one authenticated role: the cargo specialist (PER-01)
 
 **PER-02 (Marcus Hale, oversight reviewer) and PER-03 (Priya Raman, delivery sponsor) are non-user stakeholders.** They do not authenticate, hold no account, and operate no screen, route, export, dashboard, query tool or API in v1. Each has a journey below because their experience of the product is real — but each is labelled **non-user journey — no authenticated access, no dedicated interface**, and in each one the touchpoint column names *another human*, *a property of the record*, or *verification evidence*, never an interface of their own. JRN-02.1 is a reconstruction obtained by a specialist reading the per-case trail on Marcus's behalf, plus a database/test-level examination of the append-only guarantee. JRN-03.1 is a witnessed walkthrough driven by a specialist.
 
-**Instruction to downstream generators (STORY-MAP, UserStories, UX):** no stage in JRN-02.1 or JRN-03.1 may become a screen, a route, a role, a permission, an API consumer, or a user story with PER-02 or PER-03 as actor. No stage anywhere in this document may become a supervisor dashboard, a queue metric (volume, aging, throughput, workload), a reassignment, filter, sort, assignment or prioritisation control, an audit export, a bulk/file/API ingestion path, a second role, a seeded demonstration dataset, an autonomous AI resolution, a duty or tariff calculation, a native mobile client, or a CI accessibility gate. Every one of those is excluded by `.planning/PROJECT.md` and PRD §10.
+**Instruction to downstream generators (STORY-MAP, UserStories, UX):** no stage in JRN-02.1 or JRN-03.1 may become a screen, a route, a role, a permission, an API consumer, or a user story with PER-02 or PER-03 as actor. No stage anywhere in this document may become a supervisor dashboard, a queue metric (volume, aging, throughput, workload), a reassignment, filter, sort, assignment or prioritisation control, an audit export, a bulk/file/API ingestion path, a second role, an autonomous AI resolution, a duty or tariff calculation, a native mobile client, or a CI accessibility gate. Every one of those is excluded by `.planning/PROJECT.md` and PRD §10.
+
+**Phase 7 exception to the list above:** a seeded demonstration dataset is no longer an exclusion — F15 (PRD §5.7) supersedes PROJECT.md/PRD §10 #7 and adds a hand-authored seed script that pre-loads one demonstration case already carried through the full lifecycle, strictly *additive* to the live hand-typed entry path (F6), never a replacement for it. This is the sole exception to the exclusion list above; every other item in it remains fully binding and untouched. Downstream generators may treat F15 as a real, buildable capability (data/tooling surface, not a screen or role) — but must not let it become a "presenter mode" or any surface built for PER-03, which remains excluded (see JRN-03.1).
 
 ---
 
