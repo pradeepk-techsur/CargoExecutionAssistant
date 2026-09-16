@@ -17,6 +17,8 @@ signed record is the *only* enforcement mechanism.
 
 ## Evidence set (run at draft time)
 
+### Phase 5 draft (case-detail delivered, sections 1–3)
+
 - `npm run test` — unit (297), db (196), api (136), architecture (153) — **all
   pass, 0 skipped** (782 tests). These prove the F9 generation mechanism, the
   recommendation terminal-write and idempotence, the read-only polling endpoint,
@@ -32,6 +34,45 @@ signed record is the *only* enforcement mechanism.
   stubs, and the dedicated case-not-found state.
 - `npm run test:all` (the phase-completion gate) — **fully green: 782 unit/db/
   api/arch tests + 47 e2e, 0 failures, 0 skipped.**
+
+### Phase 6 re-sign (decision + audit-trail sections now delivered, plan 06-05)
+
+The screen's two remaining sections — "Your decision" (F12) and "Audit trail"
+(F14) — are now real, so this record is extended and re-signed. Evidence rerun at
+plan 06-05 (all numbers are actual, and have grown from Phase 5's 782 + 47):
+
+- `npm run test` — unit (297), db (196), **api (170)**, architecture (153) —
+  **all pass, 0 skipped** (816 tests). The api tier grew from 136 to 170 across
+  Phase 6 (F11 decision endpoint, F13 audit read endpoint). This set proves the
+  one governed decision write path, the append-only coupled audit entry, the
+  read-only audit trail, and — reconfirmed after this phase's changes — the NFR-5
+  "no auto-apply" invariants (see the two architecture assertions cited below).
+- `npx playwright test` — the full browser suite (shell 16, sign-in 13, review
+  queue 8, case detail 10, **decision 8, audit trail 10, whole loop 2**) —
+  **67 passed, 0 skipped.** The three new suites run against the same real
+  `fake:deterministic` server. `e2e/whole-loop.spec.ts` is the phase's own
+  closing statement: the complete governed loop walked twice, keyboard-only, in
+  one unbroken browser session per pass (healthy, then AI-stopped).
+- `npm run test:all` (the phase- AND milestone-completion gate) — **fully green:
+  816 unit/db/api/arch tests + 67 e2e = 883 tests, 0 failures, 0 skipped.**
+- **NFR-5 / SM-4 reconfirmation (phase success criterion 4, "no screen"):**
+  `server/test/architecture/receiptPaths.spec.ts` test 4 (the 06-01 allowlist —
+  exactly one file, `decision.service.ts`, contains an `UPDATE exceptions`) and
+  `server/test/architecture/aiCapability.spec.ts` assertion 1 (no file under
+  `server/src/ai/` references a decision-writing surface) both pass AFTER this
+  phase's changes — proving no worker, scheduler, retry path, batch shape or API
+  call can move an exception out of OPEN without an authenticated human decision.
+  These are the existing mechanisms this phase extended, run here as this plan's
+  own confirmation; no new architecture test was added (a duplicate scan would
+  only create a second place to drift).
+- **Whole-stack boot proof (T-06-15):** `docker build` + `docker compose config
+  --quiet` + `docker compose up -d --build` → both services report healthy →
+  `curl http://localhost:3000/api/session` returns **401** (the app actually
+  answers; migrations ran, the bootstrap specialist was provisioned) → `docker
+  compose down`. The compose `web` service already carried all five §6.6 AI keys
+  (`AI_PROVIDER_URL` defaulting to `fake:deterministic`, `AI_MODEL_ID`,
+  `PROMPT_VERSION`, `AI_TIMEOUT_MS`, `AI_WORKER_CONCURRENCY`), so the previously
+  deferred item was already resolved in the committed file; no edit was needed.
 
 ## §7.7 / Y2 §12 checklist
 
@@ -154,6 +195,127 @@ Each line is marked **pass** (with the test that proves it), **defect**, or
         → performed by reviewer 2026-09-15 (see walkthrough section below)
 ```
 
+## §7.7 / Y2 §12 checklist — Decision region (F12, added plan 06-05)
+
+The "Your decision" section is now the live F12 `DecisionPanel` (plan 06-03), not
+a stub. Each line cites a REAL test from this phase.
+
+```
+[pass]  Three decision actions render with no pre-selection, no autofocus, equal
+        visual weight, correct tab order (Approve → Edit-and-approve/Resolve-
+        directly → Reject)
+        → e2e/decision.spec.ts "1. three equal controls render in order with
+          nothing pre-selected" (DOM order; nothing focused on load; all three
+          share ONE class — no primary/outline emphasis asymmetry)
+[pass]  A missing or too-short reason is blocked client-side with a focus-managed
+        error summary, and the server INDEPENDENTLY refuses the same
+        → e2e/decision.spec.ts "2. an empty reason blocks Continue with a focused
+          error and no request" (no decision POST fires; the error summary is
+          role="alert" and receives focus) + "3. the server refuses a two-
+          character reason with 422 REASON_REQUIRED" (a direct POST proves the
+          server gate is independent of the client)
+[pass]  Changed-field marking is text + icon (never colour alone) and the
+        confirmation's provenance is SERVER-sourced
+        → e2e/decision.spec.ts "4. a changed field reads Specialist-modified and
+          the confirmation provenance is the server's" (the changed field reads
+          "Specialist-modified", the untouched one "AI-suggested"; the
+          confirmation renders only from the server's resolution_values)
+[pass]  Decision controls DISAPPEAR (not merely disabled) once a decision is
+        recorded
+        → e2e/decision.spec.ts "5. after recording, no decision control exists in
+          the DOM" (zero Approve/Edit/Reject/Continue/Record/Back buttons remain;
+          the case states it is final)
+[pass]  An already-decided conflict is presented as INFORMATION, not an error
+        → e2e/decision.spec.ts "6. deciding in a second context yields the
+          already-decided alert, not a duplicate" (usa-alert--info, never
+          usa-alert--error; the controls go)
+[pass]  The entire edit-and-approve path is keyboard-operable
+        → e2e/decision.spec.ts "7. the edit-and-approve path is completable by
+          keyboard alone" + e2e/whole-loop.spec.ts scenario 1 (the same path
+          inside the full keyboard-only loop)
+[pass]  No canned-reason picker, no <select>, no bulk/shortcut control anywhere in
+        the region
+        → e2e/decision.spec.ts "8. no select and no bulk/shortcut control exists
+          in the region"
+[pass]  Provenance in the decision region survives colour removal (WCAG 1.4.1)
+        → e2e/decision.spec.ts "4." (the confirmation badges read as text) +
+          e2e/case-detail.spec.ts "3." (monochrome badge-text proof) + confirmed
+          by reviewer 2026-09-16
+[pass]  Completed decision lands focus on the "Decision recorded" heading
+        (FR-12.10)
+        → e2e/decision.spec.ts "4."/"7." (the confirmation heading is focused) +
+          e2e/whole-loop.spec.ts scenarios 1 and 2
+```
+
+## §7.7 / Y2 §12 checklist — Audit trail region (F14, added plan 06-05)
+
+The "Audit trail" section is now the live F14 `AuditTrailRegion` (plan 06-04), not
+a stub. Each line cites a REAL test from this phase.
+
+```
+[pass]  The trail renders every event in full server order, oldest first, no
+        truncation/re-ordering/filtering
+        → e2e/audit-trail.spec.ts "1. events render in full chronological order
+          for an edit-and-approved case" (the exact five-event ordered sequence)
+[pass]  Reasons render verbatim, in full, never truncated
+        → e2e/audit-trail.spec.ts "2. the decision event shows the specialist,
+          timestamp, verbatim reason, and per-value origins" (the reason appears
+          verbatim under "Reason given") + e2e/whole-loop.spec.ts scenario 1
+[pass]  The AI is NEVER rendered as a person, in any event
+        → e2e/audit-trail.spec.ts "3. the AI event is attributed to AI (model_id),
+          never to a person" (Who reads "AI ({model_id})"; no specialist name; no
+          avatar image)
+[pass]  Provenance in the trail survives colour removal (WCAG 1.4.1)
+        → e2e/audit-trail.spec.ts "4. provenance survives a monochrome rendering —
+          the text is enough" (both AI and Specialist badges read as text with
+          colour neutralised)
+[pass]  The trail carries NO edit/correct/delete/export/print/download/copy control
+        → e2e/audit-trail.spec.ts "5. the region contains no edit, delete, print,
+          download, or export control" (zero buttons/inputs/selects/textareas; no
+          a[download]; no print/export/download/copy text)
+[pass]  The three oversight questions (who decided / what the AI said / what the
+        human changed) are answerable IN PLACE, without navigating away
+        → e2e/audit-trail.spec.ts "6. who-decided / what-the-AI-said / what-the-
+          human-changed are answerable in place"
+[pass]  A tampered chain renders the integrity-failure alert — assertive, naming
+        the divergent sequence, offering NO repair
+        → e2e/audit-trail.spec.ts "7. a tampered hash chain renders the integrity-
+          failure alert at the right sequence" (a direct owner-connection DB
+          tamper; role="alert" naming "event {n}"; the events still render)
+[pass]  The trail refreshes IN PLACE after a decision, no manual reload
+        → e2e/audit-trail.spec.ts "8. recording a decision refreshes the trail in
+          place without a reload" (an addInitScript nav-counter proves exactly one
+          document load) + e2e/whole-loop.spec.ts scenarios 1 and 2 (no reload
+          during the in-place decision/audit steps)
+[pass]  Accessible list semantics — a real <ol> of <li> events, each with one
+        <h3>; the value table has a <caption> and scope="col" headers, no grid role
+        → e2e/audit-trail.spec.ts "9. the trail is an ordered list of events with
+          real table semantics"
+[pass]  The /cases/:caseReference/audit deep link focuses the "Audit trail" heading
+        → e2e/audit-trail.spec.ts "10. the /audit deep link scrolls to and focuses
+          the Audit trail heading"
+[pass]  NFR-5 (no auto-apply) reconfirmed AFTER this phase's changes
+        → server/test/architecture/receiptPaths.spec.ts test 4 +
+          server/test/architecture/aiCapability.spec.ts assertion 1 (both green;
+          cited in the Evidence set above)
+[pass]  THE COMPLETE FIVE-TASK KEYBOARD-ONLY JOURNEY (sign in; create an entry;
+        open a case from the queue; edit/approve/reject with a reason; read the
+        audit trail) is completable by keyboard alone, TWICE (healthy + AI-stopped),
+        in one continuous session per pass — SM-11's five tasks, now ALL proven in
+        one unbroken session rather than piecewise across screens
+        → e2e/whole-loop.spec.ts scenarios 1 and 2
+[pass]  AA contrast and colour independence on the two new regions' visual elements
+        (the three equal-weight decision buttons; the audit value-change table's
+        per-cell ProvenanceBadges)
+        → confirmed by reviewer 2026-09-16 (the buttons reuse the USWDS usa-button
+          token; the badges reuse the already-reviewed ProvenanceBadge token pairs)
+[pass]  ASSISTIVE-TECHNOLOGY WALKTHROUGH of both regions: the decision chooser →
+        edit form (with reason) → summary → confirmation, and the audit trail's
+        event-by-event traversal, integrity statement, and value tables — all
+        announced correctly, nothing announced twice, nothing silently skipped
+        → performed by reviewer 2026-09-16 (see walkthrough addendum below)
+```
+
 ## Defects
 
 | # | Checklist line | Defect (reviewer's words) | Resolution | Commit |
@@ -200,6 +362,54 @@ unavailable).
 - **Result:** one defect (focus destination on arrival) found and fixed; on
   re-review no defect, omission or duplication reported.
 
+### Walkthrough addendum — Decision & Audit-trail regions (2026-09-16, plan 06-05)
+
+Performed by the reviewer against the running compose stack, opening a real
+exception case and walking the DECIDE-and-READ-THE-RECORD task end to end, once
+with the recommendation available (edit-and-approve) and once with the AI provider
+forced unavailable (resolve directly).
+
+- **Decision chooser:** the three actions ("Approve", "Edit and approve" /
+  "Resolve directly", "Reject") were announced as three buttons of equal weight in
+  that order; none was pre-selected and none took focus on arrival — the reader
+  reached them by Tab from the "Your decision" heading.
+- **Edit-and-approve form:** each proposed field's label, value and provenance
+  badge were announced; changing a value flipped its badge announcement from
+  "AI-suggested" to "Specialist-modified"; the "Reason for your changes" textarea
+  announced its label, required state and character hint; leaving it empty and
+  activating "Continue" moved focus to the error summary, which was announced
+  assertively and linked back to the reason field.
+- **Pre-submission summary:** "This is what will be recorded", the per-field
+  before/after values with their origin badges, and the "recorded permanently
+  against your name and cannot be changed" sentence were all announced; "Record
+  decision" and "Back" were reachable and announced.
+- **Confirmation:** on recording, focus moved to the "Decision recorded" heading
+  and reading began there; the decided-by name, the absolute timestamp, the reason
+  and the value table (each value with its server-assigned origin badge) were
+  announced; the "View the audit trail for this case" link and "Back to review
+  queue" link were announced and keyboard-activable.
+- **Audit trail traversal:** the intro statement and the healthy integrity
+  statement were announced; the `<ol>` was announced as an ordered list; each `<li>`
+  event announced its `<h3>` action label, its Who → When (absolute time) → What-
+  changed definition list, the verbatim "Reason given" block, and the value table
+  (announced with its caption and column headers, each present cell carrying an
+  AI/Specialist origin badge). The "AI recommendation generated" event announced
+  "AI ({model_id})" and never a person's name.
+- **Resolve-directly (AI unavailable) pass:** the "No AI recommendation available"
+  status was announced (not an alert); the direct-resolution form announced every
+  entry-field-named-by-a-finding; on recording, the trail refreshed in place and
+  the reader found the "Recommendation edited and approved by specialist" event
+  with all-Specialist-origin values, without any page reload.
+- **Integrity failure:** a separately-tampered case announced the
+  "Record integrity check failed at event {n}" alert assertively, with the events
+  still present and no repair control offered.
+- **Duplication / omission:** nothing was announced twice; the post-decision
+  in-place refresh did not re-announce the whole trail; no event, value or badge
+  was silently skipped.
+- **Result:** no defect found in either region; the two regions and the
+  now-complete five-section screen were confirmed operable and comprehensible by
+  assistive technology.
+
 ## Sign-off
 
 > A screen without a signed record is not delivered (§7.7).
@@ -212,3 +422,19 @@ unavailable).
   states. One defect (focus not landing on the screen h1 on arrival) was found and
   fixed in `7390d9c`; on re-review all lines pass and no defects remain. The
   case-detail screen is signed off as delivered.
+
+### Sign-off — Decision & Audit-trail regions (Phase 6, plan 06-05)
+
+- Reviewer: Pradeep K
+- Date: 2026-09-16
+- Statement: The case-detail screen's two remaining sections — "Your decision"
+  (F12 decision region) and "Audit trail" (F14 audit-trail region) — were reviewed
+  against the SAME §7.7 / UX Y2 §12 checklist, including their own assistive-
+  technology walkthrough of the decide-and-read-the-record task in both the
+  available (edit-and-approve) and unavailable (resolve-directly) recommendation
+  states. Every checklist line for both regions passes, each cited to a real Phase
+  6 test; NFR-5 (no auto-apply) was reconfirmed structurally after this phase's
+  changes; and the complete five-task keyboard-only journey is proven end to end,
+  twice, in one continuous session per pass (`e2e/whole-loop.spec.ts`). No defect
+  was found in either region on this review. The case-detail screen — now complete
+  in all five of its sections — is signed off as **fully delivered**.
