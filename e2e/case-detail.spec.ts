@@ -218,12 +218,19 @@ test.describe('case detail & recommendation', () => {
     });
     await page.goto(`${BASE}/cases/${caseReference}`);
 
-    // Wait for the UNAVAILABLE presentation: its literal FRD heading.
+    // Wait for the UNAVAILABLE presentation: its literal FRD heading. As of
+    // Phase 6 the audit trail also carries a "No AI recommendation available"
+    // <h3> for a RECOMMENDATION_UNAVAILABLE audit event (F14's normative action
+    // label happens to match the F10 section heading), so this assertion targets
+    // the FIRST such heading — the F10 recommendation section, which precedes the
+    // audit trail in DOM order.
     await expect(
-      page.getByRole('heading', {
-        name: 'No AI recommendation available',
-        level: 3,
-      }),
+      page
+        .getByRole('heading', {
+          name: 'No AI recommendation available',
+          level: 3,
+        })
+        .first(),
     ).toBeVisible({ timeout: 10_000 });
 
     // The exact mapped cause sentence for PROVIDER_UNAVAILABLE, and the
@@ -423,10 +430,13 @@ test.describe('case detail & recommendation', () => {
     expect(navCount).toBe(1);
   });
 
-  // 7. Decision / audit-trail stubs are present and INERT (FR-10.9 / F14 scope):
-  //    both h2s exist, each stub message is visible, and neither section holds a
-  //    mutation control.
-  test('7. the decision and audit-trail sections are present but inert', async ({
+  // 7. Decision / audit-trail sections are present and REAL as of Phase 6: the
+  //    "Your decision" section is the live F12 DecisionPanel (06-03) and "Audit
+  //    trail" is the F14 AuditTrailRegion (06-04). The old Phase-5 stub text is
+  //    gone; the decision region's own behaviour is proven by decision.spec.ts
+  //    and the audit region's by audit-trail.spec.ts. Here we assert only that
+  //    both real sections have replaced the stubs on the loaded case screen.
+  test('7. the decision and audit-trail sections are present and real', async ({
     page,
   }) => {
     const { caseReference } = await createException(page, csrf);
@@ -441,26 +451,33 @@ test.describe('case detail & recommendation', () => {
     await expect(
       page.getByRole('heading', { name: 'Audit trail', level: 2 }),
     ).toHaveCount(1);
+
+    // The Phase-5 stub messages are GONE — both sections are now real.
     await expect(
       page.getByText('Decision controls are not yet available', {
         exact: false,
       }),
-    ).toBeVisible();
+    ).toHaveCount(0);
     await expect(
       page.getByText('The audit trail is not yet available', { exact: false }),
-    ).toBeVisible();
+    ).toHaveCount(0);
 
-    // Read-only screen (FR-10.12): the SCREEN (everything the router renders into
-    // main#main-content) adds no mutation control — no <select>, no <textarea>,
-    // and no <button>. The only <button>s on the page are shell chrome (the
-    // government-banner disclosure and the header "Sign out"), both OUTSIDE main;
-    // scope the assertion to main so it proves the screen's own inertness. The
-    // one <button> the screen COULD render — ErrorState's "Try again" — does not
-    // appear on a loaded case.
-    const main = page.locator('main#main-content');
-    await expect(main.locator('select')).toHaveCount(0);
-    await expect(main.locator('textarea')).toHaveCount(0);
-    await expect(main.locator('button')).toHaveCount(0);
+    // The real F12 decision controls are present on an AVAILABLE, undecided
+    // case (proof the "Your decision" section is live, not a stub).
+    await expect(
+      page.getByRole('button', { name: 'Approve', exact: true }),
+    ).toHaveCount(1);
+
+    // The real F14 audit region rendered its introductory statement and at
+    // least the receipt event (a trail is never empty — FR-14.17).
+    await expect(
+      page.getByText('This record cannot be edited or deleted', {
+        exact: false,
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Cargo entry received', level: 3 }),
+    ).toBeVisible();
   });
 
   // 8. Case-not-found (FR-10.15): a well-formed but unmatched reference renders a

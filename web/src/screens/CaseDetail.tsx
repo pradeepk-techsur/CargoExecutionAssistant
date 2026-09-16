@@ -9,13 +9,13 @@
 // — each <h2> carrying the id its "On this page" link targets, so the whole
 // screen is traversable heading-by-heading and by in-page fragment navigation.
 //
-// DELIBERATELY READ-ONLY (FR-10.12): this screen mutates nothing. The only
-// <button> anywhere is the "Try again" inside the reused ErrorState; there is no
-// <select>, no <textarea>, and no onClick that calls any API method other than
-// api.getCase / api.getRecommendation. "Your decision" (F11/F12) and "Audit
-// trail" (F14) are Phase 6 — rendered here as heading-only stubs so the
-// normative order and the FR-10.10 in-page-nav requirement are already correct
-// and Phase 6 has somewhere to attach its controls.
+// The F10 read-only sections mutate nothing (FR-10.12): no <select>, no
+// <textarea>, and no onClick calling any API method other than api.getCase /
+// api.getRecommendation. As of Phase 6 the last two <h2> sections are REAL, not
+// stubs: "Your decision" is the F11/F12 DecisionPanel (or the read-only decided
+// record) and "Audit trail" is the F14 AuditTrailRegion. The DecisionPanel does
+// introduce controls, and a recorded decision refetches the whole case — which
+// bumps `caseVersion` and so refreshes the audit trail in place (FR-14.12).
 //
 // The uuid→case-reference canonicalisation (FR-10.13) is a client-side
 // react-router replace (never window.location, which would reload); it changes
@@ -54,6 +54,7 @@ import {
 } from '../components/states.js';
 import { ProvenanceBadge } from '../components/ProvenanceBadge.js';
 import { DecisionPanel, DecisionSummaryTable } from '../components/DecisionPanel.js';
+import { AuditTrailRegion } from '../components/AuditTrailRegion.js';
 
 // ─── plain-language labels ───────────────────────────────────────────────────
 
@@ -111,13 +112,34 @@ type ScreenState =
   | { readonly status: 'error' }
   | { readonly status: 'loaded'; readonly data: CaseDetailResponse };
 
-export function CaseDetail(): JSX.Element {
+/**
+ * Props for the case-detail screen. `focusAuditTrail` is true ONLY for the
+ * /cases/:caseReference/audit deep-link route (F14 FR-14.11): it is threaded
+ * down to the AuditTrailRegion (as its `focusOnMount` prop) so the region
+ * scrolls to and focuses the "Audit trail" heading on load. The default
+ * /cases/:caseReference route passes nothing, so ordinary navigation lands on
+ * the screen h1 as usual.
+ */
+export interface CaseDetailProps {
+  readonly focusAuditTrail?: boolean;
+}
+
+export function CaseDetail(props: CaseDetailProps = {}): JSX.Element {
+  const { focusAuditTrail } = props;
   const h1Ref = useRef<HTMLHeadingElement>(null);
   useScreenFocus({ title: 'Case', h1Ref });
   const { caseReference } = useParams<{ caseReference: string }>();
   const navigate = useNavigate();
 
   const [state, setState] = useState<ScreenState>({ status: 'loading' });
+
+  // The SINGLE refresh signal both the read-only decided record and the audit
+  // trail key off. `caseVersion` increments on every SUCCESSFUL case fetch —
+  // the mount load, the error-state retry, and (the load-bearing one for F14)
+  // the post-decision refetch DecisionPanel triggers via onDecided. Passing it
+  // to AuditTrailRegion as `refreshToken` is exactly FR-14.12: the trail
+  // refreshes after a decision on the same screen, and never polls otherwise.
+  const [caseVersion, setCaseVersion] = useState(0);
 
   // A refetch triggered by recording a decision must NOT snap focus back to the
   // screen h1: FR-12.10 requires focus on the "Decision recorded" heading, which
@@ -160,6 +182,9 @@ export function CaseDetail(): JSX.Element {
     try {
       const data = await api.getCase(identifier);
       setState({ status: 'loaded', data });
+      // A successful load bumps the version — this is the token AuditTrailRegion
+      // watches, so a post-decision refetch re-reads the trail (FR-14.12).
+      setCaseVersion((v) => v + 1);
     } catch (err) {
       // A not-found is a DEDICATED presentation (FR-10.15), not a generic
       // error: the server's message already distinguishes "passed validation"
@@ -236,6 +261,8 @@ export function CaseDetail(): JSX.Element {
         <CaseLoaded
           data={state.data}
           h1Ref={h1Ref}
+          caseVersion={caseVersion}
+          focusAuditTrail={focusAuditTrail === true}
           refetch={() => {
             // A decision was recorded (or a conflict refetch): the resulting
             // read-only record owns the focus move, so suppress the h1 re-focus.
@@ -253,9 +280,11 @@ export function CaseDetail(): JSX.Element {
 function CaseLoaded(props: {
   readonly data: CaseDetailResponse;
   readonly h1Ref: React.RefObject<HTMLHeadingElement>;
+  readonly caseVersion: number;
+  readonly focusAuditTrail: boolean;
   readonly refetch: () => void;
 }): JSX.Element {
-  const { data, h1Ref, refetch } = props;
+  const { data, h1Ref, caseVersion, focusAuditTrail, refetch } = props;
   const { exception, entry, validation, recommendation } = data;
 
   return (
@@ -398,15 +427,17 @@ function CaseLoaded(props: {
         />
       )}
 
-      {/* 6. Audit trail — Phase 6 stub (F14) ---------------------------- */}
-      <h2 id="audit-trail">Audit trail</h2>
-      <div className="usa-alert usa-alert--info usa-alert--slim" role="status">
-        <div className="usa-alert__body">
-          <p className="usa-alert__text">
-            The audit trail is not yet available in this build.
-          </p>
-        </div>
-      </div>
+      {/* 6. Audit trail — the real F14 region (renders its own <h2
+          id="audit-trail">) ---------------------------------------------- */}
+      {/* refreshToken={caseVersion} makes the trail re-read after any successful
+          case fetch — crucially the post-decision refetch above (FR-14.12);
+          focusOnMount is set only on the /cases/:caseReference/audit deep link
+          (FR-14.11). */}
+      <AuditTrailRegion
+        exceptionId={exception.id}
+        refreshToken={caseVersion}
+        focusOnMount={focusAuditTrail}
+      />
     </>
   );
 }
