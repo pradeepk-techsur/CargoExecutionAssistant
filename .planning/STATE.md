@@ -195,6 +195,18 @@ Recent decisions affecting current work:
 - [Phase 06-the-human-decision-and-the-record-that-explains-it]: 06-04: F14 AuditTrailRegion renders the complete per-case trail in server order (eight-row action-label table, per-value AI/HUMAN ProvenanceBadge + textual Origin column, verbatim reasons, healthy+failed integrity statement, no export/mutation control). api.getAuditTrail is a GET-only read. The trail refreshes in place via a caseVersion refreshToken CaseDetail bumps on every successful fetchCase (FR-14.12, no polling); the /cases/:ref/audit deep link renders CaseDetail focusAuditTrail and focuses the heading once (FR-14.11). e2e/audit-trail.spec.ts 10/10 including a direct-DB tampered-chain integrity-failure. DECISION: the F14 RECOMMENDATION_UNAVAILABLE label matches the F10 heading — case-detail.spec test 2 scoped to .first() rather than renaming the normative label. 4 deviations auto-fixed (pg ESM interop, exceptions.entry_id not case_id, gen_random_bytes tamper hash for the persisted-DB unique constraint, pre-existing case-detail.spec tests 2+7 updated for real Phase-6 sections).
 - [Phase 06]: The whole governed loop is proven end to end in one keyboard-only browser session, twice (healthy + AI-stopped); fake:deterministic + a FAKE_AI_TRIGGERS marker IS 'the AI provider stopped' in this codebase
 
+### Verify Notes
+
+- **Screenshots: viewport size only (1280x800). Never use `fullPage: true`.** The
+  case-detail and audit-trail pages are taller than 8000 px when stitched, and the
+  provider rejects any image over 8000 px on a side (`image dimensions exceed max
+  allowed size`). Two verify runs on 2026-09-16 died on exactly this.
+- **Never open a PNG with the `read` tool.** Reading a screenshot attaches it to the
+  next model request; that is what carried the oversize image. Attach the file path
+  to the UAT test (`.pivota/uat-shots/{n}-{route}.png`) instead of viewing it.
+- If a logged-in browser session is needed for a shot, keep the same constraint in
+  the script: `viewport: { width: 1280, height: 800 }`, no `fullPage`.
+
 ### Pending Todos
 
 [From .planning/todos/pending/ — ideas captured during sessions]
