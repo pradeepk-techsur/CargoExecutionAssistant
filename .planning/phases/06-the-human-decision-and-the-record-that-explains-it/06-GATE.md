@@ -2953,3 +2953,51 @@ computing gzip size...
 [2m   Duration [22m 3.16s[2m (transform 164ms, setup 0ms, collect 368ms, tests 2.69s, environment 0ms, prepare 22ms)[22m
 ```
 
+
+## Backend pre-push gate
+
+- Status: passed
+- Result marker + failing output tail:
+```
+__GATE__ build_exit=0 test_exit=0 build_cmd=[npm run build] test_cmd=[npm test] head=08d780dc9d1ec9b847ea4743feda8db6a5a2dd13 test_files=62 skip_marks=0 shadow_files=0
+    at li
+    at ul
+    at nav
+    at Nav
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 24[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at em
+    at span
+    at div
+    at div
+    at header
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:8:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 17[2mms[22m[39m
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m53 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 63[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 9[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 79[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 80[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m153 passed[39m[22m[90m (153)[39m
+[2m   Start at [22m 12:33:24
+[2m   Duration [22m 742ms[2m (transform 155ms, setup 0ms, collect 357ms, tests 293ms, environment 0ms, prepare 23ms)[22m
+
+```
