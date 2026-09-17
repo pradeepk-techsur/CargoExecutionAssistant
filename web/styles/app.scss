@@ -113,6 +113,40 @@
   border-style: solid;
 }
 
+// ─── Case-detail read-only layout (Phase 7, plan 07-09 — FR-10) ─────────────
+//
+// The case-detail screen's core reading sections migrated from USWDS to Carbon
+// in plan 07-09. Two plain, standards-based structural elements have no Carbon
+// component equivalent and are styled here with Carbon spacing tokens (never a
+// raw hex, and lengths only where Carbon exposes no token):
+//
+//   * `.cargoexec-detail-list` — the header status/received/submitted-by list
+//     and the 14-field submitted-entry list are native <dl>/<dt>/<dd>. Carbon
+//     ships no definition-list component; a <dl> is correct structural markup
+//     assistive technology navigates well. Give each row breathing room with
+//     Carbon's spacing scale and set the term apart from its value.
+//   * `.cargoexec-in-page-nav` — the "On this page" fragment-anchor list is a
+//     documented composition (see docs/carbon-conformance-register.md); strip
+//     the default list marker so it reads as navigation, not prose.
+.cargoexec-detail-list {
+  margin-block: var(--cds-spacing-05);
+
+  dt {
+    font-weight: 600;
+    margin-block-start: var(--cds-spacing-03);
+  }
+
+  dd {
+    margin-inline-start: 0;
+    margin-block-end: var(--cds-spacing-03);
+  }
+}
+
+.cargoexec-in-page-nav ul {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
 // understood; when a specialist asks for reduced motion, honour it globally by
 // collapsing transitions and animations to an instant.

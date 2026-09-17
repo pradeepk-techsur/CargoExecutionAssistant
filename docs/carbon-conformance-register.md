@@ -41,6 +41,10 @@ overwrites the other.
 | Error summary (`ErrorSummary`) | **Composition:** Carbon `InlineNotification kind="error"` + a project-owned focusable container (`role="alert"` + `tabIndex="-1"` + `ref`/`useEffect` `.focus()` on appearance, in server order) whose children are an unstyled list of in-page links, each moving focus to its named control by id (`ErrorSummary.tsx`) | Shared (Sign in, F6 entry, F12 decision) | carried forward from `docs/a11y/sign-in.md`; reviewed at each consuming screen |
 | Provenance badge (`ProvenanceBadge`) | Carbon `Tag` (`type="purple"` AI / `type="gray"` HUMAN) + a distinct `@carbon/icons-react` icon per origin (`Settings` AI / `User` HUMAN, `aria-hidden`) + a distinct border SHAPE (dashed AI / solid HUMAN, one scoped rule in `web/styles/app.scss`) — **four** colour-independent carriers (text + icon + shape + colour), legible in monochrome and via AT (`ProvenanceBadge.tsx`) | Case detail, decision region, audit trail | `docs/a11y/case-detail.md`; reviewed at each consuming screen |
 | Shared status/error/empty/degraded/read-only states | Carbon `Loading` (region-scoped, 300ms-delayed, `role="status"`+`aria-busy`), plain prose + `Button`-as-`Link` (`Empty`, no alert role), `InlineNotification kind="error"`+`role="alert"` (`ErrorState`), `InlineNotification kind="warning"`+`role="status"` (`Degraded`, the "not an error" distinction), `InlineNotification kind="info"` in a `role="note"` wrapper (`ReadOnlyNotice`) (`states.tsx`) | Shared (`states.tsx`); Case detail (`Degraded` for UNAVAILABLE recommendation) | reviewed at each consuming screen; `docs/a11y/case-detail.md` |
+| Case-detail header + status/received/submitted-by list | **Composition:** `h1` on Carbon productive typography (focus contract `tabIndex={-1}`+`h1Ref` unchanged) + a native `<dl>`/`<dt>`/`<dd>` styled with Carbon spacing tokens (`.cargoexec-detail-list` in `web/styles/app.scss`) — Carbon ships no definition-list component; a `<dl>` is correct structural markup + a Carbon `Link` (`as={RouterLink}`) "Back to review queue" (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Case-detail "On this page" in-page navigation | **Composition:** an unconditional `<nav aria-label="On this page">` list of native `#fragment` anchors rendered with Carbon `Link` inside a Carbon `Stack` (`as="ul"`)/`ListItem`, styled with Carbon tokens (`.cargoexec-in-page-nav`) — Carbon has no in-page-navigation primitive; native `<a href="#…">` in-page navigation is standard HTML, not a bespoke interactive control (FR-2.1); fixed FR-10.10 reading order preserved (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Case-detail submitted-entry 14-field display | **Composition:** a native `<dl>` styled with Carbon spacing tokens (`.cargoexec-detail-list`), each present value rendered with its adjacent (unchanged 07-06) `ProvenanceBadge` (HUMAN); "Not provided" carries no badge (FR-10.3) (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Case-detail validation-findings list | Carbon `OrderedList` + `ListItem` (native `<ol>`/`<li>`), rendering findings verbatim in server order with NO severity language added (FR-10.6) (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
 
 ## Notes on the compositions
 
@@ -123,6 +127,28 @@ overwrites the other.
   never by the type system." This plan documents that discrepancy (a code comment
   at the top of `ProvenanceBadge.tsx`) rather than inventing the wrapper as
   unplanned scope.
+
+- **Case-detail definition lists (`.cargoexec-detail-list`)** are compositions,
+  not single Carbon components, because Carbon ships no definition-list
+  primitive. The header status/received/submitted-by block and the 14-field
+  submitted-entry display are native `<dl>`/`<dt>`/`<dd>` — the correct,
+  standards-based structural markup for term→value pairs, which assistive
+  technology navigates well — styled with Carbon spacing tokens in one small
+  scoped rule in `web/styles/app.scss` (Carbon spacing custom properties, no raw
+  hex; the absence.spec hex/px scan on `web/src` is untouched). Registered so the
+  compositions are auditable and re-reviewed whenever they change.
+- **Case-detail "On this page" in-page navigation** is a composition, not a
+  single Carbon component, because Carbon ships no in-page-navigation primitive
+  equivalent to USWDS's `usa-in-page-navigation`. It is an unconditional
+  `<nav aria-label="On this page">` holding a plain list of native `#fragment`
+  anchors (rendered with Carbon `Link` inside a Carbon `Stack`/`ListItem`,
+  styled with Carbon tokens). Native `<a href="#…">` in-page navigation is
+  standard HTML using the browser's own scroll-and-focus-to-target — NOT a
+  bespoke interactive control in the sense FR-2.1 prohibits. The fixed FR-10.10
+  reading order (entry → findings → recommendation → decision → audit) is
+  preserved verbatim, and `e2e/case-detail.spec.ts` "10." clicks each link and
+  asserts its target heading is in the viewport. Registered so the composition is
+  auditable and re-reviewed whenever it changes.
 
 ## Relationship to the USWDS register
 

@@ -30,7 +30,13 @@
 // emits plain <p>{text}</p> per paragraph.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router-dom';
+import {
+  Link as CarbonLink,
+  ListItem,
+  OrderedList,
+  Stack,
+} from '@carbon/react';
 import type {
   CaseDetailResponse,
   DecisionDetailDto,
@@ -219,7 +225,7 @@ export function CaseDetail(props: CaseDetailProps = {}): JSX.Element {
   }, [state, caseReference, navigate]);
 
   return (
-    <div className="usa-prose">
+    <div className="cargoexec-prose">
       {state.status === 'loading' && (
         <>
           <h1 tabIndex={-1} ref={h1Ref}>
@@ -238,7 +244,9 @@ export function CaseDetail(props: CaseDetailProps = {}): JSX.Element {
           </h1>
           <p>{state.message}</p>
           <p>
-            <Link to="/queue">Back to review queue</Link>
+            <CarbonLink as={RouterLink} to="/queue">
+              Back to review queue
+            </CarbonLink>
           </p>
         </>
       )}
@@ -290,10 +298,19 @@ function CaseLoaded(props: {
   return (
     <>
       {/* 1. Header ------------------------------------------------------- */}
+      {/* Carbon typography: the <h1> inherits Carbon's productive heading
+          scale from the global @carbon/styles reset (07-04); the focus-
+          management contract (tabIndex={-1} + h1Ref) is UNCHANGED — the same
+          heading FR-2.24 lands focus on and FR-10.13 canonicalisation never
+          moves. */}
       <h1 tabIndex={-1} ref={h1Ref}>
         Case {exception.case_reference}
       </h1>
-      <dl>
+      {/* Status / received / submitted-by as a definition list styled with
+          Carbon tokens (a plain, standards-based <dl> is not a bespoke
+          interactive control — it is structural markup Carbon has no dedicated
+          component for; registered as a composition). */}
+      <dl className="cargoexec-detail-list">
         <dt>Status</dt>
         <dd>{STATE_LABELS[exception.state]}</dd>
         <dt>Received</dt>
@@ -306,32 +323,42 @@ function CaseLoaded(props: {
         <dd>{entry.created_by.display_name}</dd>
       </dl>
       <p>
-        <Link to="/queue">Back to review queue</Link>
+        <CarbonLink as={RouterLink} to="/queue">
+          Back to review queue
+        </CarbonLink>
       </p>
 
       {/* 1a. "On this page" in-page navigation (FR-10.10, UNCONDITIONAL) --
-          one link per <h2> below, in the same order. Pure fragment navigation:
-          no onClick/preventDefault — the browser's native scroll-and-focus-to-
-          target is exactly the wanted behaviour, and is NOT a useScreenFocus
-          moment. */}
-      <nav aria-label="On this page">
-        <ul className="usa-list usa-list--unstyled">
-          <li>
-            <a href="#why-open">Why this case is open</a>
-          </li>
-          <li>
-            <a href="#submitted-entry">Submitted entry</a>
-          </li>
-          <li>
-            <a href="#ai-recommendation">AI recommendation</a>
-          </li>
-          <li>
-            <a href="#your-decision">Your decision</a>
-          </li>
-          <li>
-            <a href="#audit-trail">Audit trail</a>
-          </li>
-        </ul>
+          one link per <h2> below, in the same order. Carbon has no dedicated
+          in-page-navigation primitive (USWDS's usa-in-page-navigation has no
+          Carbon equivalent), so this is a documented composition: a plain,
+          unconditional list of native #fragment anchors rendered with Carbon
+          `Link` and laid out with Carbon `Stack`/tokens. Native `<a href="#…">`
+          in-page navigation is standard HTML, NOT a "bespoke interactive
+          control" (FR-2.1). Pure fragment navigation: no onClick/preventDefault
+          — the browser's native scroll-and-focus-to-target is exactly the
+          wanted behaviour (the e2e "On this page" test clicks each link and
+          asserts toBeInViewport()), and is NOT a useScreenFocus moment. The
+          fixed reading order (entry → findings → recommendation → decision →
+          audit) is preserved verbatim. */}
+      <nav aria-label="On this page" className="cargoexec-in-page-nav">
+        <Stack as="ul" gap={2}>
+          <ListItem>
+            <CarbonLink href="#why-open">Why this case is open</CarbonLink>
+          </ListItem>
+          <ListItem>
+            <CarbonLink href="#submitted-entry">Submitted entry</CarbonLink>
+          </ListItem>
+          <ListItem>
+            <CarbonLink href="#ai-recommendation">AI recommendation</CarbonLink>
+          </ListItem>
+          <ListItem>
+            <CarbonLink href="#your-decision">Your decision</CarbonLink>
+          </ListItem>
+          <ListItem>
+            <CarbonLink href="#audit-trail">Audit trail</CarbonLink>
+          </ListItem>
+        </Stack>
       </nav>
 
       {/* 2. Why this case is open --------------------------------------- */}
@@ -341,21 +368,27 @@ function CaseLoaded(props: {
         rule{validation.findings.length === 1 ? '' : 's'} when it was received.
       </p>
       {/* FR-10.6: server order verbatim — no re-wording, reordering, filtering,
-          or severity language. */}
-      <ol>
+          or severity language. Rendered on Carbon's `OrderedList`/`ListItem`
+          (still a native <ol>/<li>), preserving verbatim, server-order rendering
+          with NO severity language added. */}
+      <OrderedList>
         {validation.findings.map((finding) => (
-          <li key={finding.rule_id}>
+          <ListItem key={finding.rule_id}>
             {finding.message}{' '}
             <small>
               {humanLabel(finding.field_name)} · {finding.rule_id}
             </small>
-          </li>
+          </ListItem>
         ))}
-      </ol>
+      </OrderedList>
 
       {/* 3. Submitted entry --------------------------------------------- */}
+      {/* The 14-field display as a definition list styled with Carbon tokens.
+          Each present value renders its HUMAN `ProvenanceBadge` via the UNCHANGED
+          07-06 import (only the surrounding layout markup is Carbon here — the
+          badge component and its usage are untouched). */}
       <h2 id="submitted-entry">Submitted entry</h2>
-      <dl>
+      <dl className="cargoexec-detail-list">
         {ENTRY_FIELDS.map((field) => {
           const value = entry.values[field];
           return (
@@ -497,10 +530,14 @@ function DecidedRecord(props: {
       </dl>
       <DecisionSummaryTable values={decision.resolution_values} />
       <p>
-        <a href="#audit-trail">View the audit trail for this case</a>
+        <CarbonLink href="#audit-trail">
+          View the audit trail for this case
+        </CarbonLink>
       </p>
       <p>
-        <Link to="/queue">Back to review queue</Link>
+        <CarbonLink as={RouterLink} to="/queue">
+          Back to review queue
+        </CarbonLink>
       </p>
     </div>
   );
