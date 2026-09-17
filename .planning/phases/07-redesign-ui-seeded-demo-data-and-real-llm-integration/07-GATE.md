@@ -3986,3 +3986,51 @@ Warning: useLayoutEffect does nothing on the server, because its effect cannot b
 [2m   Duration [22m 836ms[2m (transform 157ms, setup 0ms, collect 436ms, tests 306ms, environment 0ms, prepare 22ms)[22m
 ```
 
+
+## Backend pre-push gate
+
+- Status: passed
+- Result marker + failing output tail:
+```
+__GATE__ build_exit=0 test_exit=0 build_cmd=[npm run build] test_cmd=[npm test] head=a351505416d00caf63184f22a0dbdd73704739d1 test_files=62 skip_marks=0 shadow_files=0
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at HeaderName (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderName.js:25:23)
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 18[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 62[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 79[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m155 passed[39m[22m[90m (155)[39m
+[2m   Start at [22m 03:15:58
+[2m   Duration [22m 860ms[2m (transform 163ms, setup 0ms, collect 458ms, tests 307ms, environment 0ms, prepare 22ms)[22m
+
+```
