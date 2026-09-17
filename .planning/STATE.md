@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-09-PLAN.md
-last_updated: "2026-09-17T02:24:35.037Z"
+stopped_at: Completed 07-08-PLAN.md
+last_updated: "2026-09-17T02:25:47.522Z"
 last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 49
+  completed_plans: 50
   percent: 86
 ---
 
@@ -26,6 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-08 COMPLETE (wave 4) — the F8 review-queue screen (web/src/screens/Queue.tsx) is rebuilt on Carbon. Its open-exceptions table renders on Carbon's PLAIN table primitives (Table/TableHead/TableRow/TableHeader/TableBody/TableCell) composed by hand, NEVER DataTable and NEVER with isSortable — so the FR-8.3 / phase-criterion-4 deliberate absence (no sort, no filter, no assignment, no priority anywhere in the DOM) is STRUCTURAL, not a runtime opt-out. The central risk (T-07-22) was settled by reading @carbon/react's TableHeader source: with no isSortable/onClick it early-returns a bare <th scope="col"> (no sort button, no aria-sort, no sort icon). Truncation notice → Carbon InlineNotification kind=info role=status; Refresh/"New cargo entry" → Carbon Button; Empty/ErrorState/Loading imports from states.tsx (07-06) UNCHANGED; the scrollable focusable region wrapper is retained (Carbon's Table ships no scroll region) for FR-2.19 320px reflow. e2e/queue.spec.ts locators updated to cds--data-table / cds--inline-notification--error (8/8 pass); docs/a11y/queue.md re-signed (2026-09-17); docs/carbon-conformance-register.md gained 3 queue rows + a Notes paragraph, additive to the 07-05/07-06/07-09 rows. Gate: build+typecheck exit 0; navigation.spec excluded-affordance scan 11/11; e2e/queue.spec.ts 8/8. NOTE: wave-4 plans (07-07/07-08/07-09) share one working tree; a branch race swept this plan's Queue.tsx/queue.spec.ts/queue.md into commit cb06e36 and the register into e31d204 — all 07-08 deliverables are present and verified in HEAD by content, though not under a 07-08-named commit.
+
+--- prior (07-06) ---
 Plan: 07-06 COMPLETE (wave 3) — the shared component library every screen inherits now renders on Carbon Design System primitives, with every exported function name and prop shape UNCHANGED so every screen-level redesign plan (07-07…07-10) is a pure internal swap needing zero consumer edits. The form pattern (`Field`/`SelectField`/`TextAreaField`/`DateField`/`Fieldset`/`SubmitButton`/`UswdsForm`) renders on `@carbon/react` `TextInput`/`Select`+`SelectItem`/`TextArea` (native `enableCounter`/`maxCount` counter, replacing the hand-rolled one — format now `{n}/{max}`)/`DatePicker`+`DatePickerInput` (a real controlled React component; typed `YYYY-MM-DD` submitted verbatim, no locale coercion, FR-6.5)/`Button`/`Form`, with the native `<fieldset>`/`<legend>` retained (Carbon has no fieldset wrapper) and styled with Carbon tokens. FR-2.11's visible `*` required marking is layered into Carbon's `labelText` slot so its exact wording survives, and Carbon owns the ONE hint+error `aria-describedby` wiring (no hand-rolled duplicate, T-07-19). `aria-disabled`-while-busy (FR-1.19) and the `noValidate` server-authoritative contract (FR-1.16) are preserved. `ErrorSummary` renders on Carbon `InlineNotification kind="error"` with the project-owned focus mechanics (`role="alert"`, `tabIndex="-1"`, `ref`+`useEffect` `.focus()`, server-order per-control in-page links) UNCHANGED. `ProvenanceBadge` renders on Carbon `Tag` + `@carbon/icons-react` with FOUR colour-independent carriers — text + distinct icon (`Settings`/`User`) + distinct border SHAPE (dashed AI / solid HUMAN, one scoped `app.scss` rule via `currentColor`, no raw hex) + distinct `Tag` type colour (`purple`/`gray`) — never colour alone (FR-2.17); the `modified` prop is unchanged (FR-12.6). The `AttributedValue` component TechArch §1A.4 describes does NOT exist and is documented honestly as such (a `ProvenanceBadge.tsx` comment + register note: the real guarantee is badge-adjacency-by-review, never type-enforced) rather than silently claimed or invented as unplanned scope. The five state components (`Loading`/`Empty`/`ErrorState`/`Degraded`/`ReadOnlyNotice`) render on Carbon `Loading`/`InlineNotification` with `role` alert/status/note and the 300ms Loading gate preserved. `docs/carbon-conformance-register.md` gained additive rows + composition notes for every shared control (07-05's shell rows untouched). NO consumer screen file touched. Gate: `npm run build` exit 0; `headers.spec` 48/48 + `absence.spec` 54/54 (raw-hex/px + dangerouslySetInnerHTML scans on `web/src`) green; all four files and their real consumers (`SignIn`/`CaseDetail`/`DecisionPanel`/`AuditTrailRegion`) typecheck clean. 2 deviations auto-fixed (both R3 - Blocking: Carbon `DatePickerInput`/`labelText` prop-types incompatibilities → narrowed helper return type + moved value/onChange to parent DatePicker; `InlineNotification` `subtitle` typed string + `role` restricted → used `children` slot + `role="note"` wrapper). One OUT-OF-SCOPE issue (NOT this plan): a single pre-existing typecheck error in `web/src/shell/Header.tsx` (Carbon `Header` `role` prop) is parallel wave-3 plan 07-05's in-flight shell migration — proven pre-existing by stash-and-rerun, not imported/edited by 07-06, logged to `deferred-items.md`, owner 07-05. e2e specs still locate these controls by their old `usa-*` classes; per T-07-18 each consuming screen's OWN plan updates those locators, not this shared-component plan. Task 1 0ce5696, Task 2 29eed4e.
 
 --- prior (07-04) ---
@@ -136,6 +139,7 @@ Progress: [█████████░] 86%
 | Phase 07 P06 | 9 min | 2 tasks | 6 files |
 | Phase 07 P05 | 25 min | 2 tasks | 11 files |
 | Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P09 | 8 min | 2 tasks | 4 files |
+| Phase 07 P08 | 8 min | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -227,6 +231,7 @@ Recent decisions affecting current work:
 - [Phase 07]: Carbon drop-in swap: shared component internals changed to Carbon while every exported name/prop shape stays identical, so screen plans need zero consumer edits
 - [Phase 07]: 07-05: the persistent shell is rebuilt on Carbon UI Shell (SkipToContent/Header/HeaderNavigation/HeaderMenuItem/HeaderName/HeaderGlobalBar) with every FR-2.x structural guarantee intact; the government banner and federal footer are documented Carbon-conformant COMPOSITIONS (Carbon ships no primitive for either), the banner disclosure is the shell's own React useState toggle (USWDS JS retired), LiveRegions use cds--visually-hidden, and role=banner reaches Carbon Header as a JSX attribute via a localised typed cast (kept out of the object-literal role: architecture scan). e2e/shell.spec.ts repointed to Carbon selectors; docs/a11y/shell.md re-signed (Defect 1: footer Carbon-grid 320px reflow, fixed in web/styles/_shell.scss). navigation+headers arch 59/59, shell e2e 16/16, build+typecheck exit 0.
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-09: CaseDetail core read sections (header, On-this-page nav, submitted-entry, findings, AI-recommendation all four states) migrated to Carbon; in-page nav and header/entry/comparison definition lists are documented Carbon compositions (no Carbon primitive) styled with spacing tokens; DecisionPanel/AuditTrailRegion left untouched for 07-10 (screen visually mixed one wave).
+- [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-08: the review queue uses Carbon's plain table primitives (Table/TableHead/TableHeader/TableBody/TableCell) composed by hand, NEVER DataTable and NEVER isSortable — so FR-8.3's mandated absence of any sort/filter/assignment/priority affordance is structural; verified against @carbon/react's TableHeader source (no isSortable ⇒ bare <th scope>).
 
 ### Verify Notes
 
@@ -259,6 +264,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T02:24:35.035Z
-Stopped at: Completed 07-09-PLAN.md
+Last session: 2026-09-17T02:25:12.425Z
+Stopped at: Completed 07-08-PLAN.md
 Resume file: None
