@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-07-PLAN.md
-last_updated: "2026-09-17T02:26:48.701Z"
-last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
+stopped_at: Completed 07-10-PLAN.md
+last_updated: "2026-09-17T02:44:28.828Z"
+last_activity: "2026-09-17 — 07-10 executed (wave 5): Task 1 be9f280 (DecisionPanel on Carbon + ErrorSummary Rule-1 fix), Task 2 e75241a (AuditTrailRegion on Carbon + joint case-detail a11y sign-off). The last two USWDS-coupled .tsx files migrated — all 18 now on Carbon. 1 deviation auto-fixed (R1: Carbon InlineNotification throws on interactive children → ErrorSummary link list moved to a sibling). Gate: build+typecheck exit 0; arch 155; e2e case-detail 10 / decision 8 / audit-trail 10 / whole-loop 2, 0 skipped."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 51
+  completed_plans: 52
   percent: 86
 ---
 
@@ -26,6 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-10 COMPLETE (wave 5) — the LAST TWO USWDS-coupled .tsx files are rebuilt on Carbon, completing the eighteen-file USWDS→Carbon migration of every screen. DecisionPanel.tsx (F12): the three decision actions (Approve / Edit-and-approve or Resolve-directly / Reject) render as three Carbon Button kind="tertiary" sharing EXACTLY ONE class (equal weight, FR-12.1 — no visual steer toward Approve; e2e test 1's one-shared-class assertion is re-pointed at Carbon's class, same semantic check, T-07-27); the ONLY primary button in the whole path is the final "Record decision". UX Pattern 3's two-step commitment is now a Carbon ProgressIndicator/ProgressStep (four steps Choose→Complete→Review→Record, aria-current="step"). Edit-form inputs → Carbon TextInput (hideLabel + aria-label, badge in the dt); conflict/network notices → Carbon InlineNotification kind=info/warning kept role=alert (never kind=error); the edit/reject form reuses the UNCHANGED 07-06 UswdsForm/TextAreaField/SubmitButton/ErrorSummary/ProvenanceBadge. AuditTrailRegion.tsx (F14): the before/after value-change table → Carbon's PLAIN table primitives (Table/TableHead/TableRow/TableHeader/TableBody/TableCell — a genuine data table, NO DataTable/isSortable, no grid role, native <th scope=row> for row headers, caption + scope=col preserved); the integrity-failure alert → Carbon InlineNotification kind=error + role=alert with NO repair action (FR-14.10); the chronological <ol>/<li>/<h3> event list and the AI-never-a-person rendering (AI ({model_id}), never entry.actor — T-07-29) unchanged. docs/a11y/case-detail.md CLOSED as ONE joint five-section sign-off (the record 07-09 left open) — whole screen fully on Carbon, citing the same real tests now green against Carbon-class locators; docs/carbon-conformance-register.md completed for every case-detail control. 1 deviation auto-fixed (R1: Carbon InlineNotification's useNoInteractiveChildren THROWS on the ErrorSummary's in-page link children → the link list moved from the notification's children to a SIBLING inside the role=alert container; focus/order/link mechanics unchanged; sign-in 13/13 still green). Gate: npm run build exit 0; npm run typecheck exit 0; architecture 155/155; e2e case-detail 10 / decision 8 / audit-trail 10 / whole-loop 2, 0 failures, 0 skipped. Commits: be9f280 (Task 1), e75241a (Task 2). NOTE: only the USWDS-from-the-dependency-tree cleanup (Sass @forward "uswds", copy-uswds-assets, the --cargoexec-* token seam) remains for a later wave.
+
+--- prior (07-07) ---
 Plan: 07-07 COMPLETE (wave 4) — the three smallest USWDS-coupled screens are rebuilt on Carbon: SignIn (F1/F2), the transitional NotBuiltYet placeholder, and NotFound. SignIn's own remaining USWDS markup moved to Carbon Grid/Column (sm=4 md=4 lg=6, replacing grid-col-12 tablet:grid-col-6 desktop:grid-col-4) and Carbon InlineNotification (kind=info/success, role=status) for the expired/signed-out notices — wording verbatim; it consumes the UNCHANGED 07-06 Field/SubmitButton/UswdsForm/ErrorSummary imports with ZERO behavioural change (one generic fieldless credential-failure item, no aria-invalid/no field-level leak, the 422 per-field path, password-cleared/email-retained, every deliberate absence). NotBuiltYet's usa-alert--info → Carbon InlineNotification (Link in children; Carbon types subtitle as string), NAV_ITEMS/deliberate-absence logic unchanged; NotFound → plain Carbon prose + /queue link, no alert role. docs/a11y/sign-in.md re-signed against the rebuild (skip link → a.cds--skip-to-content, error summary → .cargoexec-error-summary); 4 additive carbon-conformance-register rows. e2e/sign-in.spec.ts updated to Carbon DOM AND its skip-link focus check fixed to accept Carbon's border-based indicator (Carbon SkipToContent uses border:4px + outline:none) — 13/13 pass against a real server + cargoexec-db. Gate: npm run build exit 0; tsc -p web exit 0; navigation.spec 11/11. 2 deviations auto-fixed (R1 skip-link e2e assertion; R3 concurrent-branch race that detached Task 1 — re-committed on HEAD as e31d204 per the coordination note, register rows re-applied additively preserving the queue rows). Commits: cb06e36 (NotBuiltYet/NotFound), e31d204 (SignIn+register+a11y re-commit), c9ddd22 (skip-link e2e fix).
 
 --- prior (07-08) ---
@@ -144,6 +147,7 @@ Progress: [█████████░] 86%
 | Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P09 | 8 min | 2 tasks | 4 files |
 | Phase 07 P08 | 8 min | 1 tasks | 4 files |
 | Phase 07 P07 | 22 min | 2 tasks | 7 files |
+| Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P10 | 22 min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -236,6 +240,7 @@ Recent decisions affecting current work:
 - [Phase 07]: 07-05: the persistent shell is rebuilt on Carbon UI Shell (SkipToContent/Header/HeaderNavigation/HeaderMenuItem/HeaderName/HeaderGlobalBar) with every FR-2.x structural guarantee intact; the government banner and federal footer are documented Carbon-conformant COMPOSITIONS (Carbon ships no primitive for either), the banner disclosure is the shell's own React useState toggle (USWDS JS retired), LiveRegions use cds--visually-hidden, and role=banner reaches Carbon Header as a JSX attribute via a localised typed cast (kept out of the object-literal role: architecture scan). e2e/shell.spec.ts repointed to Carbon selectors; docs/a11y/shell.md re-signed (Defect 1: footer Carbon-grid 320px reflow, fixed in web/styles/_shell.scss). navigation+headers arch 59/59, shell e2e 16/16, build+typecheck exit 0.
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-09: CaseDetail core read sections (header, On-this-page nav, submitted-entry, findings, AI-recommendation all four states) migrated to Carbon; in-page nav and header/entry/comparison definition lists are documented Carbon compositions (no Carbon primitive) styled with spacing tokens; DecisionPanel/AuditTrailRegion left untouched for 07-10 (screen visually mixed one wave).
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-08: the review queue uses Carbon's plain table primitives (Table/TableHead/TableHeader/TableBody/TableCell) composed by hand, NEVER DataTable and NEVER isSortable — so FR-8.3's mandated absence of any sort/filter/assignment/priority affordance is structural; verified against @carbon/react's TableHeader source (no isSortable ⇒ bare <th scope>).
+- [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-10: the three decision actions share one Carbon kind=tertiary (equal weight, FR-12.1); the sole primary button in the whole path is the final Record decision. Carbon InlineNotification throws on interactive children, so ErrorSummary's link list moved to a sibling of the notification inside the role=alert container. The audit value-change table is a genuine Carbon data table (plain primitives, no DataTable/isSortable/grid). All 18 USWDS-coupled .tsx files now render on Carbon; docs/a11y/case-detail.md closed as one joint five-section sign-off.
 
 ### Verify Notes
 
@@ -268,6 +273,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T02:26:48.699Z
-Stopped at: Completed 07-07-PLAN.md
+Last session: 2026-09-17T02:44:28.826Z
+Stopped at: Completed 07-10-PLAN.md
 Resume file: None
