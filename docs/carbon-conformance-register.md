@@ -258,18 +258,55 @@ overwrites the other.
   name, T-07-29) is unchanged logic, re-verified by `e2e/audit-trail.spec.ts`
   test 3 against the Carbon-rendered table.
 
-## Register completeness (plan 07-10)
+## Register completeness (plans 07-10, finalized 07-11)
 
-With this plan the register records a Carbon basis (component or composition)
-for **every** interactive control and every structural composition the product
-ships across all its screens — the shell, the shared form/state/badge library,
-the sign-in screen, the review queue, and the complete five-section case-detail
-screen (header, in-page nav, submitted entry, findings, AI recommendation,
-decision region, and audit trail). All eighteen originally USWDS-coupled `.tsx`
-files now render on Carbon; the register is complete for every case-detail
-control. The only remaining Phase-7 UI work is retiring USWDS itself from the
-dependency tree and build pipeline (a later cleanup plan), which removes markup
-already superseded here rather than adding any new control.
+The register records a Carbon basis (component or composition) for **every**
+interactive control and every structural composition the product ships across
+all its screens — the shell, the shared form/state/badge library, the sign-in
+screen, the review queue, and the complete five-section case-detail screen
+(header, in-page nav, submitted entry, findings, AI recommendation, decision
+region, and audit trail). All eighteen originally USWDS-coupled `.tsx` files
+render on Carbon.
+
+**Cross-check against the retired USWDS register (plan 07-11).** Every product
+control recorded in `docs/uswds-conformance-register.md` has a corresponding
+Carbon-mapped row above, verified row by row when this register was finalized:
+
+- **Shell:** skip link, government banner + disclosure, masthead/name link,
+  primary navigation, sign-out control, footer + agency identifier + required
+  links, live regions — all mapped.
+- **Sign in:** the email/password fields, required-field marking, primary
+  submit, error summary, inline field error, and the session-expired /
+  signed-out notices — mapped to the shared Carbon form pattern rows plus the
+  sign-in-specific `InlineNotification` rows.
+- **Shared library:** the status/error/empty/degraded/read-only states and the
+  provenance badge — mapped.
+- **Case detail:** the AI-recommendation comparison rows, the three
+  equal-weight decision actions, the edit/reject resolution form, the
+  pre-submission summary, the server-driven confirmation, the audit
+  value-change table, and the integrity-failure alert — all mapped, plus the
+  additional case-detail rows (header list, in-page nav, 14-field submitted
+  entry, findings list, whole-recommendation tag, PENDING/stale/UNAVAILABLE
+  presentations, commitment step indicator) this register adds beyond the
+  USWDS register's coverage.
+
+No USWDS-register row is left without a Carbon equivalent, and no case-detail
+or shell control is left unregistered. This register is therefore the complete,
+final, product-wide Carbon control register.
+
+## Phase 7 close-out (plan 07-11)
+
+With plan 07-11, `@uswds/uswds` is removed from the repository entirely — the
+dependency, the `@use "uswds-core"`/`@forward "uswds"` Sass, the
+`copy-uswds-assets.mjs` build step, the `_tokens.scss` seam, and the
+`uswds.min.js` script tag are all gone, and the compiled stylesheet
+(`web/public/assets/app.css`) contains **zero** `usa-*` rules and only `cds--*`
+rules. The three named architecture tests (`navigation.spec.ts`,
+`headers.spec.ts`, and `absence.spec.ts`'s raw-hex/px and CDN-absence scans)
+were explicitly re-verified against the fully-Carbon codebase and pass
+unmodified, and the full regression gate (`npm run test` + `npm run test:e2e`)
+is green. Carbon is now the ONLY design system present in the product; this
+register is its complete and final record.
 
 ## Relationship to the USWDS register
 

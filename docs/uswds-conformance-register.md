@@ -107,3 +107,5 @@ When a later phase ships a new interactive control:
 > Superseded by `docs/carbon-conformance-register.md` as of Phase 7's Carbon
 > adoption; this file is retained as the historical record of what shipped
 > through Phase 6.
+
+Phase 7 complete — `@uswds/uswds` is no longer a dependency of this repository as of this commit; `docs/carbon-conformance-register.md` is now the current register.

@@ -154,7 +154,7 @@ async function signInThroughFormKeyboardOnly(page: Page): Promise<void> {
   // field, not a click-to-focus. Then Tab to password. Enter submits.
   await page.evaluate(() => {
     (document.activeElement as HTMLElement | null)?.blur();
-    document.querySelector<HTMLElement>('a.usa-skipnav')?.focus();
+    document.querySelector<HTMLElement>('a.cds--skip-to-content')?.focus();
   });
   // Tab forward from the top of the document until focus lands on the email
   // field (autocomplete="username"). Asserting the keyboard REACHES the field by

@@ -13,8 +13,24 @@ import { E2E_ENV } from './env.js';
 export default async function globalSetup(): Promise<void> {
   // 1. Bring the database up. `docker compose up -d db` is idempotent —
   //    re-running against an already-up container converges instead of erroring.
+  //
+  //    `docker compose` interpolates the ENTIRE compose file (every service)
+  //    before it acts, even when only the `db` service is targeted. Since plan
+  //    07-02 made the `web` service's AI_PROVIDER_URL a mandatory no-default
+  //    variable (`${AI_PROVIDER_URL:?…}`, FR-9.20), that interpolation now aborts
+  //    with "required variable AI_PROVIDER_URL is missing a value" unless the
+  //    variable is present in the environment — even though this call never
+  //    starts `web`. The e2e tier's canonical AI configuration is fake:deterministic
+  //    (E2E_ENV, e2e/env.ts), so pass that same value into the compose environment
+  //    here. This satisfies the interpolation without weakening the FR-9.20
+  //    guarantee: a real deployment still has no silent default. (AI_API_KEY keeps
+  //    its compose-level `${AI_API_KEY:-}` empty default and needs nothing here.)
   const up = spawnSync('docker', ['compose', 'up', '-d', 'db'], {
     stdio: 'inherit',
+    env: {
+      ...process.env,
+      AI_PROVIDER_URL: E2E_ENV.AI_PROVIDER_URL,
+    },
   });
   if (up.status !== 0) {
     throw new Error(

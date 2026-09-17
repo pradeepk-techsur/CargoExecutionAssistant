@@ -32,14 +32,20 @@ export function NotBuiltYet(props: NotBuiltYetProps): JSX.Element {
     NAV_ITEMS.find((n) => n.label !== props.title) ?? NAV_ITEMS[0];
 
   // The `usa-alert--info` becomes Carbon `InlineNotification kind="info"` with
-  // role="status" preserved (a polite notice, not an alert). The "link to the
-  // OTHER nav destination" affordance is carried in the notification's `children`
-  // ReactNode slot (Carbon types `subtitle` as a plain string, so the react-router
-  // `Link` goes in `children`, the same slot ErrorSummary uses for its link list)
-  // — unchanged NAV_ITEMS logic. Prose typography now comes from Carbon's global
-  // type styles (@carbon/styles), so the container is a plain element rather than
-  // `usa-prose`. Still NO disabled control, no "coming soon" chip, no tooltip
-  // (UX Pattern 7 / FR-12.11).
+  // role="status" preserved (a polite notice, not an alert). Prose typography now
+  // comes from Carbon's global type styles (@carbon/styles), so the container is a
+  // plain element rather than `usa-prose`. Still NO disabled control, no "coming
+  // soon" chip, no tooltip (UX Pattern 7 / FR-12.11).
+  //
+  // The "link to the OTHER nav destination" affordance is a react-router `Link`
+  // and therefore an INTERACTIVE node. It must NOT be a child of the
+  // `InlineNotification`: Carbon's notification runs `useNoInteractiveChildren`
+  // and THROWS ("component should have no interactive child nodes") on any
+  // interactive descendant — the exact defect plan 07-10 fixed for `ErrorSummary`
+  // by moving its link list to a sibling. The same fix applies here: the
+  // notification carries text only (its `title`), and the recovery `Link` is a
+  // SIBLING paragraph beneath it, so the polite `role="status"` notice and the
+  // no-orphan-screen affordance both survive without crashing the route.
   return (
     <div className="cargoexec-prose">
       <h1 tabIndex={-1} ref={h1Ref}>
@@ -51,9 +57,10 @@ export function NotBuiltYet(props: NotBuiltYetProps): JSX.Element {
         lowContrast
         hideCloseButton
         title="This screen is not available in this build."
-      >
+      />
+      <p>
         <Link to={other.to}>{other.label}</Link>
-      </InlineNotification>
+      </p>
     </div>
   );
 }
