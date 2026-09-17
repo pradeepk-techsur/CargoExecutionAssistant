@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-08-PLAN.md
-last_updated: "2026-09-17T02:25:47.522Z"
+stopped_at: Completed 07-07-PLAN.md
+last_updated: "2026-09-17T02:26:48.701Z"
 last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 50
+  completed_plans: 51
   percent: 86
 ---
 
@@ -26,6 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-07 COMPLETE (wave 4) — the three smallest USWDS-coupled screens are rebuilt on Carbon: SignIn (F1/F2), the transitional NotBuiltYet placeholder, and NotFound. SignIn's own remaining USWDS markup moved to Carbon Grid/Column (sm=4 md=4 lg=6, replacing grid-col-12 tablet:grid-col-6 desktop:grid-col-4) and Carbon InlineNotification (kind=info/success, role=status) for the expired/signed-out notices — wording verbatim; it consumes the UNCHANGED 07-06 Field/SubmitButton/UswdsForm/ErrorSummary imports with ZERO behavioural change (one generic fieldless credential-failure item, no aria-invalid/no field-level leak, the 422 per-field path, password-cleared/email-retained, every deliberate absence). NotBuiltYet's usa-alert--info → Carbon InlineNotification (Link in children; Carbon types subtitle as string), NAV_ITEMS/deliberate-absence logic unchanged; NotFound → plain Carbon prose + /queue link, no alert role. docs/a11y/sign-in.md re-signed against the rebuild (skip link → a.cds--skip-to-content, error summary → .cargoexec-error-summary); 4 additive carbon-conformance-register rows. e2e/sign-in.spec.ts updated to Carbon DOM AND its skip-link focus check fixed to accept Carbon's border-based indicator (Carbon SkipToContent uses border:4px + outline:none) — 13/13 pass against a real server + cargoexec-db. Gate: npm run build exit 0; tsc -p web exit 0; navigation.spec 11/11. 2 deviations auto-fixed (R1 skip-link e2e assertion; R3 concurrent-branch race that detached Task 1 — re-committed on HEAD as e31d204 per the coordination note, register rows re-applied additively preserving the queue rows). Commits: cb06e36 (NotBuiltYet/NotFound), e31d204 (SignIn+register+a11y re-commit), c9ddd22 (skip-link e2e fix).
+
+--- prior (07-08) ---
 Plan: 07-08 COMPLETE (wave 4) — the F8 review-queue screen (web/src/screens/Queue.tsx) is rebuilt on Carbon. Its open-exceptions table renders on Carbon's PLAIN table primitives (Table/TableHead/TableRow/TableHeader/TableBody/TableCell) composed by hand, NEVER DataTable and NEVER with isSortable — so the FR-8.3 / phase-criterion-4 deliberate absence (no sort, no filter, no assignment, no priority anywhere in the DOM) is STRUCTURAL, not a runtime opt-out. The central risk (T-07-22) was settled by reading @carbon/react's TableHeader source: with no isSortable/onClick it early-returns a bare <th scope="col"> (no sort button, no aria-sort, no sort icon). Truncation notice → Carbon InlineNotification kind=info role=status; Refresh/"New cargo entry" → Carbon Button; Empty/ErrorState/Loading imports from states.tsx (07-06) UNCHANGED; the scrollable focusable region wrapper is retained (Carbon's Table ships no scroll region) for FR-2.19 320px reflow. e2e/queue.spec.ts locators updated to cds--data-table / cds--inline-notification--error (8/8 pass); docs/a11y/queue.md re-signed (2026-09-17); docs/carbon-conformance-register.md gained 3 queue rows + a Notes paragraph, additive to the 07-05/07-06/07-09 rows. Gate: build+typecheck exit 0; navigation.spec excluded-affordance scan 11/11; e2e/queue.spec.ts 8/8. NOTE: wave-4 plans (07-07/07-08/07-09) share one working tree; a branch race swept this plan's Queue.tsx/queue.spec.ts/queue.md into commit cb06e36 and the register into e31d204 — all 07-08 deliverables are present and verified in HEAD by content, though not under a 07-08-named commit.
 
 --- prior (07-06) ---
@@ -140,6 +143,7 @@ Progress: [█████████░] 86%
 | Phase 07 P05 | 25 min | 2 tasks | 11 files |
 | Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P09 | 8 min | 2 tasks | 4 files |
 | Phase 07 P08 | 8 min | 1 tasks | 4 files |
+| Phase 07 P07 | 22 min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -264,6 +268,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T02:25:12.425Z
-Stopped at: Completed 07-08-PLAN.md
+Last session: 2026-09-17T02:26:48.699Z
+Stopped at: Completed 07-07-PLAN.md
 Resume file: None
