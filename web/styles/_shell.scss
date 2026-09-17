@@ -1,0 +1,134 @@
+// Shell styles (Phase 7, F2 — the Carbon-rendered persistent frame).
+//
+// The shell is assembled from Carbon UI Shell components (SkipToContent, Header,
+// HeaderNavigation, HeaderMenuItem, HeaderName, HeaderGlobalBar, Button) plus two
+// documented Carbon-conformant compositions that Carbon ships no primitive for:
+// the U.S. government banner and the federal footer/agency-identifier. This
+// partial provides the project-owned layout for those compositions and the small
+// number of overrides the composed Carbon pieces need to behave inside this app's
+// full-bleed, reflow-safe shell.
+//
+// Values use Carbon's own design tokens (CSS custom properties emitted by
+// @carbon/styles: --cds-* colours, $spacing-* → the compiled spacing custom
+// properties) rather than raw literals, keeping FR-2.2's "tokens, not raw values"
+// intent even though web/styles/ is outside the raw-hex/px architecture scan.
+
+@use "@carbon/styles/scss/spacing" as *;
+@use "@carbon/styles/scss/theme" as *;
+@use "@carbon/styles/scss/type" as *;
+
+// ─── Reflow guarantee (FR-2.20 / e2e shell test 14) ─────────────────────────
+//
+// The shell must not introduce horizontal body scrolling at 320px or at a
+// 200%-equivalent zoom. Carbon's CSS grid (`cds--css-grid`) applies gutter
+// padding that, on a full-bleed container at 320px, pushes its columns ~16px
+// past the viewport. The footer is the only place the shell uses that grid, so
+// constrain the grid there to the content box and let its columns wrap.
+.cargoexec-footer,
+.cargoexec-identifier {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  overflow-x: clip; // belt-and-braces: no shell region contributes body scroll
+
+  .cds--css-grid {
+    max-inline-size: 100%;
+    margin-inline: 0; // drop Carbon's negative gutter margin at the shell edge
+  }
+}
+
+// ─── Government banner (composition) ────────────────────────────────────────
+.cargoexec-banner {
+  background-color: $layer-01;
+  color: $text-secondary;
+  border-block-end: 1px solid $border-subtle-01;
+}
+
+.cargoexec-banner__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-03;
+  padding-block: $spacing-02;
+  padding-inline: $spacing-05;
+}
+
+.cargoexec-banner__flag {
+  block-size: $spacing-05;
+  inline-size: auto;
+}
+
+.cargoexec-banner__text {
+  @include type-style("label-01");
+  margin: 0;
+}
+
+.cargoexec-banner__content {
+  padding-block: $spacing-05;
+  padding-inline: $spacing-05;
+}
+
+.cargoexec-banner__guidance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-07;
+}
+
+.cargoexec-banner__body {
+  @include type-style("body-01");
+  flex: 1 1 16rem;
+  margin: 0;
+}
+
+// ─── Header trimmings ───────────────────────────────────────────────────────
+//
+// The signed-in specialist's display name sits in the HeaderGlobalBar next to
+// the Sign out control.
+.cargoexec-signed-in-name {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: $spacing-05;
+  color: $text-on-color;
+  @include type-style("body-compact-01");
+}
+
+// ─── Footer + agency identifier (composition) ───────────────────────────────
+.cargoexec-footer {
+  background-color: $layer-01;
+  border-block-start: 1px solid $border-subtle-01;
+  padding-block: $spacing-05;
+}
+
+.cargoexec-footer__logo-heading {
+  @include type-style("heading-compact-01");
+  margin: 0;
+  color: $text-primary;
+}
+
+.cargoexec-identifier {
+  background-color: $layer-accent-01;
+  color: $text-primary;
+  padding-block: $spacing-05;
+}
+
+.cargoexec-identifier__domain {
+  @include type-style("heading-compact-01");
+  margin: 0;
+}
+
+.cargoexec-identifier__disclaimer {
+  @include type-style("body-01");
+  margin: 0;
+}
+
+.cargoexec-identifier__required-links-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-03 $spacing-06;
+  margin: $spacing-03 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cargoexec-identifier__required-links-item {
+  margin: 0;
+}

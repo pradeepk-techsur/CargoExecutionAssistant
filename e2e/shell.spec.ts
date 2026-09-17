@@ -110,7 +110,10 @@ test.describe('reduced shell (/sign-in, unauthenticated)', () => {
     page,
   }) => {
     await page.goto(`${BASE}/sign-in`);
-    const toggle = page.locator('button.usa-banner__button');
+    // Role/label-based locator (not a class name) so this assertion survives the
+    // next visual-system swap: the Carbon banner disclosure is a <button> named
+    // "Here's how you know".
+    const toggle = page.getByRole('button', { name: /here.s how you know/i });
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await toggle.focus();
     await page.keyboard.press('Enter');
@@ -138,10 +141,12 @@ test.describe('reduced shell (/sign-in, unauthenticated)', () => {
       ).filter((el) => el.tabIndex >= 0);
       return candidates[0]?.className ?? '';
     });
-    expect(firstTabbableClass).toContain('usa-skipnav');
+    // Carbon's SkipToContent renders a.cds--skip-to-content as the first
+    // focusable element (the Carbon equivalent of USWDS's usa-skipnav).
+    expect(firstTabbableClass).toContain('cds--skip-to-content');
 
     // Activating the skip link moves focus INTO main.
-    const skip = page.locator('a.usa-skipnav');
+    const skip = page.locator('a.cds--skip-to-content');
     await skip.focus();
     await expect(skip).toBeFocused();
     await page.keyboard.press('Enter');
@@ -207,8 +212,9 @@ test.describe('authenticated shell', () => {
     await page.goto(`${BASE}/queue`);
     // Collect accessible name + href of every interactive element inside the
     // three scanned landmarks. Deliberately NOT page.content(): the footer's
-    // usa-identifier row contains the statutory "Performance reports" link,
-    // which is federal conformance markup, not a product reporting surface.
+    // agency-identifier required-links row contains the statutory "Performance
+    // reports" link, which is federal conformance markup, not a product
+    // reporting surface.
     const strings = await page.evaluate(() => {
       const roots = [
         'nav[aria-label="Primary"]',

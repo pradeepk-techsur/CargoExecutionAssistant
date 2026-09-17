@@ -23,6 +23,13 @@ overwrites the other.
 
 | Product control | Carbon basis | Screen(s) | Reviewed (record) |
 |---|---|---|---|
+| Skip link ("Skip to main content") | `SkipToContent` (`@carbon/react` UI Shell; renders `a.cds--skip-to-content`, hidden until focused, first focusable → `#main-content`) (`SkipLink.tsx`) | Shell (all screens) | `docs/a11y/shell.md` |
+| Government banner + "Here's how you know" disclosure | **Composition:** Carbon `Button` (`kind="ghost"`) for the toggle inside project-owned banner layout, with the disclosure driven by the shell's OWN React `useState` managing `aria-expanded`/`aria-controls`/`hidden` — Carbon ships no government-banner primitive and USWDS's JS no longer drives it; inline (never popup) expansion, iframe-safe (UX Pattern 10) (`Banner.tsx`) | Shell (all screens) | `docs/a11y/shell.md` |
+| Product masthead / name link | `HeaderName` (`@carbon/react` UI Shell; `prefix=""` suppresses Carbon's default "IBM" prefix; the link is react-router `Link` via the polymorphic `as`) inside Carbon `Header` (`role="banner"`) (`Header.tsx`) | Shell (authenticated) | `docs/a11y/shell.md` |
+| Primary navigation (the two destination links) | `HeaderNavigation` + `HeaderMenuItem` (`@carbon/react` UI Shell; each item's `<a>` supplied by react-router `NavLink` via Carbon's polymorphic `as`, so `aria-current="page"` is set on the active item; the DOM stays `<nav aria-label="Primary">` with exactly two anchors) (`Nav.tsx`) | Shell (authenticated) | `docs/a11y/shell.md` |
+| "Sign out" control | Carbon `Button` (`kind="ghost"`) inside `HeaderGlobalBar`, wired to the shell's `onSignOut` prop (`Header.tsx`) | Shell (authenticated) | `docs/a11y/shell.md` |
+| Live regions (polite / assertive announcers) | `aria-live` regions with Carbon's `cds--visually-hidden` utility (the Carbon equivalent of USWDS's `usa-sr-only`); not an interactive control (`LiveRegions.tsx`) | Shell (all screens) | `docs/a11y/shell.md` |
+| Footer + agency identifier + required-links row | **Composition:** Carbon `Grid`/`Column`/`Link` styled with Carbon tokens, preserving the federal `role="contentinfo"` landmark, the `aria-label="Agency identifier"` / `aria-label="Important links"` structural labels, the `cbp.gov` domain line, and the seven-link required-links set fixed by federal conformance (pinned in `web/src/shell/Footer.tsx`) (`Footer.tsx`) | Shell (all screens) | `docs/a11y/shell.md` |
 | Text field (`Field`) | `TextInput` — owns label/id association, `invalid`/`invalidText` inline error, `helperText` hint, and the single hint+error `aria-describedby` wiring (`UswdsForm.tsx`) | Shared form pattern (Sign in, F6 entry, F12 decision) | reviewed at each consuming screen; carried forward from `docs/a11y/sign-in.md` |
 | Select field (`SelectField`) | `Select` + `SelectItem`, with a load-bearing empty first option ("- Select -", nothing pre-chosen, FR-6.6); option list always caller-supplied, no built-in code list (`UswdsForm.tsx`) | Shared form pattern (F6 entry) | reviewed at each consuming screen |
 | Text-area field (`TextAreaField`) | `TextArea` with its NATIVE `enableCounter` + `maxCount` character counter (replaces the hand-rolled React counter); `maxCount` caps input at the F3 structural limit (`UswdsForm.tsx`) | Shared form pattern (F6 entry, F12 reason) | reviewed at each consuming screen |
@@ -37,6 +44,37 @@ overwrites the other.
 
 ## Notes on the compositions
 
+- **Government banner + "Here's how you know" disclosure** is a composition, not
+  a single Carbon component, because Carbon ships no government-banner primitive
+  (it is a federal statutory element Carbon was never designed to include) and
+  USWDS's JS no longer drives the disclosure. The toggle is now the shell's OWN
+  React state: a Carbon `Button` whose `aria-expanded` reflects `useState`, whose
+  `aria-controls` points at the content region, and a content region whose
+  `hidden` is driven by the same state — the WCAG-conformant disclosure contract,
+  keyboard-operable (asserted by `e2e/shell.spec.ts` "3."), expanding INLINE with
+  no `window.open`/popup (iframe-safe, UX Pattern 10). Every textual/structural
+  detail is preserved: the flag image (`aria-hidden`), the two guidance
+  paragraphs, and the exact banner text. It is the same accordion-disclosure
+  pattern the USWDS register documented for USWDS's banner, re-implemented on
+  Carbon — not a new bespoke interactive widget in the sense FR-2.1 prohibits.
+  Registered so the composition is auditable and re-reviewed whenever it changes.
+- **Footer + agency identifier + required-links row** is a composition, not a
+  single Carbon component, because Carbon ships no federal-footer or
+  agency-identifier primitive — this is federal conformance markup, not a design
+  system control. It is assembled from Carbon `Grid`/`Column`/`Link` primitives
+  and Carbon tokens while preserving the exact federal structure USWDS provided:
+  the `role="contentinfo"` landmark, the two `aria-label`led identifier sections,
+  the `cbp.gov` domain line, and the seven statutory required links (which
+  include "Performance reports", a statutory identifier link, not a product
+  reporting surface). The required-links set is fixed by federal conformance and
+  is pinned in `web/src/shell/Footer.tsx`; the footer subtree is excluded from
+  the criterion-5 affordance scan for that reason — the exclusion is auditable,
+  not a blind spot (`server/test/architecture/navigation.spec.ts` item 4d
+  asserts the rendered footer link set equals exactly that pinned list, so the
+  exemption cannot be used to smuggle in an eighth link). The Carbon `Grid` there
+  is constrained by a small scoped rule in `web/styles/_shell.scss` so its gutter
+  never introduces horizontal body scroll at 320px / 200% zoom (FR-2.20;
+  `e2e/shell.spec.ts` "14.").
 - **`Fieldset`** is a composition, not a single Carbon component: Carbon ships no
   dedicated fieldset wrapper, so the native `<fieldset>`/`<legend>` is retained
   (it is the correct, standards-based grouping element, which assistive

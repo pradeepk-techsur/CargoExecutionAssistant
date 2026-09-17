@@ -1,7 +1,8 @@
 // The two ARIA live regions (FR-2.16, UX Pattern 5).
 //
 // Both regions are present in the DOM FROM FIRST PAINT, visually hidden with
-// `usa-sr-only`. This is load-bearing: a screen reader only announces a change
+// Carbon's `cds--visually-hidden` utility (the Carbon equivalent of USWDS's
+// `usa-sr-only`). This is load-bearing: a screen reader only announces a change
 // to a live region that already existed when the announcement is made, so a
 // region inserted at the moment of the announcement is silent. They live here,
 // above the router, so they persist across navigation.
@@ -77,7 +78,7 @@ export function LiveRegions(props?: {
       <div
         aria-live="polite"
         aria-atomic="true"
-        className="usa-sr-only"
+        className="cds--visually-hidden"
         data-testid="live-status"
       >
         {props?.status ?? ''}
@@ -85,7 +86,7 @@ export function LiveRegions(props?: {
       <div
         aria-live="assertive"
         aria-atomic="true"
-        className="usa-sr-only"
+        className="cds--visually-hidden"
         data-testid="live-alert"
       >
         {props?.alert ?? ''}

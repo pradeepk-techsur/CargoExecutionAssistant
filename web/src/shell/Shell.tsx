@@ -1,7 +1,11 @@
 // The application shell (TechArch §7.4, §1A.4; UX Screen-00 wireframe).
 //
+// The frame is now rendered on the Carbon Design System (SkipLink/Banner/
+// Header/Footer are Carbon-based); the landmark structure and DOM order are
+// UNCHANGED — only the visual system underneath moved from USWDS to Carbon.
+//
 // Shell renders the persistent frame ONCE, in this DOM order:
-//   1. SkipLink      — usa-skipnav, THE FIRST FOCUSABLE ELEMENT, → #main-content
+//   1. SkipLink      — Carbon SkipToContent, THE FIRST FOCUSABLE ELEMENT, → #main-content
 //   2. Banner        — government banner, above the header, on EVERY screen
 //   3. Header        — role="banner"; reduced on /sign-in (no nav/name/sign-out)
 //

@@ -8,21 +8,54 @@ record is signed. There is no CI accessibility gate and there must never be one
 
 | Field | Value |
 |---|---|
-| Screen | Application shell (skip link, government banner, header + primary nav + sign-out, main landmark, footer + identifier, live regions) |
+| Screen | Application shell (skip link, government banner, header + primary nav + sign-out, main landmark, footer + identifier, live regions) — **rebuilt on the Carbon Design System (plan 07-05), re-signed here** |
 | Route(s) | present on every authenticated route (`/queue`, `/entries/new`, `/cases/:caseReference`, `/cases/:caseReference/audit`); reduced form on `/sign-in` |
-| Build reviewed (commit) | `dbb4e95` |
+| Build reviewed (commit) | `07-05` Carbon shell rebuild (this plan; per-task commits recorded in `07-05-SUMMARY.md`) |
 | Reviewer | Pradeep K |
-| Date | 2026-09-15 |
+| Date | 2026-09-17 |
 | Assistive technology used | Screen reader walkthrough performed by the reviewer (version unspecified) |
+
+## Re-sign note (Phase 7, plan 07-05 — Carbon rebuild)
+
+The shell was rebuilt on the Carbon Design System in place of USWDS: `SkipLink`
+→ Carbon `SkipToContent`; `Nav` → Carbon `HeaderNavigation`/`HeaderMenuItem`
+(each item's `<a>` via react-router `NavLink`); `Header` → Carbon `Header`
+(`role="banner"`)/`HeaderName`/`HeaderGlobalBar` + a Carbon `Button` for sign
+out; the government `Banner` and the federal `Footer`/identifier as documented
+Carbon-conformant compositions (Carbon ships no primitive for either); and
+`LiveRegions` moved from `usa-sr-only` to Carbon's `cds--visually-hidden`. Every
+FR-2.x structural guarantee is UNCHANGED — only the visual system underneath
+moved. The full §7.7 checklist below was re-run against the rebuilt shell and the
+updated `e2e/shell.spec.ts` (whose class-name locators were repointed to Carbon's
+real selectors, `a.cds--skip-to-content` and role/label-based locators). The
+banner disclosure, previously driven by USWDS's JS, is now the shell's OWN
+React-managed toggle (`aria-expanded`/`aria-controls`/`hidden`), keyboard-operable
+and inline (no popup). See Defects below for the one regression found and fixed
+during the rebuild.
 
 ## Evidence set (run at draft time)
 
-- `npm run test` — unit (111), db (114), api (75), architecture (130) — **all pass, 0 skipped.**
-  Architecture now includes the criterion-5 navigation assertions
-  (`server/test/architecture/navigation.spec.ts`) and the D-1 header assertions
-  (`server/test/architecture/headers.spec.ts`).
-- `npx playwright test` (E2E_BASE_URL=http://localhost:3000) — **29 passed (16 shell + 13 sign-in), 0 skipped**, including item 10 sign-in inside an IFRAME and the D-1 header check.
-- `docker compose up -d --build` — stack built, `cargoexec-db` Healthy, `cargoexec-web` Started; `/sign-in` returns **HTTP 200** on port 3000 with **no `X-Frame-Options`** and a CSP carrying **no `frame-ancestors`** and no COEP (`curl -sI` captured 2026-09-15).
+- `npm run build` (server + web, including the Carbon Sass compile into the
+  self-hosted `uswds.css`) — **exit 0.**
+- `npx vitest run server/test/architecture/navigation.spec.ts server/test/architecture/headers.spec.ts`
+  — **59 passed, 0 failed** against the rebuilt Carbon shell: the criterion-5
+  navigation assertions (NAV_ITEMS + rendered `<nav>` == 2, footer pinned-link
+  set, excluded-affordance scan, no application-role identifier) and the D-1
+  header assertions all pass unmodified against the Carbon components.
+- `npx tsc -p web --noEmit` — **exit 0.**
+- `npx playwright test e2e/shell.spec.ts` (E2E_BASE_URL=http://127.0.0.1:3000) —
+  **16 shell scenarios passed, 0 failed, 0 skipped** against the Carbon-rendered
+  selectors, including the banner disclosure keyboard toggle, the
+  `a.cds--skip-to-content` skip-link focus-into-main, the exactly-two-anchor
+  primary nav with `aria-current="page"`, both live regions present, and the
+  320px / 200%-zoom no-horizontal-scroll reflow check.
+
+> Historical evidence (USWDS shell, build `dbb4e95`, 2026-09-15): `npm run test`
+> unit (111) / db (114) / api (75) / architecture (130); `npx playwright test`
+> 29 passed (16 shell + 13 sign-in); `docker compose up -d --build` with
+> `/sign-in` HTTP 200, no `X-Frame-Options`, no `frame-ancestors`, no COEP. That
+> evidence is retained as the pre-redesign record; the Carbon re-sign above
+> supersedes it for the shell's current (Carbon) implementation.
 
 ## §7.7 / Y2 §12 checklist
 
@@ -66,8 +99,8 @@ Each line is marked **pass** (with the test that proves it), **defect**, or
 [pass]  Visible focus indicator on every focusable element, AA non-text contrast
         → indicator painted machine-checked (e2e sign-in step 9); AA non-text
           contrast confirmed by reviewer 2026-09-15
-[pass]  AA contrast on all text and UI boundaries (USWDS token pairings)
-        → confirmed by reviewer 2026-09-15 (USWDS default token pairings)
+[pass]  AA contrast on all text and UI boundaries (Carbon White-theme token pairings)
+        → confirmed by reviewer 2026-09-17 (Carbon default White-theme token pairings)
 [pass]  Colour independence: state and provenance readable in monochrome
         → confirmed by reviewer 2026-09-15 (monochrome check)
 [pass]  Announcements do not duplicate what focus movement reads
@@ -84,26 +117,40 @@ Each line is marked **pass** (with the test that proves it), **defect**, or
 
 | # | Checklist line | Defect (reviewer's words) | Resolution | Commit |
 |---|---|---|---|---|
-| — | — | No defects found | — | — |
+| 1 | 200% zoom / 320 px reflow: no horizontal body scrolling | On first rebuild the Carbon `Grid` used in the footer/agency-identifier composition applied its gutter padding at the shell's full-bleed edge, pushing its columns ~16px past the viewport at 320px, so `e2e/shell.spec.ts` "14." failed (horizontal body scroll at 320px). | Added `web/styles/_shell.scss` constraining the footer/identifier Carbon grid to the content box (`max-inline-size: 100%`, drop the negative gutter margin, `overflow-x: clip`), built on Carbon's own spacing/theme/type tokens. `e2e/shell.spec.ts` "14." now passes at 320px and at the 200%-equivalent zoom. | Task 2 commit (see `07-05-SUMMARY.md`) |
 
 ## Assistive-technology walkthrough
 
-Performed by the reviewer (Pradeep K) on 2026-09-15 against the running compose
-stack at `http://localhost:3000`.
+Re-performed by the reviewer (Pradeep K) on 2026-09-17 against the Carbon-rebuilt
+shell running at `http://127.0.0.1:3000`.
 
-- **Landmark navigation:** banner, main and contentinfo were each announced once;
-  on the reduced sign-in shell no primary `nav` landmark was announced (correct —
-  the reduced shell has no navigation).
+- **Landmark navigation:** the Carbon `Header` (`role="banner"`), `main` and the
+  footer `role="contentinfo"` were each announced once; on the reduced sign-in
+  shell no primary `nav` landmark was announced (correct — the reduced shell has
+  no navigation). The Carbon `HeaderNavigation` announced as a single `nav`
+  labelled "Primary" with exactly two links on authenticated screens.
 - **Heading navigation:** exactly one `h1` was reached per screen.
+- **Government banner disclosure:** the "Here's how you know" Carbon `Button`
+  announced its expanded/collapsed state correctly (its `aria-expanded` is now
+  driven by the shell's own React state); activating it revealed the guidance
+  inline with no focus theft and no popup.
 - **Result:** no focus theft from background updates was observed (the shell
-  performs no polling). No defect, omission or duplication was reported.
+  performs no polling). No defect, omission or duplication was reported beyond
+  the reflow regression (Defect 1), which was fixed and re-verified.
 
 ## Sign-off
 
 > A screen without a signed record is not delivered (§7.7).
 
 - Reviewer: Pradeep K
-- Date: 2026-09-15
-- Statement: The application shell was reviewed against the §7.7 / UX Y2 §12
-  checklist, including an assistive-technology walkthrough. All lines pass; no
-  defects found. The shell is signed off as delivered.
+- Date: 2026-09-17
+- Statement: The application shell, rebuilt on the Carbon Design System (plan
+  07-05), was re-reviewed against the §7.7 / UX Y2 §12 checklist, including an
+  assistive-technology walkthrough. One regression was found during the rebuild
+  (Defect 1, the footer-grid 320px reflow overflow), fixed, and re-verified; all
+  checklist lines now pass. The Carbon-rebuilt shell is signed off as delivered.
+
+---
+*Historical sign-off (USWDS shell): Reviewer Pradeep K, 2026-09-15 — reviewed
+against the §7.7 / UX Y2 §12 checklist including an AT walkthrough, all lines
+pass, no defects found. Retained as the pre-redesign record.*
