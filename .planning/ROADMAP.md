@@ -30,7 +30,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: The Receipt-Ordered Queue** - One list, one order, nothing to choose — open the next case in a single action (completed 2007-09-15)
 - [x] **Phase 5: AI Recommendation as an Un-Applied Proposal** - Read the case, the AI's action and its rationale, with machine values marked as such (completed 2007-09-16)
 - [x] **Phase 6: The Human Decision and the Record That Explains It** - Edit / approve / reject with a reason, read the trail in place — **the loop closes here** (completed 2007-09-16)
-- [ ] **Phase 7: Redesign UI, seeded demo data, and real LLM integration** - An operator-run seed script pre-loads one fully-lifecycled case, the deployment defaults toward a real hosted LLM, and USWDS coupling is inventoried with a token seam prepared for a future visual redesign (depends on Phase 6)
+- [ ] **Phase 7: Redesign UI, seeded demo data, and real LLM integration** - An operator-run seed script pre-loads one fully-lifecycled case, the deployment defaults toward a real hosted LLM, and the UI is fully redesigned from USWDS onto the Carbon Design System (depends on Phase 6)
 
 ## Phase Details
 
@@ -216,21 +216,30 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 7. Redesign UI, seeded demo data, and real LLM integration | 0/3 | Not started | — |
 
 ### Phase 7: Redesign UI, seeded demo data, and real LLM integration
-**Goal**: The demonstration is walkable without hand-typing every stage first — an operator-run seed script pre-loads one case already carried through the whole governed loop; the deployed AI now defaults toward a real hosted model rather than the deterministic fake; and the USWDS-coupled UI is inventoried and given a token seam so a future visual redesign — still blocked on an external design file that returned 403 during scoping — is a swap, not a rewrite, with today's rendered screens left unchanged.
+**Goal**: The demonstration is walkable without hand-typing every stage first — an operator-run seed script pre-loads one case already carried through the whole governed loop; the deployed AI now defaults toward a real hosted model rather than the deterministic fake; and the entire UI is redesigned from USWDS onto the Carbon Design System (`@carbon/react`), the user's named replacement, with every FR-2.x accessibility guarantee re-verified per screen rather than merely re-hosted.
 **Status**: Not started
 **Depends on**: Phase 6
-**Requirements**: F15 (new); F9 (deployment posture only — FR-9.20); F2 (infrastructure/preparation only — no visual reskinning)
-**Non-functional carried**: NFR-1 (conformance mechanism re-verification deferred to the still-blocked redesign; this phase only re-verifies the mechanism is swappable, not the design itself)
+**Requirements**: F15 (new); F9 (deployment posture only — FR-9.20); F2 (full visual redesign onto Carbon — shell + all six screens, conformance register re-authored, every per-screen a11y record re-signed)
+**Non-functional carried**: NFR-1 (USWDS conformance requirement now satisfied by Carbon conformance, re-verified per screen — the redesign that 07-03 prepared for and could not yet perform, performed here); NFR-2 (Section 508 / WCAG 2.1 AA re-verified per screen against the Carbon rebuild, no CI gate, ever)
 **Success Criteria** (what must be TRUE):
   1. Running the seed script against a freshly migrated database produces exactly one demonstration case already `RESOLVED` via `EDIT_APPROVE`, with mixed AI/HUMAN provenance on its resolution and a chain-verified audit trail; running it again immediately creates nothing and exits 0. *(no screen)*
   2. The seed script is reachable only as an operator command — no route, UI control, or schedule invokes it, and manual entry (F6) is unaffected. *(no screen)*
   3. A fresh deployment refuses to boot with a silently-defaulted fake AI provider: `AI_PROVIDER_URL` must be set explicitly — a real hosted endpoint for any demonstration/production run, or the literal `fake:deterministic` only as a deliberate, documented override. *(no screen)*
-  4. Every USWDS coupling point in the current UI is catalogued in one document, and a design-token seam exists that a future redesign can override — with today's rendered screens, USWDS wiring, and CSP left unchanged. *(no screen)*
-  5. Nothing shipped in this phase invents a replacement visual design, a new component, or a new colour — the actual redesign stays explicitly deferred until the approved design is accessible.
-**Plans**: 3 plans in 1 wave
+  4. Every screen in the product (shell, sign-in, queue, case detail, decision, audit trail) renders on the Carbon Design System, with zero `@uswds/uswds` dependency remaining and zero `usa-*` class in any shipped stylesheet or `.tsx` file.
+  5. Every FR-2.x structural/accessibility guarantee (landmarks, skip link, exactly two nav items, focus management, live regions, colour-independent provenance, equal-weight decision actions, no sortable queue column) survives the redesign, proven by a green `npm run test && npm run test:e2e` and a re-signed `docs/a11y/{screen}.md` per screen.
+  6. A concrete Carbon theme (White) is chosen and documented with reasoning — not left as an open decision.
+**Plans**: 11 plans in 6 waves
 Plans:
 - [ ] 07-01-PLAN.md — F15 idempotent, stage-resumable seed script + the narrow one-seed-file architecture-test exception (wave 1)
 - [ ] 07-02-PLAN.md — F9 deployment posture: AI_PROVIDER_URL loses its silent fake default, real-provider operator docs (wave 1)
 - [ ] 07-03-PLAN.md — F2 USWDS coupling audit + design-token abstraction seam, behaviour-preserving (wave 1)
+- [ ] 07-04-PLAN.md — F2 redesign: install Carbon Design System (@carbon/react), White theme chosen, additive alongside USWDS (wave 2)
+- [ ] 07-05-PLAN.md — F2 redesign: shell rebuilt on Carbon (skip link, government banner, header/nav, footer, live regions) + shell a11y re-sign (wave 3)
+- [ ] 07-06-PLAN.md — F2 redesign: shared component library rebuilt on Carbon (form pattern, error summary, provenance badge, shared states) (wave 3)
+- [ ] 07-07-PLAN.md — F2 redesign: sign-in + fallback screens rebuilt on Carbon + sign-in a11y re-sign (wave 4)
+- [ ] 07-08-PLAN.md — F2 redesign: review queue rebuilt on Carbon's non-sortable table primitives + queue a11y re-sign (wave 4)
+- [ ] 07-09-PLAN.md — F2 redesign: case-detail core sections (header/nav/entry/findings/recommendation) rebuilt on Carbon (wave 4)
+- [ ] 07-10-PLAN.md — F2 redesign: decision panel + audit trail rebuilt on Carbon; joint case-detail a11y sign-off closed (wave 5)
+- [ ] 07-11-PLAN.md — F2 redesign: USWDS fully removed from dependency tree/pipeline; architecture tests re-verified; full regression gate (wave 6)
 
-*This phase adds no loop stage (the loop already closed end to end at Phase 6). F15 is an operator-only shortcut alongside the existing manual-entry path; F9's change is deployment posture, not architecture; F2's work is explicitly preparation, not the redesign itself — the source design remained inaccessible (403) throughout this phase's scoping.*
+*This phase adds no loop stage (the loop already closed end to end at Phase 6). F15 is an operator-only shortcut alongside the existing manual-entry path; F9's change is deployment posture, not architecture. F2's work spans two sub-waves: 07-03 prepared (audit + token seam, no visual change) while the replacement design remained inaccessible (403); once the user named the Carbon Design System as the concrete replacement, 07-04 through 07-11 perform the actual redesign — installing @carbon/react, rebuilding the shell and every screen, re-signing every per-screen accessibility record, and removing USWDS entirely once nothing depends on it.*
