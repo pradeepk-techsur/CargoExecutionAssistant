@@ -48,6 +48,13 @@ overwrites the other.
 | Case-detail AI-recommendation "AI-suggested resolution" whole-recommendation tag | Carbon `Tag` (`type="purple"`, matching the per-value AI badge colour carrier) — a whole-recommendation marker, not a per-value badge (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
 | Case-detail AI-recommendation comparison rows (AI vs HUMAN per value) | **Composition:** a native `<dl>` styled with Carbon spacing tokens (`.cargoexec-detail-list.cargoexec-comparison-rows`), each row showing the submitted (HUMAN) value with its badge and the AI-suggested value with its badge — both via the unchanged 07-06 `ProvenanceBadge`; rationale as plain `<p>` paragraphs (no accordion/collapse, FR-10.4). Carbon ships no definition-list/comparison primitive (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
 | Case-detail AI-recommendation PENDING / stale / UNAVAILABLE presentations | Carbon `Loading` (region-scoped, from shared `states.tsx`, 07-06) for PENDING; Carbon `Degraded` (`InlineNotification kind="warning"`+`role="status"`, 07-06) for stale-PENDING and UNAVAILABLE — the "not an error" distinction (UX Pattern 8), never `ErrorState`; polling timing logic unchanged (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Review-queue open-exceptions table | **Composition:** Carbon's PLAIN table primitives — `Table` / `TableHead` / `TableRow` / `TableHeader` / `TableBody` / `TableCell` — composed BY HAND, with a native `<caption>`, four `TableHeader` cells rendered with **NO `isSortable`/`onClick`** (so each emits a bare `<th scope="col">` with no sort button, no `aria-sort`, no sort icon — verified against `@carbon/react`'s `TableHeader` source, which early-returns a plain `<th>` when `isSortable` is false), one row per exception IN SERVER (receipt) ORDER, inside a project-owned scrollable focusable region (`role="region"` / `tabIndex={0}`) for the 320px reflow requirement (FR-2.19). Emphatically **NOT** Carbon's `DataTable` batteries-included sort/filter pattern — that distinction is load-bearing because FR-8.3 / phase-criterion-4 REQUIRE the review queue to have no sort control, no filter, no assignment and no priority affordance anywhere in the DOM (`Queue.tsx`) | Review queue | `docs/a11y/queue.md` |
+| Review-queue truncation notice | Carbon `InlineNotification kind="info"` (`role="status"`, `lowContrast`, `hideCloseButton`) stating "Showing the first 500 open exceptions in receipt order." — no pagination (FR-8.12) (`Queue.tsx`) | Review queue | `docs/a11y/queue.md` |
+| Review-queue Refresh + "New cargo entry" actions | Carbon `Button` — Refresh as `kind="tertiary"` (explicit-refresh only, FR-8.10); "New cargo entry" as `Button as={Link} kind="tertiary"` (outline-equivalent weight, react-router client-side navigation) (`Queue.tsx`) | Review queue | `docs/a11y/queue.md` |
+| Sign-in form + layout | The shared form pattern (`Field`/`SubmitButton`/`UswdsForm`/`ErrorSummary`, 07-06, UNCHANGED) laid out in Carbon `Grid`/`Column` (`sm=4 md=4 lg=6`, replacing the USWDS `grid-row`/`grid-col-12 tablet:grid-col-6 desktop:grid-col-4`); the sign-in exception is preserved — one generic fieldless error item on credential failure, NO `aria-invalid` on any input, no per-field leak (`SignIn.tsx`) | Sign in | `docs/a11y/sign-in.md` (re-signed 07-07) |
+| Sign-in session notices (expired / signed-out) | Carbon `InlineNotification` — `kind="info"` "Your session expired. Sign in again to continue." and `kind="success"` "You are signed out." — each `role="status"` (a polite announcement, not an alert), `lowContrast`, `hideCloseButton`, replacing the inline `usa-alert--info` / `usa-alert--success`; the reason is read from a fixed `URLSearchParams` allowlist (`'expired'`/`'signed-out'`), never raw query content (T-07-21) (`SignIn.tsx`) | Sign in | `docs/a11y/sign-in.md` (re-signed 07-07) |
+| NotBuiltYet transitional placeholder notice | Carbon `InlineNotification kind="info"` (`role="status"`, `lowContrast`, `hideCloseButton`) with an in-notice react-router `Link` to the OTHER nav destination (reads `NAV_ITEMS`, unchanged since 07-05), replacing `usa-alert--info`; renders NO disabled control, no "coming soon" chip, no tooltip (UX Pattern 7 / FR-12.11) (`NotBuiltYet.tsx`) | /entries/new placeholder (transitional) | `docs/a11y/shell.md` (fallback screens) |
+| NotFound screen | Plain prose (`h1` + paragraph + a react-router `Link` back to `/queue`), Carbon typography via the shell's tokens; no alert/status role (a dead route is not an error condition to announce), focus moved to the `h1` and title announced on mount (unchanged `useScreenFocus`) (`NotFound.tsx`) | `*` not-found route | `docs/a11y/shell.md` (fallback screens) |
 
 ## Notes on the compositions
 
@@ -164,6 +171,34 @@ overwrites the other.
   is verbatim wording (UX Pattern 2, P2), and the rationale is plain `<p>`
   paragraphs — never an accordion or any collapsing control (FR-10.4). Registered
   so the composition is auditable and re-reviewed whenever it changes.
+- **Review-queue open-exceptions table** is a composition of Carbon's PLAIN table
+  primitives, and it is registered precisely because the SAFE way to build a
+  Carbon table for this product is NOT the obvious one. Carbon's headline table
+  offering is `DataTable`, a batteries-included component whose default rendering
+  path adds sortable column chrome (a sort `<button>`, `aria-sort`, and an
+  ArrowUp/ArrowsVertical icon on each header). This product's FR-8.3 /
+  phase-criterion-4 REQUIRE the review queue to expose NO sort, NO filter, NO
+  assignment and NO priority affordance anywhere in the DOM (PRD §10 — "absence
+  is designed, not omitted"). So the queue deliberately avoids `DataTable`
+  entirely and hand-composes the lower-level primitives (`Table`, `TableHead`,
+  `TableRow`, `TableHeader`, `TableBody`, `TableCell`), which are the same
+  building blocks `DataTable` itself uses internally but without its sort/filter
+  toolbar and header wiring. The one subtlety, verified against the shipped
+  `@carbon/react` source rather than assumed (T-07-22): `TableHeader` defaults
+  `isSortable` to `false`, and in that state it early-returns a bare
+  `<th scope="col">` containing only its label — no button, no `aria-sort`, no
+  icon. Passing `isSortable` (or an `onClick`) would inject the sort button and
+  would be a defect here, so those props are never passed. The rendered-DOM
+  guarantee is proven twice: `e2e/queue.spec.ts` test 2 asserts zero `[aria-sort]`
+  and that every `<th>` is free of any button/link, and
+  `server/test/architecture/navigation.spec.ts` item 4's durable
+  excluded-affordance scan would catch a stray "sort by"/"filter"/"assign"/
+  "priority" string if one ever slipped in. The scrollable focusable wrapper
+  (`role="region"` / `tabIndex={0}` / `aria-label="Open exceptions table"`) is
+  retained around Carbon's `Table` because Carbon's table ships no scroll region
+  of its own, and a wide table must scroll within its own region (not the
+  document body) at 320px (FR-2.19). This mirrors the emphasis the retired USWDS
+  register placed on the same absence guarantee, now re-established on Carbon.
 
 ## Relationship to the USWDS register
 

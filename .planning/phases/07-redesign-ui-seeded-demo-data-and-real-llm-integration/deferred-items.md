@@ -77,3 +77,31 @@ Logged, not fixed, per the SCOPE BOUNDARY rule (execute-plan.md).
   banner/footer composition notes, PRESERVING every 07-06 row and note. Not a
   deferred item — recorded here only as the audit trail of the concurrent-edit
   reconciliation.
+
+## From plan 07-07 (rebuild SignIn / NotBuiltYet / NotFound on Carbon)
+
+### `web/src/screens/CaseDetail.tsx` + `web/src/screens/Queue.tsx` typecheck/build breakage (owner: parallel wave-4 plans 07-09 case-detail, 07-08 queue)
+
+- **Discovered:** running `npm run typecheck` / `npm run build` during 07-07
+  Task 1 verification.
+- **Failing check:** `tsc -p web --noEmit` →
+  `web/src/screens/CaseDetail.tsx(536,10): error TS2304: Cannot find name 'Link'.`
+  (and `(536,49)`). CaseDetail's in-flight edit renamed its `react-router` `Link`
+  import to `RouterLink` / its Carbon link to `CarbonLink`, but a straggler bare
+  `<Link>` on line 536 was not updated by that in-progress work.
+- **Cause (NOT this plan):** `web/src/screens/CaseDetail.tsx` and
+  `web/src/screens/Queue.tsx` are the UNCOMMITTED, in-flight work of the parallel
+  wave-4 siblings **07-09** (case-detail) and **07-08** (queue) sharing this
+  working tree (the coordination note's concurrency case). 07-07 touches ONLY its
+  own three screen files (`SignIn.tsx`, `NotBuiltYet.tsx`, `NotFound.tsx`),
+  `e2e/sign-in.spec.ts`, `docs/a11y/sign-in.md`, and
+  `docs/carbon-conformance-register.md`; it never imports, renders, or edits
+  `CaseDetail.tsx` or `Queue.tsx`.
+- **Proof it is not 07-07's:** `npx tsc -p web --noEmit 2>&1 | grep -i signin`
+  is EMPTY — the sign-in rebuild adds zero typecheck errors; every error names
+  `CaseDetail.tsx`, a file 07-07 has no diff against.
+- **Owner:** plans **07-09** (CaseDetail) and **07-08** (Queue) — each must land
+  its own file compiling clean. Once both siblings commit, the shared
+  `npm run build` / e2e run goes green; 07-07's own screens are already clean.
+  The end-of-phase post-plan gate / gap closure will confirm the full build after
+  all wave-4 plans settle.

@@ -61,10 +61,12 @@ test.describe('sign-in walkthrough', () => {
     page,
   }) => {
     await page.goto(`${BASE}/sign-in`);
-    // Move focus to the very top of the document, then Tab through.
+    // Move focus to the very top of the document, then Tab through. The skip link
+    // is now Carbon's `SkipToContent` (07-05), which renders
+    // `a.cds--skip-to-content` in place of USWDS's `a.usa-skipnav`.
     await page.evaluate(() => {
       (document.activeElement as HTMLElement | null)?.blur();
-      const skip = document.querySelector<HTMLElement>('a.usa-skipnav');
+      const skip = document.querySelector<HTMLElement>('a.cds--skip-to-content');
       skip?.focus();
     });
     // Skip link is focused first.
@@ -212,17 +214,27 @@ test.describe('sign-in walkthrough', () => {
     await typeInto(page, '#signin-password', 'wrong-password-value');
     await page.keyboard.press('Enter');
 
-    const summary = page.locator('[role="alert"].usa-alert--error');
+    // The error summary is now the project-owned focusable container rendered by
+    // ErrorSummary on Carbon `InlineNotification kind="error"` (07-06): a
+    // `div[role="alert"].cargoexec-error-summary`. The assertion here is really
+    // "the error summary alert exists and carries the generic message", so match
+    // it by role (getByRole('alert')) rather than by a USWDS class name.
+    const summary = page.getByRole('alert').filter({
+      hasText: 'Email or password is incorrect.',
+    });
     await expect(summary).toBeVisible();
     await expect(summary).toContainText('Email or password is incorrect.');
 
-    // Focus is ON the summary.
+    // Focus is ON the summary container — the project-owned focus mechanics
+    // (role="alert" + tabIndex=-1 + .focus()) are unchanged across the Carbon
+    // swap; only the container class moved from usa-alert--error to
+    // cargoexec-error-summary.
     const onSummary = await page.evaluate(() => {
       const a = document.activeElement;
       return (
         a !== null &&
         a.getAttribute('role') === 'alert' &&
-        a.classList.contains('usa-alert--error')
+        a.classList.contains('cargoexec-error-summary')
       );
     });
     expect(onSummary).toBe(true);
@@ -247,7 +259,9 @@ test.describe('sign-in walkthrough', () => {
     await typeInto(page, '#signin-password', 'some-other-password');
     await page.keyboard.press('Enter');
 
-    const summary = page.locator('[role="alert"].usa-alert--error');
+    const summary = page.getByRole('alert').filter({
+      hasText: 'Email or password is incorrect.',
+    });
     await expect(summary).toBeVisible();
     await expect(summary).toContainText('Email or password is incorrect.');
 
@@ -256,7 +270,7 @@ test.describe('sign-in walkthrough', () => {
       return (
         a !== null &&
         a.getAttribute('role') === 'alert' &&
-        a.classList.contains('usa-alert--error')
+        a.classList.contains('cargoexec-error-summary')
       );
     });
     expect(onSummary).toBe(true);
@@ -406,7 +420,7 @@ test.describe('sign-in walkthrough', () => {
     // does not measure a contrast ratio, which is the human reviewer's job under
     // §7.7. (The skip link's own affordance is its appearance from off-screen on
     // focus, which is a paint the human reviewer confirms.)
-    const skipOk = await page.locator('a.usa-skipnav').evaluate((el) => {
+    const skipOk = await page.locator('a.cds--skip-to-content').evaluate((el) => {
       (el as HTMLElement).focus();
       const s = getComputedStyle(el);
       return el.matches(':focus') && s.outlineStyle !== 'none';

@@ -18,6 +18,7 @@
 // are spelled obliquely so the affordance-absence grep stays clean.)
 
 import { useEffect, useRef, useState } from 'react';
+import { Column, Grid, InlineNotification } from '@carbon/react';
 import type { ErrorCode } from '@cargoexec/contract';
 import { ERROR_MESSAGES } from '@cargoexec/contract';
 import { useScreenFocus } from '../shell/useScreenFocus.js';
@@ -47,8 +48,9 @@ interface FailureView {
 
 /** Map an ApiClientError to what the screen renders (Screen-00 States table). */
 function viewForError(err: ApiClientError): FailureView {
-  // 422: per-field detail from details[]; inline usa-error-message on the named
-  // field with aria-invalid="true" — the ONLY case that marks a field.
+  // 422: per-field detail from details[]; Carbon renders the named field's
+  // inline invalidText with aria-invalid="true" (via Field, 07-06) — the ONLY
+  // case that marks a field.
   if (err.code === 'REQUEST_MALFORMED' && err.details !== undefined) {
     const items: SummaryItem[] = [];
     const invalid = new Set<string>();
@@ -105,9 +107,11 @@ export function SignIn(): JSX.Element {
   const [failure, setFailure] = useState<FailureView | null>(null);
 
   // The reason we arrived at /sign-in, if any (Screen-00 States):
-  //   expired     → usa-alert--info "Your session expired…"
-  //   signed-out  → usa-alert--success (slim) "You are signed out."
-  // Read once from the URL.
+  //   expired     → Carbon InlineNotification kind="info"    "Your session expired…"
+  //   signed-out  → Carbon InlineNotification kind="success" "You are signed out."
+  // Both carry role="status" (a polite announcement, not an alert). The reason is
+  // read from a fixed URLSearchParams allowlist ('expired'/'signed-out'), never
+  // rendered as raw arbitrary query content (T-07-21). Read once from the URL.
   const params = new URLSearchParams(window.location.search);
   const reason = params.get('reason');
   const arrivedExpired = reason === 'expired';
@@ -166,31 +170,34 @@ export function SignIn(): JSX.Element {
   }
 
   return (
-    <div className="grid-row">
-      <div className="grid-col-12 tablet:grid-col-6 desktop:grid-col-4">
+    // Carbon responsive grid replaces the USWDS grid-row/grid-col layout: the
+    // sign-in column is full width on small, roughly half on medium and a
+    // comfortable ~third on large — the same tablet/desktop narrowing the USWDS
+    // `grid-col-12 tablet:grid-col-6 desktop:grid-col-4` classes provided.
+    <Grid className="cargoexec-signin">
+      <Column sm={4} md={4} lg={6}>
         <h1 tabIndex={-1} ref={h1Ref}>
           Sign in to CargoExec
         </h1>
 
         {arrivedExpired && failure === null && (
-          <div className="usa-alert usa-alert--info" role="status">
-            <div className="usa-alert__body">
-              <p className="usa-alert__text">
-                Your session expired. Sign in again to continue.
-              </p>
-            </div>
-          </div>
+          <InlineNotification
+            kind="info"
+            role="status"
+            lowContrast
+            hideCloseButton
+            title="Your session expired. Sign in again to continue."
+          />
         )}
 
         {arrivedSignedOut && failure === null && (
-          <div
-            className="usa-alert usa-alert--success usa-alert--slim"
+          <InlineNotification
+            kind="success"
             role="status"
-          >
-            <div className="usa-alert__body">
-              <p className="usa-alert__text">You are signed out.</p>
-            </div>
-          </div>
+            lowContrast
+            hideCloseButton
+            title="You are signed out."
+          />
         )}
 
         <UswdsForm
@@ -199,13 +206,14 @@ export function SignIn(): JSX.Element {
             void onSubmit();
           }}
           ariaLabel="Sign in"
-          className="usa-form--large"
         >
           {/* The error summary is the FIRST CHILD of the form region, above the
               fields, so it is encountered before them (US-2.4). */}
           {failure !== null && <ErrorSummary items={failure.items} />}
 
-          <p className="usa-hint">A star (*) marks required information.</p>
+          <p className="cargoexec-required-note">
+            A star (*) marks required information.
+          </p>
 
           <Field
             id={EMAIL_ID}
@@ -230,7 +238,7 @@ export function SignIn(): JSX.Element {
 
           <SubmitButton busy={busy} idleLabel="Sign in" busyLabel="Signing in…" />
         </UswdsForm>
-      </div>
-    </div>
+      </Column>
+    </Grid>
   );
 }

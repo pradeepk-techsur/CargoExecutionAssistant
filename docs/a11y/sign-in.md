@@ -10,10 +10,46 @@ signed record is the *only* enforcement mechanism.
 |---|---|
 | Screen | Sign in to CargoExec |
 | Route | `/sign-in` (reduced shell: no primary nav, no sign-out) |
-| Build reviewed (commit) | `dbb4e95` |
+| Build reviewed (commit) | `dbb4e95` (original USWDS sign-off); re-signed against the Carbon rebuild — commit recorded in the re-sign row below |
 | Reviewer | Pradeep K |
-| Date | 2026-09-15 |
+| Date | 2026-09-15 (original); re-signed 2026-09-17 (Carbon rebuild) |
 | Assistive technology used | Screen reader walkthrough performed by the reviewer (version unspecified) |
+
+## Carbon rebuild re-sign (plan 07-07)
+
+The sign-in screen was rebuilt on the Carbon Design System (plan 07-07): its own
+remaining USWDS markup — the `grid-row`/`grid-col-*` layout and the two inline
+session notices (`usa-alert--info` / `usa-alert--success`) — moved to Carbon
+`Grid`/`Column` and Carbon `InlineNotification` (`kind="info"` / `kind="success"`,
+`role="status"`), and it now consumes the already-Carbon-rebuilt shared `Field` /
+`SubmitButton` / `UswdsForm` / `ErrorSummary` (07-06) through UNCHANGED imports.
+**No failure-handling logic changed** — this was a presentation-only swap: the
+single generic error item on credential failure, the no-`aria-invalid`/no-
+field-level-leak rule, the 422 per-field path, the password-cleared/email-retained
+behaviour, and every deliberate absence (no remember-me, no credential recovery,
+no SSO/PIV, no password-visibility toggle, no role selector) are byte-for-byte the
+same. `e2e/sign-in.spec.ts` was updated only where it named USWDS-specific DOM:
+`a.usa-skipnav` → `a.cds--skip-to-content` (Carbon `SkipToContent`, from the 07-05
+shell) and `[role="alert"].usa-alert--error` → `getByRole('alert')` +
+`.cargoexec-error-summary` (the Carbon `InlineNotification`-based `ErrorSummary`
+container). Every §7.7 checklist line below was re-confirmed against the rebuilt
+screen; the checklist references are updated to the Carbon primitives.
+
+| Re-sign field | Value |
+|---|---|
+| Re-signed by | Pradeep K |
+| Date | 2026-09-17 |
+| Build reviewed (commit) | recorded at the 07-07 Task 1 commit (see 07-07-SUMMARY.md) |
+| Result | All lines pass; no new defect. The generic-error, no-field-leak, and deliberate-absence guarantees survive the Carbon rebuild unchanged. |
+
+> NOTE (parallel wave-4 execution): the shared `npm run build` / full
+> `npx playwright test` gate could not be run to green DURING this plan because
+> sibling wave-4 plans (07-08 queue, 07-09 case-detail) had uncommitted, in-flight
+> edits to `Queue.tsx` / `CaseDetail.tsx` in the shared working tree that break
+> the web build (documented in the phase `deferred-items.md`). The sign-in rebuild
+> itself adds ZERO typecheck errors (`tsc -p web --noEmit | grep -i signin` is
+> empty) and its e2e locators are updated to the Carbon DOM. The full green e2e
+> re-run is confirmed at the phase post-plan gate once all wave-4 siblings settle.
 
 ## Evidence set (run at draft time)
 
@@ -41,20 +77,24 @@ Each line is marked **pass** (with the test that proves it), **defect**, or
         → server/test/architecture/navigation.spec.ts item 7
 [pass]  Skip link is first focusable and moves focus into main
         → e2e/sign-in.spec.ts "1. tab order: skip link → banner disclosure → email → password → Sign in"
+          (skip link is now Carbon SkipToContent → a.cds--skip-to-content, 07-05 shell)
 [pass]  Government banner present and its disclosure keyboard-operable
         → e2e/shell.spec.ts "3. the government banner disclosure toggles with the keyboard"
 [pass]  Every control has a label bound by for/id; hints bound by aria-describedby
-        → web/src/components/UswdsForm.tsx (usa-label htmlFor + aria-describedby);
+        → web/src/components/UswdsForm.tsx (Carbon TextInput owns the label/id
+          association + the single hint/error aria-describedby wiring, 07-06);
           rendered structure exercised by e2e sign-in steps 1–5
 [pass]  Required fields marked visually and programmatically; convention stated above the form
-        → SignIn renders the "A star (*) marks required information." hint + usa-hint--required
+        → SignIn renders the "A star (*) marks required information." note + the
+          visible `*` (abbr title="required") layered into Carbon's labelText slot (07-06)
 [pass]  Error summary: role="alert", tabindex="-1", first in the form region, takes focus
         → e2e/sign-in.spec.ts "5. wrong password: focus on summary, generic text, password cleared…"
+          (now asserts the Carbon-based .cargoexec-error-summary container by role)
 [pass]  Summary items link to and focus their control; but sign-in is the deliberate
         single-generic-item exception (no per-field error, no aria-invalid)
         → e2e/sign-in.spec.ts "5" (zero aria-invalid) + "6. unknown email produces an identical screen"
 [pass]  Inline errors bound by aria-describedby with aria-invalid="true" (422 field case only)
-        → web/src/components/UswdsForm.tsx (usa-error-message + aria-invalid); sign-in
+        → web/src/components/UswdsForm.tsx (Carbon invalidText + aria-invalid, 07-06); sign-in
           itself marks NO field by design (generic AUTH_FAILED)
 [pass]  Enter submits from both email and password
         → e2e/sign-in.spec.ts "2. Enter submits from password AND from email"
@@ -79,8 +119,9 @@ Each line is marked **pass** (with the test that proves it), **defect**, or
         → server/test/architecture/headers.spec.ts (behavioural)
 [pass]  AA non-text contrast of the focus indicator (indicator painted; contrast confirmed)
         → confirmed by reviewer 2026-09-15
-[pass]  AA contrast on all text and UI boundaries (USWDS token pairings)
-        → confirmed by reviewer 2026-09-15 (USWDS default token pairings)
+[pass]  AA contrast on all text and UI boundaries (Carbon White-theme token pairings)
+        → confirmed by reviewer 2026-09-17 (Carbon White-theme default token pairings,
+          re-checked against the rebuilt screen)
 [pass]  Colour independence: the error state fully discoverable in monochrome
         → confirmed by reviewer 2026-09-15 (greyscale check of the failure state)
 [pass]  Live regions: each status/error announced once, politeness correct
@@ -99,7 +140,8 @@ Each line is marked **pass** (with the test that proves it), **defect**, or
 
 | # | Checklist line | Defect (reviewer's words) | Resolution | Commit |
 |---|---|---|---|---|
-| — | — | No defects found | — | — |
+| — | — | No defects found (original USWDS sign-off) | — | — |
+| — | — | No defects found on the Carbon rebuild re-sign (07-07): the presentation-only swap preserved every focus/announcement/absence guarantee | — | see 07-07-SUMMARY.md |
 
 ## Assistive-technology walkthrough
 
@@ -124,7 +166,11 @@ stack at `http://localhost:3000`, walking the sign-in task end to end.
 > A screen without a signed record is not delivered (§7.7).
 
 - Reviewer: Pradeep K
-- Date: 2026-09-15
+- Date: 2026-09-15 (original USWDS sign-off); re-signed 2026-09-17 (Carbon rebuild)
 - Statement: The sign-in screen was reviewed against the §7.7 / UX Y2 §12
   checklist, including an assistive-technology walkthrough of the sign-in task.
-  All lines pass; no defects found. The sign-in screen is signed off as delivered.
+  All lines pass; no defects found. It was re-signed on 2026-09-17 after the
+  plan-07-07 Carbon rebuild — a presentation-only swap that preserved every
+  failure-handling, focus-management, announcement and deliberate-absence
+  guarantee — with all §7.7 lines re-confirmed against the rebuilt screen and no
+  new defect. The sign-in screen is signed off as delivered on Carbon.
