@@ -13,7 +13,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve, relative, sep } from 'node:path';
+import { dirname, join, resolve, relative, sep, basename } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // server/test/architecture -> repository root
@@ -308,6 +308,54 @@ describe('architecture — no seed/ingest/export/rbac surface (TechArch §1A.1 "
       ).toBe(false);
     });
   }
+});
+
+describe('architecture — exactly one seed-named file exists (F15, TechArch §1A.1a/§8.9)', () => {
+  // F15 REVERSES exactly one v1 exclusion (PRD §10 #7's "no seeded demonstration
+  // dataset") with a SINGLE, named, reviewed file. This asserts that reversal is
+  // narrow: the ONLY file in the repository whose name contains "seed" is
+  // server/src/cli/seed-demo-case.ts. The general FORBIDDEN_DIRS ban (no seeds/
+  // directory) and the migration-INSERT ban above stay UNMODIFIED — this is a
+  // scoped exception, not a hole for a second seed mechanism.
+  //
+  // Scoped to filenames containing "seed" — deliberately NOT "fixture", because
+  // server/test/helpers/caseFixtures.ts already exists and is NOT a seed/fixture
+  // LOADER (it is a test-only builder constructing data through the public API,
+  // §8.2). TechArch §1A.1a's own wording is "the only file whose name contains
+  // `seed`", not `fixture` — matched precisely so this does not collide with the
+  // pre-existing helper.
+  //
+  // The scan covers the CODE trees where a real seed MECHANISM would live
+  // (server/, web/, db/) — a second seed loader, script, migration or helper.
+  // It deliberately excludes prose trees (project_specs/, docs/, .planning/) and
+  // the platform's own agent tooling (.opencode/): F15's own FRD/user-story
+  // files and its required FR-15.9 runbook (docs/seed-demo-case.md) legitimately
+  // carry "seed" in their names, and a spec/doc named after the feature is not a
+  // second seed mechanism. This is the whole point of the exception — narrow it
+  // to executable seed code, not documentation of it (recorded as a deviation in
+  // the 07-01 SUMMARY).
+  const SEED_SCAN_ROOTS = [
+    join(REPO_ROOT, 'server'),
+    join(REPO_ROOT, 'web'),
+    join(REPO_ROOT, 'db'),
+  ];
+  it('server/src/cli/seed-demo-case.ts is the only seed-named file in the code trees', () => {
+    const offenders: string[] = [];
+    for (const root of SEED_SCAN_ROOTS) {
+      for (const file of walk(root)) {
+        const rel = relative(REPO_ROOT, file).split(sep).join('/');
+        if (/seed/i.test(basename(rel)) && rel !== 'server/src/cli/seed-demo-case.ts') {
+          offenders.push(rel);
+        }
+      }
+    }
+    expect(
+      offenders,
+      `Unexpected seed-named file(s): ${offenders.join(', ')}. F15 is a single, ` +
+        'named, reviewed exception (server/src/cli/seed-demo-case.ts) — not a ' +
+        'hole for a second seed mechanism (TechArch §1A.1a).',
+    ).toEqual([]);
+  });
 });
 
 describe('architecture — migrations contain no domain data (TEST-ARCH-11, FR-0.18, FR-Y0.4)', () => {

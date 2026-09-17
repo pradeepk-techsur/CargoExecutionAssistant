@@ -18,7 +18,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve, relative } from 'node:path';
+import { dirname, join, resolve, relative, sep, basename } from 'node:path';
 
 import { API_ROUTE_TABLE } from '../../src/http/routes/index.js';
 
@@ -287,6 +287,40 @@ describe('domain lists are compiled-in, not tables or seeds (FR-4.1)', () => {
       offenders,
       'No seeds/ or fixtures/ directory may exist: the record starts empty and ' +
         'domain lists are compiled-in (FR-4.1, PRD §10 #7).\n' + offenders.join('\n'),
+    ).toEqual([]);
+  });
+
+  // F15's narrow one-seed-file exception, MIRRORED here — intentionally
+  // duplicated per TechArch §1A.1a/§8.9, which names BOTH absence.spec.ts and
+  // this file ("Both tests are updated, not weakened"). The general "no seeds/
+  // or fixtures/ directory" ban above is untouched: PRD §10 #7 is reversed for
+  // exactly ONE named file (server/src/cli/seed-demo-case.ts) and no other.
+  //
+  // Like the mirror in absence.spec.ts, the scan covers the CODE trees where a
+  // real seed MECHANISM would live (server/, web/, db/), not the prose trees
+  // (project_specs/, docs/) — F15's own spec files and its required FR-15.9
+  // runbook (docs/seed-demo-case.md) carry "seed" in their names but are
+  // documentation, not a second seed mechanism.
+  it('server/src/cli/seed-demo-case.ts is the only seed-named file in the code trees (F15)', () => {
+    const SCAN_ROOTS = [
+      join(REPO_ROOT, 'server'),
+      join(REPO_ROOT, 'web'),
+      join(REPO_ROOT, 'db'),
+    ];
+    const offenders: string[] = [];
+    for (const root of SCAN_ROOTS) {
+      for (const file of walk(root, () => true)) {
+        const rel = relative(REPO_ROOT, file).split(sep).join('/');
+        if (/seed/i.test(basename(rel)) && rel !== 'server/src/cli/seed-demo-case.ts') {
+          offenders.push(rel);
+        }
+      }
+    }
+    expect(
+      offenders,
+      `Unexpected seed-named file(s): ${offenders.join(', ')}. F15 is a single, ` +
+        'named, reviewed exception (server/src/cli/seed-demo-case.ts), not a hole ' +
+        'for a second seed mechanism (TechArch §1A.1a/§8.9).',
     ).toEqual([]);
   });
 });

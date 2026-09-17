@@ -114,6 +114,7 @@ There is **no CI workflow and no automated accessibility gate** in v1 (PRD §10
 docker compose down -v
 ```
 
-This removes the database volume. There is no in-application reset and no seed
-step to re-run, because the audit tables cannot be truncated (§8.8): a reset is
-a new volume, not a mutation of the old one.
+This removes the database volume. There is no in-application reset, because the
+audit tables cannot be truncated (§8.8): a reset is a new volume, not a mutation
+of the old one. If you want the demonstration case back after a reset, re-run
+`npm run seed:demo-case` (see `docs/seed-demo-case.md`).
