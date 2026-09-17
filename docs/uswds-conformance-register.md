@@ -101,3 +101,9 @@ When a later phase ships a new interactive control:
    it is USWDS-conformant.
 3. Never remove or rewrite an existing row; the register is append-only across
    phases.
+
+## Superseded
+
+> Superseded by `docs/carbon-conformance-register.md` as of Phase 7's Carbon
+> adoption; this file is retained as the historical record of what shipped
+> through Phase 6.
