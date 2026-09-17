@@ -1,4 +1,7 @@
-// The F8 review-queue screen (UX Screen; F8 FR-8.1 … FR-8.14; Phase 4 goal).
+// The F8 review-queue screen (UX Screen; F8 FR-8.1 … FR-8.14; Phase 4 goal),
+// rebuilt on the **Carbon Design System** (`@carbon/react`) in place of USWDS
+// (Phase 7, plan 07-08). Every behavioural detail is UNCHANGED — only the
+// rendered DOM moved from `usa-*` markup to Carbon components.
 //
 // This is the phase's user-facing deliverable: "she spends her attention
 // deciding cases rather than deciding which case to decide." Every open
@@ -8,8 +11,18 @@
 // DELIBERATELY ABSENT (FR-8.3, phase criterion 4, PRD §10): there is NO filter,
 // NO sortable column, NO assignment, NO ageing/priority control, NO search box
 // anywhere in the rendered DOM. The only interactive elements are the per-row
-// case links, the Refresh button, and the "New cargo entry" link. Column
-// headers are PLAIN TEXT `<th scope="col">` — no button, no aria-sort, no icon.
+// case links, the Refresh button, and the "New cargo entry" link.
+//
+// THE CARBON-TABLE RISK (T-07-22): Carbon's table family defaults toward a
+// SORTABLE affordance when driven through `DataTable`. This screen therefore
+// composes Carbon's PLAIN table primitives BY HAND — `Table`, `TableHead`,
+// `TableRow`, `TableHeader`, `TableBody`, `TableCell` — and NEVER `DataTable`.
+// Crucially, `TableHeader` is rendered with NO `isSortable`/`onClick` prop: in
+// that configuration (verified against @carbon/react's TableHeader source, which
+// early-returns a bare `<th scope>` when `isSortable` is false) it emits a plain
+// `<th scope="col">` with NO button, NO `aria-sort`, and NO sort icon — exactly
+// the non-sortable column FR-8.3 requires. Passing `isSortable` here would inject
+// a sort button and would be a defect. See docs/carbon-conformance-register.md.
 //
 // Focus is moved by useScreenFocus on mount only (moment 1 of the four). React
 // Router unmounts/remounts this component on every navigation to /queue —
@@ -20,6 +33,16 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  Button,
+  InlineNotification,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@carbon/react';
 import type { QueueResponse } from '@cargoexec/contract';
 import { useScreenFocus } from '../shell/useScreenFocus.js';
 import { useAnnounce } from '../shell/LiveRegions.js';
@@ -67,7 +90,7 @@ export function Queue(): JSX.Element {
   }, [load]);
 
   return (
-    <div className="usa-prose">
+    <div className="cds--content-prose">
       <h1 tabIndex={-1} ref={h1Ref}>
         Review queue
       </h1>
@@ -102,14 +125,16 @@ export function Queue(): JSX.Element {
 
       {/* Layout item 4 — the secondary action, present regardless of state,
           EXCEPT the empty branch which already renders its own "New cargo entry"
-          action via <Empty>. */}
+          action via <Empty>. Rendered as a Carbon Button in the outline-
+          equivalent tertiary weight, polymorphic-as a react-router Link so
+          navigation stays client-side. */}
       {!(
         state.status === 'loaded' && state.data.exceptions.length === 0
       ) && (
         <p>
-          <Link className="usa-button usa-button--outline" to="/entries/new">
+          <Button as={Link} to="/entries/new" kind="tertiary">
             New cargo entry
-          </Link>
+          </Button>
         </p>
       )}
     </div>
@@ -139,43 +164,54 @@ function QueueLoaded(props: {
   return (
     <>
       {data.truncated && (
-        <div className="usa-alert usa-alert--info usa-alert--slim" role="status">
-          <div className="usa-alert__body">
-            <p className="usa-alert__text">
-              Showing the first 500 open exceptions in receipt order.
-            </p>
-          </div>
-        </div>
+        <InlineNotification
+          kind="info"
+          role="status"
+          lowContrast
+          hideCloseButton
+          title="Showing the first 500 open exceptions in receipt order."
+        />
       )}
 
       <h2>Open exceptions</h2>
-      <button type="button" className="usa-button" onClick={onRefresh}>
+      <Button kind="tertiary" onClick={onRefresh}>
         Refresh
-      </button>
+      </Button>
       <p>
         {n} open exception{n === 1 ? '' : 's'}
       </p>
 
-      {/* USWDS scrollable wrapper: on a narrow viewport the TABLE scrolls
-          within this container (with a keyboard-focusable region), so the
-          document body never scrolls horizontally at 320px (reflow / FR-2 §14). */}
-      <div className="usa-table-container--scrollable" tabIndex={0} role="region" aria-label="Open exceptions table">
-        <table className="usa-table">
+      {/* Scrollable, keyboard-focusable region so a narrow viewport scrolls the
+          TABLE within this container (never the document body) at 320px (reflow /
+          FR-2 §14). Carbon's `Table` provides no such scroll region of its own,
+          so this project-owned wrapper is retained around it. The Carbon
+          `cds--data-table_inner-container` class supplies the scroll treatment. */}
+      <div
+        className="cds--data-table_inner-container"
+        style={{ overflowX: 'auto' }}
+        tabIndex={0}
+        role="region"
+        aria-label="Open exceptions table"
+      >
+        {/* PLAIN Carbon table primitives — NOT DataTable, NO isSortable. Each
+            TableHeader with no isSortable/onClick renders a bare `<th scope>`
+            with no sort button, no aria-sort, no sort icon (FR-8.3). */}
+        <Table useZebraStyles={false}>
           <caption>
             Open exceptions in receipt order — {n} case{n === 1 ? '' : 's'}
           </caption>
-          <thead>
-            <tr>
-              <th scope="col">Case</th>
-              <th scope="col">Received</th>
-              <th scope="col">Entry number</th>
-              <th scope="col">Why it is open</th>
-            </tr>
-          </thead>
-          <tbody>
+          <TableHead>
+            <TableRow>
+              <TableHeader scope="col">Case</TableHeader>
+              <TableHeader scope="col">Received</TableHeader>
+              <TableHeader scope="col">Entry number</TableHeader>
+              <TableHeader scope="col">Why it is open</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {data.exceptions.map((row) => (
-              <tr key={row.id}>
-                <td>
+              <TableRow key={row.id}>
+                <TableCell>
                   {row.case_reference ? (
                     <Link
                       to={`/cases/${row.case_reference}`}
@@ -186,18 +222,18 @@ function QueueLoaded(props: {
                   ) : (
                     <MissingReference id={row.id} />
                   )}
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <time dateTime={row.received_at}>
                     {formatDateTime(row.received_at)}
                   </time>
-                </td>
-                <td>{row.entry_number ?? 'Not provided'}</td>
-                <td>{row.failure_summary}</td>
-              </tr>
+                </TableCell>
+                <TableCell>{row.entry_number ?? 'Not provided'}</TableCell>
+                <TableCell>{row.failure_summary}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
     </>
   );

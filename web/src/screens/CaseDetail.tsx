@@ -36,6 +36,7 @@ import {
   ListItem,
   OrderedList,
   Stack,
+  Tag,
 } from '@carbon/react';
 import type {
   CaseDetailResponse,
@@ -695,12 +696,11 @@ function AvailableRecommendation(props: {
 
   return (
     <>
-      {/* Badges the recommendation as a WHOLE (not one value), so a plain tag
+      {/* Badges the recommendation as a WHOLE (not one value), so a plain Carbon
+          `Tag` (type="purple", matching the per-value AI badge's colour carrier)
           rather than ProvenanceBadge, which is per-value. */}
       <p>
-        <span className="usa-tag bg-primary-darker text-white">
-          AI-suggested resolution
-        </span>
+        <Tag type="purple">AI-suggested resolution</Tag>
       </p>
       <p>The AI suggests: {rec.recommended_action}</p>
       <p>
@@ -709,6 +709,8 @@ function AvailableRecommendation(props: {
       </p>
 
       <h3>Why the AI suggests this</h3>
+      {/* FR-10.4: the rationale renders as plain paragraphs — never collapsed,
+          never inside an accordion/disclosure. */}
       {rationaleParagraphs.map((para, i) => (
         <p key={i}>{para}</p>
       ))}
@@ -717,9 +719,13 @@ function AvailableRecommendation(props: {
           submitted value (or "Not provided") badged HUMAN when present, the
           AI-suggested value badged AI, and the plain-language message(s) of the
           rule(s) it addresses. A proposal for a field whose submitted value is
-          null is an ADDITION ("Adding:"), not a change ("Changing:"). */}
+          null is an ADDITION ("Adding:"), not a change ("Changing:"). Rendered
+          as a native <dl> styled with Carbon spacing tokens (the same
+          documented composition as the submitted-entry list — Carbon ships no
+          definition-list component); each value keeps its adjacent (unchanged
+          07-06) `ProvenanceBadge`. */}
       {rec.proposed_values !== undefined && rec.proposed_values.length > 0 && (
-        <dl>
+        <dl className="cargoexec-detail-list cargoexec-comparison-rows">
           {rec.proposed_values.map((pv) => {
             const submitted = submittedValues[pv.field_name];
             const isAddition = submitted === null;
@@ -747,7 +753,8 @@ function AvailableRecommendation(props: {
         </dl>
       )}
 
-      {/* FR-10.5 footnote: model, prompt version, generation time. */}
+      {/* FR-10.5 footnote: model, prompt version, generation time — plain Carbon
+          typography, unchanged content. */}
       <p>
         <small>
           Model: {rec.model_id} · Prompt: {rec.prompt_version} · Generated:{' '}

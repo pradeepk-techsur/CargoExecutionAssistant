@@ -140,7 +140,10 @@ test.describe('review queue', () => {
       }),
     );
     await page.goto(`${BASE}/queue`);
-    await expect(page.locator('table.usa-table')).toHaveCount(1);
+    // The table is rendered on Carbon's PLAIN table primitives (07-08) — a
+    // `table.cds--data-table` — NOT USWDS's `table.usa-table`, and NOT Carbon's
+    // batteries-included `DataTable` sortable pattern.
+    await expect(page.locator('table.cds--data-table')).toHaveCount(1);
 
     // No sort/aria-sort, no checkboxes, no text inputs.
     await expect(page.locator('[aria-sort]')).toHaveCount(0);
@@ -258,7 +261,11 @@ test.describe('review queue', () => {
 
     await page.goto(`${BASE}/queue`);
 
-    const alert = page.locator('[role="alert"].usa-alert--error');
+    // The shared ErrorState renders on Carbon's `InlineNotification kind="error"`
+    // with `role="alert"` asserted explicitly (07-06) — a
+    // `[role="alert"].cds--inline-notification--error` carrying the "Something
+    // went wrong" title and the stated cause as its subtitle.
+    const alert = page.locator('[role="alert"].cds--inline-notification--error');
     await expect(alert).toBeVisible();
     await expect(alert).toContainText('Something went wrong');
     await expect(alert).toContainText('We could not load the review queue.');
@@ -266,7 +273,9 @@ test.describe('review queue', () => {
     // Try again re-fetches; the second response succeeds (empty), clearing the
     // error and rendering the empty state.
     await page.getByRole('button', { name: /try again/i }).click();
-    await expect(page.locator('[role="alert"].usa-alert--error')).toHaveCount(0);
+    await expect(
+      page.locator('[role="alert"].cds--inline-notification--error'),
+    ).toHaveCount(0);
     await expect(
       page.getByRole('heading', { name: 'No open exceptions' }),
     ).toHaveCount(1);

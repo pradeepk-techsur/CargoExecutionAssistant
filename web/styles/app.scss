@@ -147,6 +147,13 @@
   padding-inline-start: 0;
 }
 
+// The AI-recommendation comparison rows (plan 07-09): each <dd> stacks three
+// lines — submitted (HUMAN), AI-suggested (AI), and the addressed-rule message.
+// Give the lines a little vertical rhythm with Carbon's spacing scale.
+.cargoexec-comparison-rows dd > div {
+  margin-block-end: var(--cds-spacing-02);
+}
+
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
 // understood; when a specialist asks for reduced motion, honour it globally by
 // collapsing transitions and animations to an instant.

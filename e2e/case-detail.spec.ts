@@ -176,7 +176,7 @@ test.describe('case detail & recommendation', () => {
       page.getByText('Nothing here has been applied', { exact: false }),
     ).toBeVisible();
     await expect(
-      page.locator('.usa-tag', { hasText: 'AI-suggested' }).first(),
+      page.locator('.cds--tag', { hasText: 'AI-suggested' }).first(),
     ).toBeVisible();
     await expect(
       page.getByText(/Model:.*Prompt:.*Generated:/, { exact: false }),
@@ -193,7 +193,7 @@ test.describe('case detail & recommendation', () => {
       const h3 = Array.from(document.querySelectorAll('h3')).find(
         (h) => (h.textContent ?? '').trim() === 'Why the AI suggests this',
       );
-      const tags = Array.from(document.querySelectorAll('.usa-tag'));
+      const tags = Array.from(document.querySelectorAll('.cds--tag'));
       const inRecommendation =
         (h3?.contains(a) ?? false) || tags.some((t) => t.contains(a) || t === a);
       return {
@@ -245,11 +245,15 @@ test.describe('case detail & recommendation', () => {
     ).toBeVisible();
 
     // The degraded block is role="status", NEVER role="alert" (FR-10.8: not an
-    // error). Scope to the recommendation region.
+    // error). As of 07-09 the Degraded state renders on Carbon's
+    // `InlineNotification kind="warning"` (07-06), so the warning carrier is now
+    // `.cds--inline-notification--warning` with `role="status"` (the class moved
+    // from USWDS's `.usa-alert--warning`; the role/no-alert contract is
+    // unchanged). Scope to the recommendation region.
     const region = page.locator('#ai-recommendation').locator('..');
-    await expect(region.locator('[role="status"].usa-alert--warning')).toHaveCount(
-      1,
-    );
+    await expect(
+      region.locator('[role="status"].cds--inline-notification--warning'),
+    ).toHaveCount(1);
     await expect(region.locator('[role="alert"]')).toHaveCount(0);
 
     // No Retry / Regenerate control anywhere on the screen.
@@ -283,10 +287,11 @@ test.describe('case detail & recommendation', () => {
       });
     });
 
-    // Every ProvenanceBadge renders as a usa-tag whose text is exactly one of
-    // the two provenance labels. There is at least one AI badge (the AVAILABLE
-    // comparison rows always produce one per proposed value).
-    const badges = page.locator('.usa-tag');
+    // Every ProvenanceBadge renders as a Carbon `Tag` (`.cds--tag`, as of 07-06)
+    // whose text is exactly one of the two provenance labels. There is at least
+    // one AI badge (the AVAILABLE comparison rows always produce one per proposed
+    // value).
+    const badges = page.locator('.cds--tag');
     const count = await badges.count();
     expect(count).toBeGreaterThan(0);
 

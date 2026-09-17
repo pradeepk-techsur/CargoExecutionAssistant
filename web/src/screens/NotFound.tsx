@@ -10,8 +10,14 @@ export function NotFound(): JSX.Element {
   const h1Ref = useRef<HTMLHeadingElement>(null);
   useScreenFocus({ title: 'Page not found', h1Ref });
 
+  // No alert/status role: a dead route is not an error condition to announce —
+  // it is plain prose (h1 + paragraph + a link back to /queue). Prose typography
+  // now comes from Carbon's global type styles (@carbon/styles); only the
+  // container class changes from `usa-prose` to `cargoexec-prose`. Focus is
+  // still moved to the h1 and the title announced politely on mount (unchanged
+  // useScreenFocus).
   return (
-    <div className="usa-prose">
+    <div className="cargoexec-prose">
       <h1 tabIndex={-1} ref={h1Ref}>
         Page not found
       </h1>
