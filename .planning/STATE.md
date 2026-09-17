@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-09-17T01:31:35.384Z"
-last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
+stopped_at: Completed 07-01-PLAN.md
+last_updated: "2026-09-17T01:33:43.182Z"
+last_activity: "2026-09-17 — 07-01 executed: F15 seed-demo-case CLI (Task 1 a078aff) + narrow one-seed-file arch exception, seed:demo-case script, FR-15.9 runbook (Task 2 a23aadb). Idempotent/stage-resumable seed proven against a real fresh db (chain_verified true, 1 HUMAN + 11 AI, 5 audit entries; no-op re-run; PENDING-resume; UNAVAILABLE no-retry). Resolves the 2 pre-existing F15 arch fails. 1 deviation auto-fixed (R1 arch scan scoped to code trees). Arch 155 / unit 297 / db 196 / api 170 green; build+typecheck exit 0."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 44
+  completed_plans: 45
   percent: 86
 ---
 
@@ -26,6 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-01 COMPLETE — F15 (Seeded Demonstration Case) is real. `server/src/cli/seed-demo-case.ts` is a zero-argument, operator-invoked CLI (no HTTP route, no UI control, no scheduled job) that pre-loads EXACTLY ONE demonstration cargo case carried through the whole governed loop — received → validated-failed → exception → AI recommendation (AVAILABLE) → EDIT_APPROVE decision with mixed AI/HUMAN provenance → verifiable audit trail — by calling the SAME service functions a live request uses (`receiveEntry`, `runGenerationJob`, `recordDecision`, `createSpecialist`), never a direct INSERT and never a migration. It imports ONLY the app pool (never pool.ai.js — aiCapability.spec test 3's importer-set invariant intact), passing the app pool as both aiPool+appPool to runGenerationJob (safe at operator trust, documented in the header). Idempotent + stage-resumable: each of 5 stages is checked before writing, a re-run is a no-op (exit 0), an interrupted run with the recommendation still PENDING resumes from the recommendation stage; a TERMINAL UNAVAILABLE recommendation is never auto-retried (F9 FR-9.14), exiting non-zero naming the stage. Proven against a real fresh db: first run creates exactly one of each row (chain_verified TRUE, 1 HUMAN + 11 AI decision values, 5 audit entries); second run duplicates nothing; PENDING-resume and unreachable-provider UNAVAILABLE paths both behave as specified. `absence.spec.ts` + `validation.spec.ts` each gained the narrow one-seed-file assertion (server/src/cli/seed-demo-case.ts is the only seed-named file in the code trees) — the general seeds/-directory ban and migration-INSERT ban untouched; this RESOLVES the 2 pre-existing F15 arch fails 07-03 logged. `docs/seed-demo-case.md` is the FR-15.9 fixture label; `npm run seed:demo-case` added; README §9 corrected. Gate: arch 155 (153+2) / unit 297 / db 196 / api 170 green; build+typecheck exit 0. 1 deviation auto-fixed (R1: scoped the one-seed-file scan to code trees so F15's own spec/runbook/platform-command files, correctly, don't trip it). Task 1 a078aff, Task 2 a23aadb.
+
+--- prior (07-03) ---
 Plan: 07-03 COMPLETE — F2 redesign PREPARATION (infrastructure-only) is done. The approved design (a claude.ai/design link) is 403/inaccessible, so NO reskin happened. `docs/uswds-coupling-audit.md` enumerates every USWDS coupling point: all 18 USWDS-coupled `.tsx` files under `web/src` individually (3 uncoupled exceptions named — router.tsx, main.tsx, SessionProvider.tsx), the single Sass entry `web/styles/app.scss`, the self-hosting `copy-uswds-assets.mjs` pipeline, and the `style-src 'self'` CSP (server/src/http/headers.ts) — stating plainly any replacement design must still compile to one self-hosted `<link>` stylesheet, and flagging `uswds-conformance-register.md`'s future re-authoring. `web/styles/_tokens.scss` is the new design-token SEAM: eight `--cargoexec-*` `:root` custom properties (color-primary/-primary-dark/-error/-base-ink, space-1/2/3, font-family-body) whose VALUES are function-derived from USWDS core's own current theme via public `color()`/`units()`/`family()` (verified: #005ea2/#1a4480/#d54309/#1b1b1b, 0.5/1/1.5rem, Source Sans Pro stack) — NO invented value, consumed by nothing yet, `@use`d into app.scss so it lands in compiled uswds.css. NO `.tsx` touched; existing `usa-*` rules unchanged (additive). Gate: `npm run build` (server+web) + `build:css` exit 0; unit 297 / db 196 / api 170 green; arch 153 pass with 2 PRE-EXISTING F15 fails (owner: 07-01/07-02 seed plans — proven pre-existing by stash-and-rerun, logged to deferred-items.md, ZERO new failures from 07-03). Task 1 e824378, Task 2 df091fa. Zero deviations. The actual visual reskin remains BLOCKED pending the inaccessible approved design (deferred to a future phase).
 
 --- prior (07-02) ---
@@ -122,6 +125,7 @@ Progress: [█████████░] 86%
 | Phase 06 P05 | 22 min | 2 tasks | 5 files |
 | Phase 07 P02 | 9 min | 2 tasks | 4 files |
 | Phase 07 P03 | 15 min | 2 tasks | 3 files |
+| Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P01 | 40 min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -207,6 +211,7 @@ Recent decisions affecting current work:
 - [Phase 06-the-human-decision-and-the-record-that-explains-it]: 06-04: F14 AuditTrailRegion renders the complete per-case trail in server order (eight-row action-label table, per-value AI/HUMAN ProvenanceBadge + textual Origin column, verbatim reasons, healthy+failed integrity statement, no export/mutation control). api.getAuditTrail is a GET-only read. The trail refreshes in place via a caseVersion refreshToken CaseDetail bumps on every successful fetchCase (FR-14.12, no polling); the /cases/:ref/audit deep link renders CaseDetail focusAuditTrail and focuses the heading once (FR-14.11). e2e/audit-trail.spec.ts 10/10 including a direct-DB tampered-chain integrity-failure. DECISION: the F14 RECOMMENDATION_UNAVAILABLE label matches the F10 heading — case-detail.spec test 2 scoped to .first() rather than renaming the normative label. 4 deviations auto-fixed (pg ESM interop, exceptions.entry_id not case_id, gen_random_bytes tamper hash for the persisted-DB unique constraint, pre-existing case-detail.spec tests 2+7 updated for real Phase-6 sections).
 - [Phase 06]: The whole governed loop is proven end to end in one keyboard-only browser session, twice (healthy + AI-stopped); fake:deterministic + a FAKE_AI_TRIGGERS marker IS 'the AI provider stopped' in this codebase
 - [Phase 07]: 07-02: AI_PROVIDER_URL has no silent default in docker-compose.yml — ${AI_PROVIDER_URL:?...} makes docker compose config/up fail loudly and named when unset, closing the FR-9.20 silent-fake-provider risk with ZERO code change; added the previously-absent AI_API_KEY passthrough. Deviation R1: the mandatory-var message value is double-quoted (its internal ': ' broke Compose v5's YAML scanner; the colon after 'explicitly' reworded to ' - '). docs/ai-provider-configuration.md documents the config-only path for an OpenAI-compatible provider and defers the renderPromptRequest/extractPayload change until a provider is chosen.
+- [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-01: F15 seed-demo-case CLI drives the full governed loop via the real service functions (receiveEntry/runGenerationJob/recordDecision/createSpecialist), never a direct INSERT; idempotent + stage-resumable, so the seeded case is indistinguishable from an organic one (chain_verified true, 1 HUMAN + 11 AI decision values). Fixture labelling lives in docs/seed-demo-case.md (FR-15.9), not an is_seed column. The one-seed-file arch assertion is scoped to code trees (server/web/db), not prose — a spec/runbook named after F15 is not a seed mechanism.
 
 ### Verify Notes
 
@@ -239,6 +244,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T01:31:35.382Z
-Stopped at: Completed 07-03-PLAN.md
+Last session: 2026-09-17T01:33:37.705Z
+Stopped at: Completed 07-01-PLAN.md
 Resume file: None
