@@ -2,8 +2,14 @@
   "name": "cargoexec",
   "private": true,
   "type": "module",
-  "workspaces": ["contract", "server", "web"],
-  "engines": { "node": "22.11.0" },
+  "workspaces": [
+    "contract",
+    "server",
+    "web"
+  ],
+  "engines": {
+    "node": "22.11.0"
+  },
   "scripts": {
     "migrate": "node --env-file=.env server/scripts/migrate.mjs",
     "build:css": "sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css",
@@ -26,30 +32,33 @@
     "typecheck": "tsc -b contract server && tsc -p web --noEmit"
   },
   "dependencies": {
-    "pg": "8.13.1",
-    "node-pg-migrate": "7.9.0",
+    "@carbon/icons-react": "11.88.0",
+    "@carbon/react": "1.116.0",
+    "@ibm/plex": "6.4.1",
+    "@uswds/uswds": "3.11.0",
+    "argon2": "0.41.1",
     "express": "4.21.1",
     "helmet": "8.0.0",
-    "zod": "3.23.8",
-    "argon2": "0.41.1",
+    "node-pg-migrate": "7.9.0",
+    "pg": "8.13.1",
     "pino": "9.5.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-router-dom": "6.28.0",
-    "@uswds/uswds": "3.11.0"
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "typescript": "5.6.3",
-    "vitest": "2.1.5",
-    "@types/node": "22.9.0",
-    "@types/pg": "8.11.10",
-    "sass": "1.80.6",
-    "vite": "5.4.11",
-    "supertest": "7.0.0",
     "@playwright/test": "1.48.2",
     "@types/express": "4.17.21",
-    "@types/supertest": "6.0.2",
+    "@types/node": "22.9.0",
+    "@types/pg": "8.11.10",
     "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1"
+    "@types/react-dom": "18.3.1",
+    "@types/supertest": "6.0.2",
+    "sass": "1.80.6",
+    "supertest": "7.0.0",
+    "typescript": "5.6.3",
+    "vite": "5.4.11",
+    "vitest": "2.1.5"
   }
 }

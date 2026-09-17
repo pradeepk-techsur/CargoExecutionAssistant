@@ -28,6 +28,39 @@
 
 @forward "uswds";
 
+// ─── Carbon Design System (Phase 7, F2 — TechArch §6.2a) ────────────────────
+//
+// ADDITIVE install (plan 07-04): Carbon's full component CSS is compiled INTO
+// this same self-hosted `uswds.css` output, alongside — not instead of — the
+// USWDS forward above. Nothing in `web/src/**/*.tsx` consumes a `cds--*` class
+// yet; this block only makes the Carbon build exist and pass the CSP/CDN gates,
+// so the subsequent Phase-7 plans can migrate one file at a time without the app
+// ever passing through a visually-broken intermediate state. USWDS's `usa-*` and
+// Carbon's `cds--*` classes use disjoint prefixes, so both rule sets coexist in
+// one stylesheet with no collision (confirmed in the compiled output).
+//
+// THEME: White (Carbon's default light theme — the `$theme` config default is
+// `compat.$white`, so no explicit theme override is needed here). Reasoning:
+// CargoExec is a federal case-review application whose screens (queue table,
+// case detail, audit trail) are read-heavy and reviewed for extended periods —
+// a light, high-contrast theme reduces eye strain over that kind of sustained
+// reading task; it most closely matches the light, high-contrast convention
+// federal specialists already expect from USWDS-built government tools (so the
+// visual transition reads as a redesign, not a mode change); and it is Carbon's
+// own most extensively documented and exercised theme, reliably clearing
+// WCAG AA contrast pairings out of the box.
+//
+// SELF-HOSTED FONTS (FR-2.3, no CDN): `$use-akamai-cdn` stays false (its
+// default), and `$font-path` is repointed from the package-relative `~@ibm/plex`
+// default to `/assets/fonts/plex` — the same-origin location into which
+// copy-carbon-assets.mjs mirrors the IBM Plex families at build time. Carbon's
+// `@font-face` `src: url(...)` therefore resolves to this origin, never to the
+// IBM Akamai CDN (`1.www.s81c.com`), so `font-src 'self'` and the CDN-absence
+// architecture gate both continue to hold.
+@use "@carbon/styles" with (
+  $font-path: "/assets/fonts/plex"
+);
+
 // Design-token abstraction seam (Phase 7, F2 — TechArch §1A.1b). `_tokens.scss`
 // publishes a small set of `--cargoexec-*` CSS custom properties at `:root`,
 // computed from the SAME already-configured `uswds-core` instance above (it
