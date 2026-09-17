@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-06-PLAN.md
-last_updated: "2026-09-17T01:56:42.205Z"
-last_activity: "2026-09-17 — 07-06 executed (wave 3, F2 shared component library): the four load-bearing shared files every screen inherits now render on Carbon, exports/prop-shapes UNCHANGED. Task 1 0ce5696 — the form pattern (Field→TextInput, SelectField→Select+SelectItem, TextAreaField→TextArea with native enableCounter/maxCount, DateField→DatePicker+DatePickerInput, Fieldset→native <fieldset>+Carbon tokens, SubmitButton→Button aria-disabled-while-busy, UswdsForm→Carbon Form wrapping native <form noValidate>); required-marking layered into Carbon labelText so FR-2.11 wording survives and Carbon owns the single hint+error aria-describedby (T-07-19). Task 2 29eed4e — ErrorSummary→InlineNotification kind=error with project-owned focus mechanics (role=alert, tabIndex=-1, ref+focus, server order, per-control links) unchanged; ProvenanceBadge→Tag+@carbon/icons-react with FOUR colour-independent carriers (text + Settings/User icon + dashed/solid border-shape via app.scss currentColor + purple/gray Tag colour); the five states→Carbon Loading/InlineNotification with role alert/status/note and 300ms Loading gate preserved. AttributedValue gap documented honestly (never built; adjacency-by-review, not type-enforced). Register extended additively. 2 deviations auto-fixed (R3: Carbon DatePickerInput/labelText prop-types incompatibilities; R3: InlineNotification subtitle typed string + role restricted → children + wrapper). Gate: build exit 0; headers.spec 48 + absence.spec 54 green; all four files + their real consumers (SignIn/CaseDetail/DecisionPanel/AuditTrailRegion) typecheck clean. One OUT-OF-SCOPE pre-existing typecheck error in web/src/shell/Header.tsx (owner: parallel wave-3 plan 07-05, its in-flight Carbon shell; proven pre-existing by stash-and-rerun; logged to deferred-items.md). e2e usa-* locators updated by each screen plan (T-07-18), not this shared-component plan."
+stopped_at: Completed 07-05-PLAN.md
+last_updated: "2026-09-17T02:12:14.518Z"
+last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 47
+  completed_plans: 48
   percent: 86
 ---
 
@@ -134,6 +134,7 @@ Progress: [█████████░] 86%
 | Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P01 | 40 min | 2 tasks | 6 files |
 | Phase 07 P04 | 4 min | 2 tasks | 4 files |
 | Phase 07 P06 | 9 min | 2 tasks | 6 files |
+| Phase 07 P05 | 25 min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -223,6 +224,7 @@ Recent decisions affecting current work:
 - [Phase 07]: Carbon theme = White (Carbon's default light theme): read-heavy federal case-review screens, matches USWDS light/high-contrast convention, best-documented WCAG-AA-clearing theme; it is @carbon/styles' $theme default so no override needed
 - [Phase 07]: 07-04: Carbon installed additively — @carbon/styles compiles into the SAME self-hosted uswds.css as USWDS (usa-*/cds-- disjoint prefixes), so the multi-wave migration never passes through a visually-broken state; @carbon/icons-react pinned at 11.x (independent major line); @ibm/plex 6.4.1 promoted to a direct pinned dep for font self-hosting; the 07-03 _tokens.scss seam is SUPERSEDED (Carbon ships its own tokens), retired in place
 - [Phase 07]: Carbon drop-in swap: shared component internals changed to Carbon while every exported name/prop shape stays identical, so screen plans need zero consumer edits
+- [Phase 07]: 07-05: the persistent shell is rebuilt on Carbon UI Shell (SkipToContent/Header/HeaderNavigation/HeaderMenuItem/HeaderName/HeaderGlobalBar) with every FR-2.x structural guarantee intact; the government banner and federal footer are documented Carbon-conformant COMPOSITIONS (Carbon ships no primitive for either), the banner disclosure is the shell's own React useState toggle (USWDS JS retired), LiveRegions use cds--visually-hidden, and role=banner reaches Carbon Header as a JSX attribute via a localised typed cast (kept out of the object-literal role: architecture scan). e2e/shell.spec.ts repointed to Carbon selectors; docs/a11y/shell.md re-signed (Defect 1: footer Carbon-grid 320px reflow, fixed in web/styles/_shell.scss). navigation+headers arch 59/59, shell e2e 16/16, build+typecheck exit 0.
 
 ### Verify Notes
 
@@ -255,6 +257,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T01:56:42.177Z
-Stopped at: Completed 07-06-PLAN.md
+Last session: 2026-09-17T02:12:06.207Z
+Stopped at: Completed 07-05-PLAN.md
 Resume file: None

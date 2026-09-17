@@ -54,3 +54,26 @@ Logged, not fixed, per the SCOPE BOUNDARY rule (execute-plan.md).
 - **Owner:** plan **07-05** (the shell) — it owns making its Carbon `Header`
   render pass typecheck (drop the unsupported `role` prop or wrap the landmark
   correctly). Not 07-06's concern.
+- **RESOLVED by plan 07-05 (commit `ce273c0`):** `Header.tsx` now re-types the
+  Carbon `Header` through a localised `BannerHeader = CarbonHeader as
+  ComponentType<ComponentProps<typeof CarbonHeader> & { role?: string }>` so
+  `role="banner"` is passed as a JSX ATTRIBUTE (the documented ARIA-markup
+  exclusion in `navigation.spec.ts`'s application-role scan) rather than an
+  object-literal `role:` key. `npx tsc -p web --noEmit` exits 0 and
+  `navigation.spec.ts` passes 11/11 against the rebuilt shell.
+
+## From plan 07-05 (rebuild the application shell on Carbon)
+
+### `docs/carbon-conformance-register.md` — concurrent rewrite dropped the 07-05 shell rows (handled, not deferred)
+
+- **Discovered:** during 07-05 Task 2, the register 07-05 created in Task 1
+  (`3738cc0`, with the skip-link / primary-nav / footer rows) had been rewritten
+  by the concurrent wave-3 sibling **07-06** (`0ce5696` / `29eed4e`) with its own
+  form-pattern preamble and rows, which did not preserve 07-05's shell rows.
+- **Handled per the coordination note** ("re-read the file and re-apply your
+  shell rows additively — never overwrite another plan's rows"): 07-05 re-applied
+  all seven shell rows (skip link, government banner, masthead, primary nav, sign
+  out, live regions, footer) at the top of the register table and added the
+  banner/footer composition notes, PRESERVING every 07-06 row and note. Not a
+  deferred item — recorded here only as the audit trail of the concurrent-edit
+  reconciliation.
