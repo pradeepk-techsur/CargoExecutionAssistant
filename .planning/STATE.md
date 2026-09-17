@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-01-PLAN.md
-last_updated: "2026-09-17T01:33:43.182Z"
-last_activity: "2026-09-17 — 07-01 executed: F15 seed-demo-case CLI (Task 1 a078aff) + narrow one-seed-file arch exception, seed:demo-case script, FR-15.9 runbook (Task 2 a23aadb). Idempotent/stage-resumable seed proven against a real fresh db (chain_verified true, 1 HUMAN + 11 AI, 5 audit entries; no-op re-run; PENDING-resume; UNAVAILABLE no-retry). Resolves the 2 pre-existing F15 arch fails. 1 deviation auto-fixed (R1 arch scan scoped to code trees). Arch 155 / unit 297 / db 196 / api 170 green; build+typecheck exit 0."
+stopped_at: Completed 07-04-PLAN.md
+last_updated: "2026-09-17T01:42:30.602Z"
+last_activity: "2026-09-17 — 07-04 executed (wave 2, F2 build foundation): Carbon Design System installed ADDITIVELY. Task 1 0b68d6e — @carbon/react 1.116.0 + @carbon/icons-react 11.88.0 exact-pinned (React 18.3.1 preserved), @carbon/styles (default White theme) @use'd into web/styles/app.scss after the untouched USWDS @forward, so build:css emits ONE self-hosted uswds.css with both usa-* (86 usa-banner, unchanged) and cds-- (7726) rules. Task 2 96307d3 — IBM Plex (Sans/Mono/Serif) self-hosted under web/public/assets/fonts/plex via new idempotent copy-carbon-assets.mjs wired into build:assets; all 90 @font-face src URLs resolve same-origin (0 CDN hosts, $font-path→/assets/fonts/plex, $use-akamai-cdn false); 07-03 _tokens.scss seam marked SUPERSEDED (retired in place, not deleted); coupling-audit doc updated. @ibm/plex 6.4.1 promoted to a direct pinned dep. NO .tsx touched (every current screen still on USWDS). Gate: build exit 0; test:arch 155 / test:unit 297 green (test:db/api unaffected — web-only plan, no server/src/migration change). 2 deviations auto-fixed (R3: @carbon/icons-react@^1 does not exist → pinned 11.x; R3: added @ibm/plex direct dep) — both the plan's own documented contingencies."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 45
+  completed_plans: 46
   percent: 86
 ---
 
@@ -26,6 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-04 COMPLETE (wave 2) — the Carbon Design System build foundation (F2) is in place, ADDITIVELY. `@carbon/react` 1.116.0 + `@carbon/icons-react` 11.88.0 are exact-pinned production deps (resolved against the pinned React 18.3.1, which is unchanged), and `web/styles/app.scss` now `@use`s `@carbon/styles` (Carbon's default **White** theme — chosen and documented, not left open: read-heavy federal case-review screens favour a light high-contrast theme that matches the USWDS convention specialists expect and clears WCAG AA out of the box; White is the `$theme` default so no override is needed) **immediately after the untouched `@forward "uswds";`**. So `npm run build:css` compiles ONE self-hosted `web/public/assets/uswds.css` carrying BOTH USWDS's `usa-*` classes (86 `usa-banner` matches, every pre-existing rule unchanged) and Carbon's `cds--*` classes (7726 matches) — disjoint prefixes, no collision, no visually-broken intermediate state for the multi-wave migration ahead. IBM Plex (Sans/Mono/Serif) is self-hosted under `web/public/assets/fonts/plex/` by the new idempotent `web/scripts/copy-carbon-assets.mjs` (mirrors `copy-uswds-assets.mjs`), wired into `build:assets`; `$font-path` is repointed to `/assets/fonts/plex` and `$use-akamai-cdn` stays false, so all 90 compiled `@font-face` `src` URLs are same-origin (0 CDN hosts — `font-src 'self'` and the CDN-absence arch gate both hold). `@ibm/plex` 6.4.1 was promoted from a transitive dep to a direct pinned production dep so the copy has a declared source. The 07-03 `_tokens.scss` `--cargoexec-*` seam is explicitly marked **SUPERSEDED** in `app.scss` (Carbon ships its own token system; the seam is not the redesign mechanism) and retired in place — deletion deferred to the Phase-7 final-cleanup plan, not a mid-migration removal. `docs/uswds-coupling-audit.md` records the install, versions, theme decision, font self-hosting, and seam retirement. **NO `.tsx` file touched** — every currently-shipped screen still renders on USWDS. Gate: `npm run build` (server + web + vite) exit 0; `test:arch` 155 / `test:unit` 297 green (`test:db`/`test:api` unaffected — this plan touches only the web build pipeline, no `server/src`/migration/route change, per 07-03's precedent). 2 deviations auto-fixed (R3: `@carbon/icons-react@^1` has no matching version → pinned its actual 11.x major; R3: added `@ibm/plex` as a direct dep) — both the plan's own documented version/package contingencies, zero scope impact. Task 1 0b68d6e, Task 2 96307d3. Every later Phase 7 plan (07-05…07-11) can now render `@carbon/react` components against a working, CSP-compliant, self-hosted build.
+
+--- prior (07-01) ---
 Plan: 07-01 COMPLETE — F15 (Seeded Demonstration Case) is real. `server/src/cli/seed-demo-case.ts` is a zero-argument, operator-invoked CLI (no HTTP route, no UI control, no scheduled job) that pre-loads EXACTLY ONE demonstration cargo case carried through the whole governed loop — received → validated-failed → exception → AI recommendation (AVAILABLE) → EDIT_APPROVE decision with mixed AI/HUMAN provenance → verifiable audit trail — by calling the SAME service functions a live request uses (`receiveEntry`, `runGenerationJob`, `recordDecision`, `createSpecialist`), never a direct INSERT and never a migration. It imports ONLY the app pool (never pool.ai.js — aiCapability.spec test 3's importer-set invariant intact), passing the app pool as both aiPool+appPool to runGenerationJob (safe at operator trust, documented in the header). Idempotent + stage-resumable: each of 5 stages is checked before writing, a re-run is a no-op (exit 0), an interrupted run with the recommendation still PENDING resumes from the recommendation stage; a TERMINAL UNAVAILABLE recommendation is never auto-retried (F9 FR-9.14), exiting non-zero naming the stage. Proven against a real fresh db: first run creates exactly one of each row (chain_verified TRUE, 1 HUMAN + 11 AI decision values, 5 audit entries); second run duplicates nothing; PENDING-resume and unreachable-provider UNAVAILABLE paths both behave as specified. `absence.spec.ts` + `validation.spec.ts` each gained the narrow one-seed-file assertion (server/src/cli/seed-demo-case.ts is the only seed-named file in the code trees) — the general seeds/-directory ban and migration-INSERT ban untouched; this RESOLVES the 2 pre-existing F15 arch fails 07-03 logged. `docs/seed-demo-case.md` is the FR-15.9 fixture label; `npm run seed:demo-case` added; README §9 corrected. Gate: arch 155 (153+2) / unit 297 / db 196 / api 170 green; build+typecheck exit 0. 1 deviation auto-fixed (R1: scoped the one-seed-file scan to code trees so F15's own spec/runbook/platform-command files, correctly, don't trip it). Task 1 a078aff, Task 2 a23aadb.
 
 --- prior (07-03) ---
@@ -126,6 +129,7 @@ Progress: [█████████░] 86%
 | Phase 07 P02 | 9 min | 2 tasks | 4 files |
 | Phase 07 P03 | 15 min | 2 tasks | 3 files |
 | Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P01 | 40 min | 2 tasks | 6 files |
+| Phase 07 P04 | 4 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -212,6 +216,8 @@ Recent decisions affecting current work:
 - [Phase 06]: The whole governed loop is proven end to end in one keyboard-only browser session, twice (healthy + AI-stopped); fake:deterministic + a FAKE_AI_TRIGGERS marker IS 'the AI provider stopped' in this codebase
 - [Phase 07]: 07-02: AI_PROVIDER_URL has no silent default in docker-compose.yml — ${AI_PROVIDER_URL:?...} makes docker compose config/up fail loudly and named when unset, closing the FR-9.20 silent-fake-provider risk with ZERO code change; added the previously-absent AI_API_KEY passthrough. Deviation R1: the mandatory-var message value is double-quoted (its internal ': ' broke Compose v5's YAML scanner; the colon after 'explicitly' reworded to ' - '). docs/ai-provider-configuration.md documents the config-only path for an OpenAI-compatible provider and defers the renderPromptRequest/extractPayload change until a provider is chosen.
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-01: F15 seed-demo-case CLI drives the full governed loop via the real service functions (receiveEntry/runGenerationJob/recordDecision/createSpecialist), never a direct INSERT; idempotent + stage-resumable, so the seeded case is indistinguishable from an organic one (chain_verified true, 1 HUMAN + 11 AI decision values). Fixture labelling lives in docs/seed-demo-case.md (FR-15.9), not an is_seed column. The one-seed-file arch assertion is scoped to code trees (server/web/db), not prose — a spec/runbook named after F15 is not a seed mechanism.
+- [Phase 07]: Carbon theme = White (Carbon's default light theme): read-heavy federal case-review screens, matches USWDS light/high-contrast convention, best-documented WCAG-AA-clearing theme; it is @carbon/styles' $theme default so no override needed
+- [Phase 07]: 07-04: Carbon installed additively — @carbon/styles compiles into the SAME self-hosted uswds.css as USWDS (usa-*/cds-- disjoint prefixes), so the multi-wave migration never passes through a visually-broken state; @carbon/icons-react pinned at 11.x (independent major line); @ibm/plex 6.4.1 promoted to a direct pinned dep for font self-hosting; the 07-03 _tokens.scss seam is SUPERSEDED (Carbon ships its own tokens), retired in place
 
 ### Verify Notes
 
@@ -244,6 +250,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T01:33:37.705Z
-Stopped at: Completed 07-01-PLAN.md
+Last session: 2026-09-17T01:42:30.600Z
+Stopped at: Completed 07-04-PLAN.md
 Resume file: None
