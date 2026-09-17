@@ -3,14 +3,14 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-09-17T01:30:47.469Z"
-last_activity: "2026-09-17 — 07-02 executed: Task 1 845b0f3 (docker-compose.yml AI_PROVIDER_URL made mandatory via ${AI_PROVIDER_URL:?...}, no silent fake-provider default, + AI_API_KEY passthrough; .env.example Phase 7 posture), Task 2 e5cc22c (docs/ai-provider-configuration.md operator guide). 1 deviation auto-fixed (R1: double-quote the mandatory-var message; its internal ': ' broke Compose v5's YAML scanner). Verified: docker build exit 0, compose config valid when set, db+web Up(healthy), app answers 401 on :3000, down clean, and compose fails loudly naming AI_PROVIDER_URL when unset. Zero server/src changes. 07-USER-SETUP.md generated (real provider signup/key)."
+stopped_at: Completed 07-03-PLAN.md
+last_updated: "2026-09-17T01:31:35.384Z"
+last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 53
-  completed_plans: 43
+  completed_plans: 44
   percent: 86
 ---
 
@@ -26,6 +26,9 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 ## Current Position
 
 Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-03 COMPLETE — F2 redesign PREPARATION (infrastructure-only) is done. The approved design (a claude.ai/design link) is 403/inaccessible, so NO reskin happened. `docs/uswds-coupling-audit.md` enumerates every USWDS coupling point: all 18 USWDS-coupled `.tsx` files under `web/src` individually (3 uncoupled exceptions named — router.tsx, main.tsx, SessionProvider.tsx), the single Sass entry `web/styles/app.scss`, the self-hosting `copy-uswds-assets.mjs` pipeline, and the `style-src 'self'` CSP (server/src/http/headers.ts) — stating plainly any replacement design must still compile to one self-hosted `<link>` stylesheet, and flagging `uswds-conformance-register.md`'s future re-authoring. `web/styles/_tokens.scss` is the new design-token SEAM: eight `--cargoexec-*` `:root` custom properties (color-primary/-primary-dark/-error/-base-ink, space-1/2/3, font-family-body) whose VALUES are function-derived from USWDS core's own current theme via public `color()`/`units()`/`family()` (verified: #005ea2/#1a4480/#d54309/#1b1b1b, 0.5/1/1.5rem, Source Sans Pro stack) — NO invented value, consumed by nothing yet, `@use`d into app.scss so it lands in compiled uswds.css. NO `.tsx` touched; existing `usa-*` rules unchanged (additive). Gate: `npm run build` (server+web) + `build:css` exit 0; unit 297 / db 196 / api 170 green; arch 153 pass with 2 PRE-EXISTING F15 fails (owner: 07-01/07-02 seed plans — proven pre-existing by stash-and-rerun, logged to deferred-items.md, ZERO new failures from 07-03). Task 1 e824378, Task 2 df091fa. Zero deviations. The actual visual reskin remains BLOCKED pending the inaccessible approved design (deferred to a future phase).
+
+--- prior (07-02) ---
 Plan: 07-02 COMPLETE — the Phase 7 deployment posture for F9 (FR-9.20) is fixed. `docker-compose.yml`'s `web` service now declares `AI_PROVIDER_URL` as a MANDATORY (no-default) variable via `${AI_PROVIDER_URL:?...}`: a `docker compose config`/`up` with the var unset FAILS LOUDLY and names the key, so a demonstration/production deployment can no longer silently inherit `fake:deterministic` (the exact FR-9.20 risk). The previously-absent `AI_API_KEY` passthrough was added (default empty; `config.ts` requires it only for a real `https://` provider). `.env.example` documents the Phase 7 posture (four AI keys ship empty, forcing an explicit real-provider or `fake:deterministic`-override choice). `docs/ai-provider-configuration.md` (new) is the operator guide: the FR-9.20 requirement, the config-only path for an OpenAI-compatible provider (no code change, TechArch §5.9), and the `renderPromptRequest`/`extractPayload` follow-up stated as an explicit CONDITIONAL deferred until a real provider is chosen. ZERO changes to `server/src/ai/*`, `config.ts`, or any test file — the provider abstraction and self-checks were already correct; this plan fixed only the DEFAULT. Verified end to end: `docker build` exit 0; `docker compose config --quiet` valid when set; `db`+`web` both `Up (healthy)`; app answers `401` on `:3000`; `docker compose down` clean; unset branch fails naming `AI_PROVIDER_URL`. Contract grep `AI_PROVIDER_URL:?` + `AI_API_KEY` OK. 1 deviation auto-fixed (R1: double-quote the mandatory-var message value + reword its internal `: ` to ` - ` because Compose v5's YAML scanner read the colon-space as a mapping). Test suites unaffected (not re-run): `e2e/env.ts` hard-codes its own `AI_PROVIDER_URL=fake:deterministic` independently of compose defaults; no `server/src`/test file touched. `07-USER-SETUP.md` generated (operator must sign up for a hosted LLM and supply the key). NOTE: parallel Phase 7 plans (07-01 seed CLI a078aff, 07-03 USWDS coupling doc e824378) are also landing on this branch; their working-tree files were left untouched by this plan.
 
 --- prior (06-05) ---
@@ -54,7 +57,7 @@ Plan: 05-04 COMPLETE — F9 is REAL end to end. `server/src/ai/adapter.http.ts::
 Status: Phase 1 complete (10/10). Phase 2 complete (9/9). Phase 3 in progress on disk (03-01..03-08 have summaries; 03-09 the /entries/new screen still to be authored). Phase 4 COMPLETE (04-01..04-04). Phase 5 in progress: 05-01, 05-02, 05-03, 05-04, 05-05 all COMMITTED. Fast inner-loop gate green after 05-05: unit 297, api 136, arch 153 (0 failures); `npm run build` (server+web) + `npm run typecheck` exit 0 (test:db not run for 05-05 — the plan touches only web/src, no server/src or migration change, so the db tier is unaffected). F9 (AI Resolution Recommendation Generation) is now fully realised: opening a case dispatches an async, bounded-concurrency, in-process job that cannot write a decision (A-1 mechanism #5 proven by aiCapability.spec) and never blocks receipt (proven by recommendationDispatch.spec). ENV note: `npm install --include=dev` needed in a fresh sandbox before build/test; `--reporter=list` is unsupported by the installed vitest 2.1.5 (use the default reporter).
 Last activity: 2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0.
 
-Progress: [██████████] 100%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
@@ -118,6 +121,7 @@ Progress: [██████████] 100%
 | Phase 06-the-human-decision-and-the-record-that-explains-it P04 | 10 min | 2 tasks | 6 files |
 | Phase 06 P05 | 22 min | 2 tasks | 5 files |
 | Phase 07 P02 | 9 min | 2 tasks | 4 files |
+| Phase 07 P03 | 15 min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -235,6 +239,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T01:30:47.467Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-09-17T01:31:35.382Z
+Stopped at: Completed 07-03-PLAN.md
 Resume file: None
