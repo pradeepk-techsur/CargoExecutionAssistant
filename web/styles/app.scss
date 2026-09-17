@@ -55,6 +55,24 @@
 // body scroll at 320px / 200% zoom, FR-2.20; e2e shell test 14).
 @use "shell";
 
+// ─── Content container (Phase 7 — post-USWDS layout owner) ──────────────────
+//
+// USWDS previously shipped `.grid-container` (a centred, gutter-padded,
+// max-width page-content wrapper) from its bundle; removing USWDS (plan 07-11)
+// deleted that rule while leaving the wrapper `<div class="grid-container">` in
+// Shell.tsx. Carbon ships no drop-in equivalent (its grid class is `cds--grid`),
+// so without this rule every screen renders full-bleed with no reading-width cap
+// or side gutters. This is a project-owned composition, built on Carbon tokens
+// only (no raw hex; the reading-width cap is a length Carbon exposes no token
+// for): a max inline size, centred by auto inline margins, with Carbon-spacing
+// side padding so content never touches the viewport edge and stays reflow-safe.
+.grid-container {
+  max-inline-size: 80rem;
+  margin-inline: auto;
+  padding-inline: var(--cds-spacing-05);
+  padding-block: var(--cds-spacing-07);
+}
+
 // ─── Provenance badge shape carrier (Phase 7, plan 07-06 — FR-2.17 / WCAG 1.4.1)
 //
 // The provenance badge (web/src/components/ProvenanceBadge.tsx) carries FOUR
