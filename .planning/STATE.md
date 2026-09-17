@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 06-05-PLAN.md — Phase 6 and the v1.0 milestone COMPLETE
-last_updated: "2026-09-16T22:21:28.810Z"
-last_activity: "2026-09-15 — 05-05 executed: Task 1 ce292d3 (ProvenanceBadge + api.getRecommendation), Task 2 2f48cc6 (CaseDetail F10 screen + /cases/:caseReference wiring). 2 deviations auto-fixed (R1 headers.spec dangerouslySetInnerHTML raw-source scan trips on the token in a comment → reworded; R1 placeholder submitted-value helper → read from entry.values). Arch 153 / unit 297 / api 136 green; build+typecheck exit 0."
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-09-17T01:30:47.469Z"
+last_activity: "2026-09-17 — 07-02 executed: Task 1 845b0f3 (docker-compose.yml AI_PROVIDER_URL made mandatory via ${AI_PROVIDER_URL:?...}, no silent fake-provider default, + AI_API_KEY passthrough; .env.example Phase 7 posture), Task 2 e5cc22c (docs/ai-provider-configuration.md operator guide). 1 deviation auto-fixed (R1: double-quote the mandatory-var message; its internal ': ' broke Compose v5's YAML scanner). Verified: docker build exit 0, compose config valid when set, db+web Up(healthy), app answers 401 on :3000, down clean, and compose fails loudly naming AI_PROVIDER_URL when unset. Zero server/src changes. 07-USER-SETUP.md generated (real provider signup/key)."
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 42
-  completed_plans: 42
-  percent: 100
+  total_plans: 53
+  completed_plans: 43
+  percent: 86
 ---
 
 # Project State
@@ -25,7 +25,10 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 
 ## Current Position
 
-Phase: 6 of 5 (the human decision and the record that explains it) — COMPLETE (5/5). v1.0 MILESTONE COMPLETE.
+Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Plan: 07-02 COMPLETE — the Phase 7 deployment posture for F9 (FR-9.20) is fixed. `docker-compose.yml`'s `web` service now declares `AI_PROVIDER_URL` as a MANDATORY (no-default) variable via `${AI_PROVIDER_URL:?...}`: a `docker compose config`/`up` with the var unset FAILS LOUDLY and names the key, so a demonstration/production deployment can no longer silently inherit `fake:deterministic` (the exact FR-9.20 risk). The previously-absent `AI_API_KEY` passthrough was added (default empty; `config.ts` requires it only for a real `https://` provider). `.env.example` documents the Phase 7 posture (four AI keys ship empty, forcing an explicit real-provider or `fake:deterministic`-override choice). `docs/ai-provider-configuration.md` (new) is the operator guide: the FR-9.20 requirement, the config-only path for an OpenAI-compatible provider (no code change, TechArch §5.9), and the `renderPromptRequest`/`extractPayload` follow-up stated as an explicit CONDITIONAL deferred until a real provider is chosen. ZERO changes to `server/src/ai/*`, `config.ts`, or any test file — the provider abstraction and self-checks were already correct; this plan fixed only the DEFAULT. Verified end to end: `docker build` exit 0; `docker compose config --quiet` valid when set; `db`+`web` both `Up (healthy)`; app answers `401` on `:3000`; `docker compose down` clean; unset branch fails naming `AI_PROVIDER_URL`. Contract grep `AI_PROVIDER_URL:?` + `AI_API_KEY` OK. 1 deviation auto-fixed (R1: double-quote the mandatory-var message value + reword its internal `: ` to ` - ` because Compose v5's YAML scanner read the colon-space as a mapping). Test suites unaffected (not re-run): `e2e/env.ts` hard-codes its own `AI_PROVIDER_URL=fake:deterministic` independently of compose defaults; no `server/src`/test file touched. `07-USER-SETUP.md` generated (operator must sign up for a hosted LLM and supply the key). NOTE: parallel Phase 7 plans (07-01 seed CLI a078aff, 07-03 USWDS coupling doc e824378) are also landing on this branch; their working-tree files were left untouched by this plan.
+
+--- prior (06-05) ---
 Plan: 06-05 COMPLETE (FINAL) — the whole governed loop is proven end to end. `e2e/whole-loop.spec.ts` walks the complete loop TWICE, keyboard-only, in one unbroken browser session per pass: scenario 1 (healthy) signs in through the real form, opens a hand-created failed-validation case from the queue, watches the recommendation resolve AVAILABLE, edit-and-approves with a reason, and reaches the full 5-event audit trail (verbatim reason, specialist named); scenario 2 (AI stopped) forces RECOMMENDATION_UNAVAILABLE via a FAKE_AI_TRIGGERS marker and resolves directly, proving NFR-9 the case stays fully decidable/auditable in every recommendation state. Both prove NO full-page reload during the in-place decision/audit steps (an addInitScript nav-counter). Every progression action is a real keyboard press on a control asserted focused first. NFR-5 reconfirmed (receiptPaths test 4 + aiCapability assertion 1). `docker compose up --build` boots db+web healthy and the app answers 401 — no compose edit needed (the five §6.6 AI keys were already committed; the deferred-items note was stale). `docs/a11y/case-detail.md` re-signed with Decision- and Audit-trail-region §7.7 checklists (each line citing a real Phase 6 test), an AT-walkthrough addendum, and a second sign-off marking all five sections delivered; `docs/uswds-conformance-register.md` gained append-only rows for the three equal-weight decision buttons, the reused edit form, the summary/confirmation panels, the audit value-change table, and the integrity-failure alert. MILESTONE GATE: `npm run test:all` green — unit 297, db 196, api 170, arch 153 (816) + 67 e2e = 883 tests, 0 failures, 0 skipped. 2 deviations auto-fixed (R1: sign-in.spec test-2 goto retry on the aborted-during-session-clear race; R1: retries:2 in playwright.config for the single-worker e2e tier — test-determinism only).
 
 --- prior (06-04) ---
@@ -114,6 +117,7 @@ Progress: [██████████] 100%
 | Phase 06-the-human-decision-and-the-record-that-explains-it P03 | 14 min | 2 tasks | 6 files |
 | Phase 06-the-human-decision-and-the-record-that-explains-it P04 | 10 min | 2 tasks | 6 files |
 | Phase 06 P05 | 22 min | 2 tasks | 5 files |
+| Phase 07 P02 | 9 min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -198,6 +202,7 @@ Recent decisions affecting current work:
 - [Phase 06-the-human-decision-and-the-record-that-explains-it]: 06-02: GET /api/exceptions/:exceptionId/audit is the tenth and final §3.1 route — the API surface is complete. loadAuditTrailResponse composes the extended readCaseTrail (now carrying actor_id) with resolveCaseIdentifier/loadExceptionDetail + a single bounded model_id join; read-only, no repair. model_id is attached only to RECOMMENDATION_GENERATED/UNAVAILABLE (never a human decision entry that also stamps recommendation_id). AI events carry actor:null+model_id, human events {id,display_name}. A tampered chain is reported (chain_verified false + first_divergence_sequence) in a 200 with entries still rendered. audit.spec 11 scenarios; boot.spec now asserts 10 routes. chain.spec exports allowlist updated to {loadAuditTrailResponse, readCaseTrail}. Gate: api 170, db 196, unit 297 green; build+typecheck exit 0. Deferred (out of scope, owner 06-03): receiptPaths.spec fails on 06-03's web postDecision call.
 - [Phase 06-the-human-decision-and-the-record-that-explains-it]: 06-04: F14 AuditTrailRegion renders the complete per-case trail in server order (eight-row action-label table, per-value AI/HUMAN ProvenanceBadge + textual Origin column, verbatim reasons, healthy+failed integrity statement, no export/mutation control). api.getAuditTrail is a GET-only read. The trail refreshes in place via a caseVersion refreshToken CaseDetail bumps on every successful fetchCase (FR-14.12, no polling); the /cases/:ref/audit deep link renders CaseDetail focusAuditTrail and focuses the heading once (FR-14.11). e2e/audit-trail.spec.ts 10/10 including a direct-DB tampered-chain integrity-failure. DECISION: the F14 RECOMMENDATION_UNAVAILABLE label matches the F10 heading — case-detail.spec test 2 scoped to .first() rather than renaming the normative label. 4 deviations auto-fixed (pg ESM interop, exceptions.entry_id not case_id, gen_random_bytes tamper hash for the persisted-DB unique constraint, pre-existing case-detail.spec tests 2+7 updated for real Phase-6 sections).
 - [Phase 06]: The whole governed loop is proven end to end in one keyboard-only browser session, twice (healthy + AI-stopped); fake:deterministic + a FAKE_AI_TRIGGERS marker IS 'the AI provider stopped' in this codebase
+- [Phase 07]: 07-02: AI_PROVIDER_URL has no silent default in docker-compose.yml — ${AI_PROVIDER_URL:?...} makes docker compose config/up fail loudly and named when unset, closing the FR-9.20 silent-fake-provider risk with ZERO code change; added the previously-absent AI_API_KEY passthrough. Deviation R1: the mandatory-var message value is double-quoted (its internal ': ' broke Compose v5's YAML scanner; the colon after 'explicitly' reworded to ' - '). docs/ai-provider-configuration.md documents the config-only path for an OpenAI-compatible provider and defers the renderPromptRequest/extractPayload change until a provider is chosen.
 
 ### Verify Notes
 
@@ -230,6 +235,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-16T12:18:05.072Z
-Stopped at: Completed 06-05-PLAN.md — Phase 6 and the v1.0 milestone COMPLETE
+Last session: 2026-09-17T01:30:47.467Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
