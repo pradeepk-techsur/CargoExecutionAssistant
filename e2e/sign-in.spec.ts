@@ -414,20 +414,37 @@ test.describe('sign-in walkthrough', () => {
     }
 
     // The skip link: assert the functional guarantee FR-2.15 is really about —
-    // `outline: none` has NOT been globally applied (its outline-style is a real
-    // style, not `none`), and the control is keyboard-focusable. This is a
-    // functional check that a focus indicator is not suppressed; it deliberately
-    // does not measure a contrast ratio, which is the human reviewer's job under
-    // §7.7. (The skip link's own affordance is its appearance from off-screen on
-    // focus, which is a paint the human reviewer confirms.)
+    // the control is keyboard-focusable AND paints a non-zero focus indicator on
+    // focus. This is a functional check that a focus indicator is not suppressed;
+    // it deliberately does not measure a contrast ratio, which is the human
+    // reviewer's job under §7.7. (The skip link's own affordance is its
+    // appearance from off-screen on focus, which is a paint the human reviewer
+    // confirms.)
+    //
+    // Carbon's `SkipToContent` (07-05) carries its focus indicator with a
+    // `border: 4px solid $focus` on `:focus` and explicitly sets `outline: none`
+    // (see @carbon/styles ui-shell header `.cds--skip-to-content:focus`) — the
+    // opposite mechanism from USWDS's outline token. So this check accepts ANY of
+    // border / outline / box-shadow as the painted indicator, rather than
+    // requiring an outline specifically.
     const skipOk = await page.locator('a.cds--skip-to-content').evaluate((el) => {
       (el as HTMLElement).focus();
       const s = getComputedStyle(el);
-      return el.matches(':focus') && s.outlineStyle !== 'none';
+      const outline = parseFloat(s.outlineWidth || '0');
+      const hasOutline =
+        outline > 0 && s.outlineStyle !== 'none' && s.outlineStyle !== '';
+      const borderTop = parseFloat(s.borderTopWidth || '0');
+      const hasBorder =
+        borderTop > 0 &&
+        s.borderTopStyle !== 'none' &&
+        s.borderTopStyle !== '';
+      const hasShadow = s.boxShadow !== 'none' && s.boxShadow !== '';
+      return el.matches(':focus') && (hasOutline || hasBorder || hasShadow);
     });
-    expect(skipOk, 'skip link is focusable and outline:none is not applied').toBe(
-      true,
-    );
+    expect(
+      skipOk,
+      'skip link is focusable and paints a focus indicator (Carbon uses a border)',
+    ).toBe(true);
   });
 
   // 10. IFRAME embedding.
