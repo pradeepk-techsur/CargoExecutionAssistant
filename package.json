@@ -13,7 +13,7 @@
   "scripts": {
     "migrate": "node --env-file=.env server/scripts/migrate.mjs",
     "build:css": "sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css",
-    "build:assets": "node web/scripts/copy-uswds-assets.mjs",
+    "build:assets": "node web/scripts/copy-uswds-assets.mjs && node web/scripts/copy-carbon-assets.mjs",
     "build:web": "npm run build:css && npm run build:assets && vite build -c web/vite.config.ts",
     "build:prompt": "node server/scripts/copy-prompt-assets.mjs",
     "build:server": "tsc -b contract server && npm run build:prompt",

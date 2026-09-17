@@ -68,6 +68,15 @@
 // (not `@forward`) so the partial's `:root` block is emitted INTO this
 // compiled `uswds.css` output. It re-exposes today's USWDS values under
 // swappable names and is consumed by nothing yet — a future-redesign seam only.
+//
+// SUPERSEDED (plan 07-04) — Carbon (§6.2a) ships its own complete token system
+// (colour, spacing, type) via @carbon/styles, forwarded above. `_tokens.scss`
+// was built on the premise that the redesign would be a recolour of USWDS's own
+// values; the concrete, named target (Carbon, White theme) does not use that
+// mechanism, so this seam is retired dead weight. It is NOT deleted here (a
+// later-wave file another in-flight plan might still reference is not safe to
+// remove mid-migration) — deletion is the Phase-7 final-cleanup plan's job. It
+// is not reused as the redesign mechanism.
 @use "tokens";
 
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be

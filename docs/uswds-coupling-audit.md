@@ -224,3 +224,58 @@ attempted in this phase** (no design to author it against).
 
 **The actual visual redesign remains blocked pending the (currently
 inaccessible, 403) approved design and is deferred to a future phase.**
+
+---
+
+## Phase 7 update — Carbon installed (plan 07-04)
+
+The concrete redesign target is now settled: the **Carbon Design System**
+(`@carbon/react`, backed by `@carbon/styles`). Plan 07-04 installs and wires
+it **additively** into the build — no `web/src/**/*.tsx` file changed, so every
+currently-shipped screen still renders on USWDS. The next Phase-7 plans migrate
+one file at a time against this working, CSP-compliant, self-hosted Carbon
+build.
+
+**Resolved versions (exact-pinned, project convention):**
+
+- `@carbon/react` — `1.116.0`
+- `@carbon/icons-react` — `11.88.0`
+- `@ibm/plex` — `6.4.1` (promoted from a transitive dependency of
+  `@carbon/styles` to a direct, pinned production dependency, so the font
+  self-hosting has a declared source)
+
+**Theme decision — White (Carbon's default light theme).** This is not left
+open. Reasoning (also recorded in `web/styles/app.scss`): CargoExec's screens
+(queue table, case detail, audit trail) are read-heavy and reviewed for
+extended periods, so a light, high-contrast theme reduces eye strain over
+sustained reading; it matches the light, high-contrast convention federal
+specialists already expect from USWDS-built government tools (the transition
+reads as a redesign, not a mode change); and White is Carbon's own most
+extensively documented and exercised theme, reliably clearing WCAG AA contrast
+pairings out of the box. White is the `@carbon/styles` `$theme` default
+(`compat.$white`), so no explicit theme override is required.
+
+**Build wiring.** `web/styles/app.scss` `@use`s `@carbon/styles` immediately
+after the untouched `@forward "uswds";`, so `npm run build:css` compiles BOTH
+USWDS's `usa-*` classes and Carbon's `cds--*` classes into the single
+self-hosted `web/public/assets/uswds.css` (7726 `cds--` rules present; every
+pre-existing `usa-*` rule unchanged — the two prefixes are disjoint, no
+collision).
+
+**IBM Plex self-hosting (no CDN).** Carbon's default typeface (IBM Plex Sans,
+Mono, Serif) is copied into `web/public/assets/fonts/plex/` at build time by the
+new idempotent `web/scripts/copy-carbon-assets.mjs`, wired into `build:assets`
+alongside `copy-uswds-assets.mjs`. `$use-akamai-cdn` stays false and
+`$font-path` is repointed to `/assets/fonts/plex`, so every compiled
+`@font-face` `src: url(...)` is same-origin — never the IBM Akamai CDN
+(`1.www.s81c.com`). `font-src 'self'` (unchanged, `server/src/http/headers.ts`)
+and the CDN-absence architecture gate both continue to hold.
+
+**The 07-03 token seam is superseded.** `web/styles/_tokens.scss` (the eight
+`--cargoexec-*` custom properties computed from USWDS's own values) was built
+on the premise that the redesign would be a recolour of USWDS. Carbon is not
+that — it ships its own complete Sass token system — so that seam is **not the
+redesign mechanism** and is retired dead weight. It is left in place, marked
+`SUPERSEDED` in a comment directly above its `@use "tokens";` line in
+`app.scss`; deletion is the Phase-7 final-cleanup plan's job, not a mid-migration
+removal of a file another in-flight plan might still reference.
