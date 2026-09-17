@@ -61,6 +61,9 @@ overwrites the other.
 | Decision region — pre-submission summary + Record | **Composition:** a native `<dl>` of the before/after values (each with its `ProvenanceBadge`), the permanence statement, and the ONE primary button in the whole path — the "Record decision" `SubmitButton` (Carbon `Button`, default `kind="primary"` — Pattern 3's "the commit button is the only primary-styled button") with a tertiary "Back". The idempotency key is minted when the summary renders (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
 | Decision region — server-driven confirmation | **Composition:** a native `<dl>` + the shared `DecisionSummaryTable` (`<dl>` of per-value `ProvenanceBadge`s), built ONLY from the server's `DecisionRecordResponse`, with Carbon `Link` navigation ("View the audit trail", "Back to review queue"); focus moves to the "Decision recorded" heading on record (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
 | Decision region — already-decided / network notices | Carbon `InlineNotification` — `kind="info"` (already-decided conflict, FR-12.12/FR-12.13) and `kind="warning"` (ambiguous network failure), each kept `role="alert"` so the condition is announced but NEVER `kind="error"` (not the specialist's error), replacing the USWDS `usa-alert--info`/`--warning` (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Audit-trail region — chronological event list | Native `<ol>`/`<li>`/`<h3>` (Carbon ships no ordered-event-list primitive; it is correct structural markup assistive technology navigates well), each event carrying a `<dl>` Who/When/What-changed and a verbatim line-preserving reason block — server order, no truncation/re-ordering/pagination (FR-14.1) (`AuditTrailRegion.tsx`) | Case detail (audit trail) | `docs/a11y/case-detail.md` |
+| Audit-trail region — before/after value-change table | **Composition:** Carbon's PLAIN table primitives — `Table` / `TableHead` / `TableRow` / `TableHeader` / `TableBody` / `TableCell` — a GENUINE data table (NOT `DataTable`, NOT an ARIA grid; same reasoning as the review-queue table in 07-08), with a native `<caption>`, four `TableHeader`s rendered with NO `isSortable`/`onClick` (each a bare `<th scope="col">`, no sort button/`aria-sort`/icon), a native `<th scope="row">` field header per row, and each present before/after cell carrying its `ProvenanceBadge`; the after-origin is stated IN WORDS in the Origin column (not colour alone, FR-14.6) (`AuditTrailRegion.tsx`) | Case detail (audit trail) | `docs/a11y/case-detail.md` |
+| Audit-trail region — integrity-failure alert | Carbon `InlineNotification kind="error"` + `role="alert"` (assertive), naming the divergent sequence and instructing "Report this immediately" — carries ONLY text (`title`/`subtitle`), NO close button and NO repair/edit/export action of any kind (FR-14.10 read-only-by-construction), replacing the USWDS `usa-alert--error`; the healthy case renders a plain `<p>` integrity statement instead (`AuditTrailRegion.tsx`) | Case detail (audit trail) | `docs/a11y/case-detail.md` |
 
 ## Notes on the compositions
 
@@ -235,6 +238,38 @@ overwrites the other.
   list as SIBLINGS inside the same project-owned `role="alert"` focusable
   container — every focus/order/link mechanic unchanged; only the DOM nesting of
   the link list relative to the notification moved. See `ErrorSummary.tsx`.
+- **Audit-trail value-change table** is a composition of Carbon's PLAIN table
+  primitives for the SAME load-bearing reason as the review-queue table: the
+  audit trail is read-only BY CONSTRUCTION (FR-14.7/FR-14.8), so Carbon's
+  `DataTable` — with its sort/filter/selection chrome — is precisely the wrong
+  tool. The table hand-composes `Table`/`TableHead`/`TableRow`/`TableHeader`/
+  `TableBody`/`TableCell` with no `isSortable`/`onClick` on any header (each a
+  bare `<th scope="col">`), so there is no interactive affordance in the table
+  at all — no sort, no filter, and certainly no edit/correct/delete/export
+  control. The whole region likewise renders zero buttons, links-to-downloads,
+  `window.print()` calls or copy affordances; `e2e/audit-trail.spec.ts` test 5
+  ("no edit, delete, print, download, or export control") re-verifies this
+  against the Carbon rebuild (T-07-28). A row's field name is a native
+  `<th scope="row">` (Carbon's `TableCell` renders a `<td>` and expresses no
+  row-header semantic), preserving the accessible-table structure. The
+  integrity-failure alert is a Carbon `InlineNotification kind="error"` carrying
+  only text and no action — the read-only guarantee holds even in the failure
+  path (FR-14.10). The AI-actor rendering ("AI ({model_id})", never a person's
+  name, T-07-29) is unchanged logic, re-verified by `e2e/audit-trail.spec.ts`
+  test 3 against the Carbon-rendered table.
+
+## Register completeness (plan 07-10)
+
+With this plan the register records a Carbon basis (component or composition)
+for **every** interactive control and every structural composition the product
+ships across all its screens — the shell, the shared form/state/badge library,
+the sign-in screen, the review queue, and the complete five-section case-detail
+screen (header, in-page nav, submitted entry, findings, AI recommendation,
+decision region, and audit trail). All eighteen originally USWDS-coupled `.tsx`
+files now render on Carbon; the register is complete for every case-detail
+control. The only remaining Phase-7 UI work is retiring USWDS itself from the
+dependency tree and build pipeline (a later cleanup plan), which removes markup
+already superseded here rather than adding any new control.
 
 ## Relationship to the USWDS register
 

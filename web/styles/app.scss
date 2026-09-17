@@ -175,6 +175,22 @@
   margin-block: var(--cds-spacing-05);
 }
 
+// ─── Audit-trail region (Phase 7, plan 07-10 — F14) ─────────────────────────
+//
+// The before/after value-change table renders on Carbon's plain data-table
+// primitives, but the field name in each row is a native <th scope="row">
+// (Carbon's TableCell renders a <td> and expresses no row-header semantic). Give
+// that row header the same cell padding/alignment as Carbon's own cells and a
+// left text alignment so it reads as a header, not centred data. Carbon's
+// spacing tokens only — no raw hex.
+.cargoexec-audit-value-rowhead {
+  text-align: start;
+  font-weight: 600;
+  padding-inline: var(--cds-spacing-05);
+  padding-block: var(--cds-spacing-04);
+  vertical-align: top;
+}
+
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
 // understood; when a specialist asks for reduced motion, honour it globally by
 // collapsing transitions and animations to an instant.

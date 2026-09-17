@@ -1,9 +1,24 @@
 // The F14 per-case audit-trail region (UX Screen; F14 FR-14.1 … FR-14.19;
 // TechArch §9.1's named component `AuditTrailRegion`; Phase 6 success criterion
-// 3). This is where the phase's third success criterion is answered in its
-// literal, rendered form: "who decided this, what did the AI say, what did the
-// human change" is readable INSIDE the application, in chronological order, with
-// no export and no second tool.
+// 3), now rendered on the **Carbon Design System** (`@carbon/react`) in place of
+// USWDS (Phase 7, plan 07-10 — the last of the eighteen USWDS-coupled files).
+// EVERY behaviour is unchanged from Phase 6; only the rendered DOM moved from
+// `usa-*` markup to Carbon components. This is where the phase's third success
+// criterion is answered in its literal, rendered form: "who decided this, what
+// did the AI say, what did the human change" is readable INSIDE the application,
+// in chronological order, with no export and no second tool.
+//
+// TWO Carbon migrations, both structure-preserving: the integrity-FAILURE alert
+// renders on Carbon `InlineNotification kind="error"` + `role="alert"` (was
+// `usa-alert--error`), and the before/after value-change table renders on
+// Carbon's PLAIN data-table primitives (`Table`/`TableHead`/`TableRow`/
+// `TableHeader`/`TableBody`/`TableCell`) — a GENUINE data table, NOT an ARIA
+// grid (same reasoning as the queue table in 07-08: no `DataTable`, no
+// interactivity, a bare `<th scope>` per header). The chronological event list
+// stays a native `<ol>`/`<li>`/`<h3>` (Carbon ships no equivalent; it is correct
+// structural markup). The per-value `ProvenanceBadge` (07-06 Carbon `Tag`) is
+// unchanged. NO edit/correct/delete/print/download affordance exists anywhere —
+// read-only by construction (FR-14.7/FR-14.8), unchanged by this migration.
 //
 // READ-ONLY BY CONSTRUCTION (FR-14.7, FR-14.8). This file renders no clickable
 // action element of any kind — no button, no link pointing at a downloadable
@@ -26,6 +41,15 @@
 // a person's name into an AI event.
 
 import { useEffect, useRef, useState } from 'react';
+import {
+  InlineNotification,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@carbon/react';
 import type {
   AuditActionType,
   AuditEntryDto,
@@ -286,18 +310,21 @@ function IntegrityStatement(props: {
       </p>
     );
   }
-  // Failure: a prominent, assertive USWDS error alert naming the divergent
-  // sequence. NO repair action anywhere, ever (FR-14.10). role="alert" is
-  // announced assertively by assistive technology.
+  // Failure: a prominent, assertive Carbon error notification naming the
+  // divergent sequence. NO repair action anywhere, ever (FR-14.10) — the
+  // notification carries only text (`title`/`subtitle`), no close button, no
+  // action. `role="alert"` is announced assertively by assistive technology
+  // (the project owns this role; Carbon's default notification role is the
+  // polite "status", so it is set explicitly here).
   return (
-    <div className="usa-alert usa-alert--error" role="alert">
-      <div className="usa-alert__body">
-        <p className="usa-alert__text">
-          Record integrity check failed at event {props.firstDivergence}. Report
-          this immediately.
-        </p>
-      </div>
-    </div>
+    <InlineNotification
+      kind="error"
+      role="alert"
+      lowContrast
+      hideCloseButton
+      title={`Record integrity check failed at event ${props.firstDivergence}.`}
+      subtitle="Report this immediately."
+    />
   );
 }
 
@@ -365,18 +392,25 @@ function AuditEvent(props: {
 
 function ValueChangeTable(props: { readonly entry: AuditEntryDto }): JSX.Element {
   const { entry } = props;
+  // Carbon's PLAIN table primitives — a GENUINE data table, NOT an ARIA grid and
+  // NOT `DataTable` (no sort/filter/selection; same reasoning as the queue table
+  // in 07-08). Each `TableHeader` is rendered with NO `isSortable`/`onClick`, so
+  // it emits a bare `<th scope="col">` — no sort button, no `aria-sort`, no icon
+  // (verified against @carbon/react's TableHeader source in 07-08). The native
+  // `<caption>` (via Carbon's `Table` caption support) and the `scope="row"`
+  // field header are preserved (FR-14 accessible-table semantics).
   return (
-    <table className="usa-table usa-table--borderless">
+    <Table useZebraStyles={false} className="cargoexec-audit-value-table">
       <caption>Values recorded — {actionLabel(entry)}</caption>
-      <thead>
-        <tr>
-          <th scope="col">Field</th>
-          <th scope="col">Before</th>
-          <th scope="col">After</th>
-          <th scope="col">Origin</th>
-        </tr>
-      </thead>
-      <tbody>
+      <TableHead>
+        <TableRow>
+          <TableHeader scope="col">Field</TableHeader>
+          <TableHeader scope="col">Before</TableHeader>
+          <TableHeader scope="col">After</TableHeader>
+          <TableHeader scope="col">Origin</TableHeader>
+        </TableRow>
+      </TableHead>
+      <TableBody>
         {entry.values.map((v) => {
           // After (FR-14.6): a rejection's null after_value renders the explicit
           // "Not recorded (rejected)" phrasing; any other null renders "Not
@@ -385,30 +419,36 @@ function ValueChangeTable(props: { readonly entry: AuditEntryDto }): JSX.Element
             v.after_value === null &&
             entry.action_type === 'RECOMMENDATION_REJECTED';
           return (
-            <tr key={v.field_name}>
-              <th scope="row">{fieldLabel(v.field_name)}</th>
-              <td>
+            <TableRow key={v.field_name}>
+              {/* The field name is the row header (scope="row"), an accessible-
+                  table semantic kept from the USWDS version. Carbon's TableCell
+                  renders a <td>, so this one is a native <th scope="row"> for the
+                  row-header semantic Carbon's TableCell does not express. */}
+              <th scope="row" className="cargoexec-audit-value-rowhead">
+                {fieldLabel(v.field_name)}
+              </th>
+              <TableCell>
                 {v.before_value ?? 'Not provided'}{' '}
                 {v.before_origin !== null && (
                   <ProvenanceBadge origin={v.before_origin} />
                 )}
-              </td>
-              <td>
+              </TableCell>
+              <TableCell>
                 {afterIsRejection
                   ? 'Not recorded (rejected)'
                   : (v.after_value ?? 'Not provided')}{' '}
                 {v.after_value !== null && v.after_origin !== null && (
                   <ProvenanceBadge origin={v.after_origin} />
                 )}
-              </td>
-              <td>
+              </TableCell>
+              <TableCell>
                 {/* The after-value origin IN WORDS — plain text, not a badge. */}
                 {v.after_origin !== null ? originInWords(v.after_origin) : '—'}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           );
         })}
-      </tbody>
-    </table>
+      </TableBody>
+    </Table>
   );
 }

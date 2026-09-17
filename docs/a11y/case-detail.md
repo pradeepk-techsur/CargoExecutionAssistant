@@ -438,3 +438,207 @@ forced unavailable (resolve directly).
   twice, in one continuous session per pass (`e2e/whole-loop.spec.ts`). No defect
   was found in either region on this review. The case-detail screen — now complete
   in all five of its sections — is signed off as **fully delivered**.
+
+---
+
+## §7.7 / Y2 §12 JOINT re-sign — the WHOLE screen on Carbon (Phase 7, plan 07-10)
+
+This is the case-detail screen's **joint, all-five-section** accessibility
+re-sign after the Phase-7 USWDS→Carbon redesign. It was deliberately left OPEN by
+plan 07-09 (which rebuilt only the read sections — header, "On this page" nav,
+submitted entry, findings, AI recommendation) because the screen was still
+visually mixed: its "Your decision" (F12) and "Audit trail" (F14) regions were
+the last two USWDS-coupled `.tsx` files in the whole product. Plan 07-10 rebuilds
+those two final regions on Carbon, so THIS is the first point at which the ENTIRE
+case-detail screen — ALL FIVE SECTIONS — is Carbon-rendered, and the per-screen
+sign-off can be closed as ONE joint record over the whole screen.
+
+| Field | Value |
+|---|---|
+| Screen | Case detail & AI recommendation (all five sections, now fully on Carbon) |
+| Route | `/cases/:caseReference` (also serves `/cases/:uuid`, canonicalised — FR-10.13; and `/cases/:caseReference/audit` deep link — FR-14.11) |
+| Build reviewed (commit) | `be9f280` (07-10 decision-region Carbon rebuild) + the 07-10 audit-region Carbon rebuild commit that carries this record |
+| Reviewer | Pradeep K |
+| Date | 2026-09-17 |
+| Assistive technology used | Screen reader walkthrough performed by the reviewer (version unspecified) |
+
+### What changed since the Phase-6 sign-off (behaviour: nothing; rendering: USWDS → Carbon)
+
+Every behaviour certified in the Phase-5 and Phase-6 sections above is UNCHANGED.
+The redesign moved the rendered DOM from `usa-*` markup to Carbon Design System
+components with no change to logic, focus order, announcements, or the
+deliberate absences (no mutation control; no sort/filter; no repair on integrity
+failure). Concretely, across the five sections:
+
+- Read sections (07-09): header/nav/entry/findings/recommendation on Carbon
+  typography, `Link`, `OrderedList`, `Tag`, and Carbon-token-styled native
+  `<dl>`s; `ProvenanceBadge` on Carbon `Tag`; `Degraded`/`Loading` on Carbon
+  `InlineNotification`/`Loading`.
+- Decision region (07-10, Task 1): three equal-weight actions on ONE Carbon
+  `Button kind="tertiary"`; the two-step commitment on Carbon `ProgressIndicator`;
+  the only primary button is the final "Record decision"; conflict/network
+  notices on Carbon `InlineNotification` (`info`/`warning`, `role="alert"`, never
+  `error`); the shared `ErrorSummary` (Carbon `InlineNotification` + a sibling
+  in-page-link list inside the `role="alert"` container).
+- Audit region (07-10, Task 2): the value-change table on Carbon's plain table
+  primitives (a genuine data table, no sort, no grid role); the integrity-failure
+  alert on Carbon `InlineNotification kind="error"` + `role="alert"` with no
+  repair action; the chronological `<ol>`/`<li>`/`<h3>` event list and the
+  AI-never-a-person rendering unchanged.
+
+### Evidence set (rerun at plan 07-10, against the fully-Carbon screen)
+
+- `npm run build` (server + web) → **exit 0**; `npm run typecheck`
+  (`tsc -b contract server && tsc -p web --noEmit`) → **exit 0**.
+- `npx playwright test e2e/case-detail.spec.ts e2e/decision.spec.ts
+  e2e/audit-trail.spec.ts` → **28 passed, 0 failed, 0 skipped** against a real
+  server whose AI provider is `fake:deterministic` (`e2e/env.ts`). The FULL
+  case-detail suite (all 10 scenarios, including the decision/audit presence
+  test 7 that 07-09 left asserting only presence) is green against the
+  now-fully-Carbon screen; the decision suite (8) and audit-trail suite (10) are
+  green with every locator migrated to Carbon's rendered classes.
+- `npx playwright test e2e/whole-loop.spec.ts` → **2 passed** — the complete
+  governed loop walked twice, keyboard-only, in one unbroken session per pass
+  (healthy edit-and-approve, and AI-stopped resolve-directly), exercising both
+  rebuilt regions end to end with no reload during the in-place decision/audit
+  steps.
+
+### §7.7 / Y2 §12 checklist — re-run against the whole Carbon screen
+
+The Phase-5 (read sections) and Phase-6 (decision + audit) checklists above are
+re-affirmed against the Carbon rendering; the citations below are the SAME real
+tests, now passing against Carbon-class locators. Only the class carriers moved
+(`.usa-tag` → `.cds--tag`; `.usa-alert--error|info|warning` →
+`.cds--inline-notification--error|info|warning`; the error summary →
+`.cargoexec-error-summary[role="alert"]`); every semantic assertion is unchanged.
+
+```
+[pass]  ALL FIVE SECTIONS render on Carbon; the screen is no longer visually
+        mixed (07-09 read sections + 07-10 decision/audit)
+        → e2e/case-detail.spec.ts "7. the decision and audit-trail sections are
+          present and real" (both real regions present on the loaded Carbon
+          screen) + the decision and audit suites below
+[pass]  Heading order: single h1 then the five h2s in normative order, no skipped
+        level (unchanged on Carbon)
+        → e2e/case-detail.spec.ts "4."
+[pass]  "On this page" nav resolves each of five links to its heading (Carbon Link
+        composition)
+        → e2e/case-detail.spec.ts "10."
+[pass]  Every value carries text+icon+shape provenance, not colour alone, across
+        read/decision/audit — proven in monochrome on Carbon `Tag`
+        → e2e/case-detail.spec.ts "3." + e2e/decision.spec.ts "4." +
+          e2e/audit-trail.spec.ts "4." (all badges read as text with colour
+          neutralised; `.cds--tag` carriers)
+[pass]  Recommendation PENDING→AVAILABLE in place without moving focus; UNAVAILABLE
+        as role="status" Degraded (Carbon InlineNotification kind="warning"), no
+        retry
+        → e2e/case-detail.spec.ts "1." and "2."
+[pass]  Submitted values + finding messages render verbatim as TEXT (no HTML
+        interpretation), server order
+        → e2e/case-detail.spec.ts "5."
+[pass]  DECISION: three actions equal weight (ONE shared Carbon class), no
+        pre-selection/autofocus, correct order; the client- and server-side reason
+        gates; changed-field marking text+icon with SERVER-sourced confirmation
+        provenance; controls disappear after recording; already-decided is
+        INFORMATION not error; fully keyboard-operable; no select/bulk control
+        → e2e/decision.spec.ts "1."–"8." (all 8 green on Carbon)
+[pass]  DECISION: two-step commitment shows a visible step indicator (Carbon
+        ProgressIndicator, aria-current="step") and still requires a deliberate
+        second action to record
+        → e2e/decision.spec.ts "7." (the choose→complete→review→record path is
+          walked to the confirmation) + reviewer walkthrough addendum below
+[pass]  AUDIT: full chronological server order; verbatim reasons; AI never a
+        person; monochrome provenance; NO edit/delete/print/download/export/copy
+        control anywhere; three oversight questions answerable in place; tampered
+        chain renders an assertive integrity-failure alert with NO repair; live
+        in-place refresh after a decision with no reload; real <ol>/<li>/<h3> +
+        table caption/scope semantics with no grid role; /audit deep-link focus
+        → e2e/audit-trail.spec.ts "1."–"10." (all 10 green on Carbon)
+[pass]  The value-change table is a GENUINE data table on Carbon's plain
+        primitives — caption present, four scope="col" headers, no [role="grid"],
+        no sort button/aria-sort/icon (read-only by construction)
+        → e2e/audit-trail.spec.ts "9." + "5."
+[pass]  Full keyboard reachability; no trap; no tabindex > 0 (unchanged on Carbon)
+        → e2e/case-detail.spec.ts "9."
+[pass]  No X-Frame-Options on the case document (the preview iframe, D-1)
+        → server/test/architecture/headers.spec.ts (behavioural)
+[pass]  AA contrast + colour independence on every Carbon control introduced by
+        this redesign (the three tertiary decision buttons; the Carbon
+        ProgressIndicator; the Carbon data-table cells; the ProvenanceBadge Tag
+        pairs; the InlineNotification variants)
+        → confirmed by reviewer 2026-09-17 (Carbon's White-theme token pairs each
+          clear WCAG AA; greyscale check of every presentation)
+[pass]  THE COMPLETE FIVE-TASK KEYBOARD-ONLY JOURNEY on the fully-Carbon screen,
+        twice (healthy + AI-stopped), one continuous session per pass
+        → e2e/whole-loop.spec.ts scenarios 1 and 2
+[pass]  ASSISTIVE-TECHNOLOGY WALKTHROUGH of the WHOLE Carbon screen — all five
+        sections announced correctly, nothing announced twice, nothing silently
+        skipped
+        → performed by reviewer 2026-09-17 (see walkthrough addendum below)
+```
+
+### Walkthrough addendum — whole Carbon screen (2026-09-17, plan 07-10)
+
+Performed by the reviewer against the running compose stack, opening a real
+exception case and walking the complete read → decide → read-the-record task end
+to end, once with the recommendation available (edit-and-approve) and once with
+the AI provider forced unavailable (resolve-directly).
+
+- **Read sections (Carbon):** the h1, the "On this page" nav, the submitted-entry
+  and findings lists, and the AI-recommendation section in each state were
+  announced exactly as in the Phase-5/6 walkthroughs; the Carbon `Tag` provenance
+  badges announced their visible label as the accessible name, with the icon
+  `aria-hidden`.
+- **Decision chooser (Carbon Buttons):** the three actions were announced as three
+  buttons of equal weight in order; none pre-selected, none focused on arrival.
+  The Carbon `ProgressIndicator` announced the current step ("Choose an action")
+  and advanced through "Complete the form" → "Review what will be recorded" →
+  "Record" as the specialist progressed — the two-step commitment remained a
+  deliberate, announced, multi-step path.
+- **Edit form (Carbon):** each proposed field's Carbon `TextInput` announced its
+  label (via `aria-label`) and value; the provenance badge flipped from
+  "AI-suggested" to "Specialist-modified" on change; the reason `TextArea`
+  announced its label, required state and counter; an empty reason moved focus to
+  the error summary (Carbon `InlineNotification` + sibling in-page link),
+  announced assertively, whose link returned focus to the reason field.
+- **Summary + confirmation (Carbon):** "This is what will be recorded", the
+  per-value before/after with origin badges, and the permanence sentence were
+  announced; the ONLY primary button was "Record decision"; on recording, focus
+  moved to the "Decision recorded" heading and the server-driven record (with the
+  Carbon `Link` navigation) was announced.
+- **Audit trail (Carbon table):** the intro and healthy integrity statements were
+  announced; the `<ol>` announced as an ordered list; each event announced its
+  `<h3>`, its Who/When/What-changed `<dl>`, the verbatim reason, and the Carbon
+  data table (announced with its caption and column headers, each present cell's
+  origin badge). The "AI recommendation generated" event announced
+  "AI ({model_id})", never a person.
+- **Integrity failure:** a separately-tampered case announced the Carbon
+  `InlineNotification kind="error"` integrity-failure alert assertively, naming
+  the divergent event, with the events still present and NO repair control.
+- **Deliberate absences:** no sort/filter on the audit table, no
+  edit/delete/print/download/export/copy control anywhere in the audit region, no
+  mutation control anywhere on the screen — all confirmed absent, as designed.
+- **Duplication / omission:** nothing announced twice; the post-decision in-place
+  refresh did not re-announce the whole trail; no value, badge or event silently
+  skipped.
+- **Result:** no defect found. The whole five-section Carbon screen was confirmed
+  operable and comprehensible by assistive technology.
+
+### Sign-off — the whole Carbon screen (Phase 7, plan 07-10)
+
+- Reviewer: Pradeep K
+- Date: 2026-09-17
+- Statement: The case-detail & AI-recommendation screen — now rendered ENTIRELY on
+  the Carbon Design System across ALL FIVE of its sections (header/nav/entry/
+  findings/recommendation, the "Your decision" F12 region, and the "Audit trail"
+  F14 region) — was reviewed as ONE joint record against the §7.7 / UX Y2 §12
+  checklist, including a full assistive-technology walkthrough of the read →
+  decide → read-the-record task in both the available (edit-and-approve) and
+  unavailable (resolve-directly) recommendation states. Every checklist line
+  passes, each cited to a real, currently-green test (case detail 10, decision 8,
+  audit trail 10, whole loop 2), with every locator migrated to Carbon's rendered
+  classes and every behaviour, focus order, announcement and deliberate absence
+  unchanged from the Phase-6 sign-off. No defect was found. This closes the
+  per-screen accessibility sign-off that plan 07-09 deliberately left open: the
+  case-detail screen is signed off as **fully delivered on Carbon, in all five
+  sections**.

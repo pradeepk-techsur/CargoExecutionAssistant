@@ -272,8 +272,9 @@ test.describe('audit trail region (F14)', () => {
 
     // Every ProvenanceBadge in the trail reads as one of the provenance labels
     // by text alone. There is at least one AI and one Specialist badge on the
-    // decision event's value table.
-    const badges = trailList(page).locator('.usa-tag');
+    // decision event's value table. As of the Carbon rebuild (07-10) the badge
+    // is a Carbon `Tag` (`.cds--tag`).
+    const badges = trailList(page).locator('.cds--tag');
     const count = await badges.count();
     expect(count).toBeGreaterThan(0);
     let sawAi = false;
@@ -423,9 +424,14 @@ test.describe('audit trail region (F14)', () => {
     }
 
     // Reload the case: the audit read now reports chain_verified:false with the
-    // events still rendered.
+    // events still rendered. As of the Carbon rebuild (07-10) the integrity-
+    // failure alert is a Carbon `InlineNotification kind="error"` kept
+    // `role="alert"` (the class carrier moved from `usa-alert--error` to
+    // `cds--inline-notification--error`; the assertive role is unchanged).
     await page.goto(`${BASE}/cases/${caseReference}`);
-    const alert = page.locator('#audit-trail ~ .usa-alert--error[role="alert"]');
+    const alert = page.locator(
+      '#audit-trail ~ .cds--inline-notification--error[role="alert"]',
+    );
     await expect(alert).toBeVisible();
     await expect(alert).toContainText(
       `Record integrity check failed at event ${tamperedSequence}`,
