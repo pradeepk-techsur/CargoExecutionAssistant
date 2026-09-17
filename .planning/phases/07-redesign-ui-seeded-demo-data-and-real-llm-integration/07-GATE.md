@@ -3,9 +3,10 @@ phase: 07
 gate_status: passed
 build_command: "npm run build"
 test_command: "npm test"
-last_updated: 2026-09-17T02:59:06Z
+last_updated: 2026-09-17T03:08:57Z
 tests_disabled_during_fixes: none
 shadowed_sources: 0
+review_blockers_open: 0
 waves:
   - wave: 1
     build: pass
@@ -28,6 +29,10 @@ waves:
     tests: pass
     fix_attempts: 0
   - wave: 6
+    build: pass
+    tests: pass
+    fix_attempts: 0
+  - wave: 7
     build: pass
     tests: pass
     fix_attempts: 0
@@ -3496,5 +3501,487 @@ Warning: useLayoutEffect does nothing on the server, because its effect cannot b
 [2m      Tests [22m [1m[32m155 passed[39m[22m[90m (155)[39m
 [2m   Start at [22m 02:58:53
 [2m   Duration [22m 858ms[2m (transform 156ms, setup 0ms, collect 442ms, tests 323ms, environment 0ms, prepare 23ms)[22m
+```
+
+## Wave 7
+
+- Build: `npm run build` → pass
+- Tests: `npm test` → pass
+- Fix attempts: 0/3 — phase-level final regression gate — re-ran full suite on the final tree after code-review fixer commits (7def176, 2b42397). Entire suite green: unit 297 / db 196 / api 170 / arch 155. This is the phase regression statement.
+
+### Gate output
+
+```
+[final gate] build
+
+> build
+> npm run build:server && npm run build:web
+
+
+> build:server
+> tsc -b contract server && npm run build:prompt
+
+
+> build:prompt
+> node server/scripts/copy-prompt-assets.mjs
+
+copy-prompt-assets: /home/daytona/project/server/src/ai/prompt -> /home/daytona/project/server/dist/ai/prompt
+
+> build:web
+> npm run build:css && npm run build:assets && vite build -c web/vite.config.ts
+
+
+> build:css
+> sass --no-source-map --load-path=node_modules web/styles/app.scss web/public/assets/app.css
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+   ┌──> node_modules/@carbon/styles/scss/components/tooltip/_tooltip.scss
+55 │       border-block-end-color: theme.$border-interactive;
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ declaration
+   ╵
+   ┌──> node_modules/@carbon/styles/scss/utilities/_focus-outline.scss
+19 │ ┌     @media screen and (prefers-contrast) {
+20 │ │       outline-style: dotted;
+21 │ │     }
+   │ └─── nested rule
+   ╵
+    node_modules/@carbon/styles/scss/components/tooltip/_tooltip.scss 55:5     definition-tooltip()
+    node_modules/@carbon/styles/scss/components/tooltip/_index.scss 13:1       @use
+    node_modules/@carbon/styles/scss/components/button/_button.scss 12:1       @forward
+    node_modules/@carbon/styles/scss/components/button/_index.scss 9:1         @use
+    node_modules/@carbon/styles/scss/components/toggletip/_toggletip.scss 8:1  @forward
+    node_modules/@carbon/styles/scss/components/toggletip/_index.scss 8:1      @use
+    node_modules/@carbon/styles/scss/components/slug/_slug.scss 17:1           @forward
+    node_modules/@carbon/styles/scss/components/slug/_index.scss 8:1           @use
+    node_modules/@carbon/styles/scss/components/ai-label/_ai-label.scss 11:1   @forward
+    node_modules/@carbon/styles/scss/components/ai-label/_index.scss 8:1       @use
+    node_modules/@carbon/styles/scss/components/_index.scss 10:1               @use
+    @carbon/index.scss 23:1                                                    @use
+    web/styles/app.scss 37:1                                                   root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@carbon/styles/scss/components/button/_button.scss
+205 │ ┌     padding-inline-end: calc(
+206 │ │       layout.density('padding-inline') - convert.to-rem(1px)
+207 │ │     );
+    │ └─────^ declaration
+    ╵
+    ┌──> node_modules/@carbon/styles/scss/components/button/_mixins.scss
+127 │ ┌   @media (any-hover: hover) {
+128 │ │     &:hover {
+129 │ │       background-color: $hover-bg-color;
+130 │ │     }
+131 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@carbon/styles/scss/components/button/_button.scss 205:5      button()
+    node_modules/@carbon/styles/scss/components/button/_index.scss 17:1        @use
+    node_modules/@carbon/styles/scss/components/toggletip/_toggletip.scss 8:1  @forward
+    node_modules/@carbon/styles/scss/components/toggletip/_index.scss 8:1      @use
+    node_modules/@carbon/styles/scss/components/slug/_slug.scss 17:1           @forward
+    node_modules/@carbon/styles/scss/components/slug/_index.scss 8:1           @use
+    node_modules/@carbon/styles/scss/components/ai-label/_ai-label.scss 11:1   @forward
+    node_modules/@carbon/styles/scss/components/ai-label/_index.scss 8:1       @use
+    node_modules/@carbon/styles/scss/components/_index.scss 10:1               @use
+    @carbon/index.scss 23:1                                                    @use
+    web/styles/app.scss 37:1                                                   root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+    ┌──> node_modules/@carbon/styles/scss/components/button/_button.scss
+393 │ ┌       padding-inline-end: calc(
+394 │ │         layout.density('padding-inline') - convert.to-rem(1px)
+395 │ │       );
+    │ └───────^ declaration
+    ╵
+    ┌──> node_modules/@carbon/styles/scss/components/button/_mixins.scss
+127 │ ┌   @media (any-hover: hover) {
+128 │ │     &:hover {
+129 │ │       background-color: $hover-bg-color;
+130 │ │     }
+131 │ │   }
+    │ └─── nested rule
+    ╵
+    node_modules/@carbon/styles/scss/components/button/_button.scss 393:7      button()
+    node_modules/@carbon/styles/scss/components/button/_index.scss 17:1        @use
+    node_modules/@carbon/styles/scss/components/toggletip/_toggletip.scss 8:1  @forward
+    node_modules/@carbon/styles/scss/components/toggletip/_index.scss 8:1      @use
+    node_modules/@carbon/styles/scss/components/slug/_slug.scss 17:1           @forward
+    node_modules/@carbon/styles/scss/components/slug/_index.scss 8:1           @use
+    node_modules/@carbon/styles/scss/components/ai-label/_ai-label.scss 11:1   @forward
+    node_modules/@carbon/styles/scss/components/ai-label/_index.scss 8:1       @use
+    node_modules/@carbon/styles/scss/components/_index.scss 10:1               @use
+    @carbon/index.scss 23:1                                                    @use
+    web/styles/app.scss 37:1                                                   root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+   ┌──> node_modules/@carbon/styles/scss/components/button/_button.scss
+458│       inline-size: convert.to-rem(150px);
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ declaration
+   ╵
+   ┌──> node_modules/@carbon/styles/scss/utilities/_skeleton.scss
+49 │ ┌     @media (prefers-reduced-motion: reduce) {
+50 │ │       animation: none;
+51 │ │     }
+   │ └─── nested rule
+   ╵
+    node_modules/@carbon/styles/scss/components/button/_button.scss 458:5      button()
+    node_modules/@carbon/styles/scss/components/button/_index.scss 17:1        @use
+    node_modules/@carbon/styles/scss/components/toggletip/_toggletip.scss 8:1  @forward
+    node_modules/@carbon/styles/scss/components/toggletip/_index.scss 8:1      @use
+    node_modules/@carbon/styles/scss/components/slug/_slug.scss 17:1           @forward
+    node_modules/@carbon/styles/scss/components/slug/_index.scss 8:1           @use
+    node_modules/@carbon/styles/scss/components/ai-label/_ai-label.scss 11:1   @forward
+    node_modules/@carbon/styles/scss/components/ai-label/_index.scss 8:1       @use
+    node_modules/@carbon/styles/scss/components/_index.scss 10:1               @use
+    @carbon/index.scss 23:1                                                    @use
+    web/styles/app.scss 37:1                                                   root stylesheet
+
+DEPRECATION WARNING: Sass's behavior for declarations that appear after nested
+rules will be changing to match the behavior specified by CSS in an upcoming
+version. To keep the existing behavior, move the declaration above the nested
+rule. To opt into the new behavior, wrap the declaration in `& {}`.
+
+More info: https://sass-lang.com/d/mixed-decls
+
+   ┌──> node_modules/@carbon/styles/scss/components/button/_button.scss
+458│       inline-size: convert.to-rem(150px);
+   │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ declaration
+   ╵
+   ┌──> node_modules/@carbon/styles/scss/utilities/_high-contrast-mode.scss
+14 │ ┌   @media screen and (-ms-high-contrast: active), (forced-colors: active) {
+15 │ │     @if ($type == 'focus') {
+16 │ │       color: Highlight;
+17 │ │       outline: 1px solid Highlight;
+18 │ │     }
+19 │ │ 
+20 │ │     @if ($type == 'outline') {
+21 │ │       outline: 1px solid transparent;
+22 │ │     }
+23 │ │ 
+24 │ │     @if ($type == 'disabled') {
+25 │ │       color: GrayText;
+26 │ │       fill: GrayText;
+27 │ │     }
+28 │ │ 
+29 │ │     @content;
+30 │ │   }
+   │ └─── nested rule
+   ╵
+    node_modules/@carbon/styles/scss/components/button/_button.scss 458:5      button()
+    node_modules/@carbon/styles/scss/components/button/_index.scss 17:1        @use
+    node_modules/@carbon/styles/scss/components/toggletip/_toggletip.scss 8:1  @forward
+    node_modules/@carbon/styles/scss/components/toggletip/_index.scss 8:1      @use
+    node_modules/@carbon/styles/scss/components/slug/_slug.scss 17:1           @forward
+    node_modules/@carbon/styles/scss/components/slug/_index.scss 8:1           @use
+    node_modules/@carbon/styles/scss/components/ai-label/_ai-label.scss 11:1   @forward
+    node_modules/@carbon/styles/scss/components/ai-label/_index.scss 8:1       @use
+    node_modules/@carbon/styles/scss/components/_index.scss 10:1               @use
+    @carbon/index.scss 23:1                                                    @use
+    web/styles/app.scss 37:1                                                   root stylesheet
+
+WARNING: 1018 repetitive deprecation warnings omitted.
+Run in verbose mode to see all warnings.
+
+
+> build:assets
+> node web/scripts/copy-carbon-assets.mjs
+
+copied /home/daytona/project/node_modules/@ibm/plex/IBM-Plex-Sans -> /home/daytona/project/web/public/assets/fonts/plex/IBM-Plex-Sans
+copied /home/daytona/project/node_modules/@ibm/plex/IBM-Plex-Mono -> /home/daytona/project/web/public/assets/fonts/plex/IBM-Plex-Mono
+copied /home/daytona/project/node_modules/@ibm/plex/IBM-Plex-Serif -> /home/daytona/project/web/public/assets/fonts/plex/IBM-Plex-Serif
+copied /home/daytona/project/web/assets/img -> /home/daytona/project/web/public/assets/img
+carbon (IBM Plex) + project static assets copied
+[36mvite v5.4.11 [32mbuilding for production...[36m[39m
+transforming...
+node_modules/@carbon/react/es/index.js (8:0): Module level directives cause errors when bundled, "use client" in "node_modules/@carbon/react/es/index.js" was ignored.
+[32m✓[39m 966 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/[22m[32mindex.html                [39m[1m[2m  0.91 kB[22m[1m[22m[2m │ gzip:   0.56 kB[22m
+[2mdist/[22m[2massets/[22m[36mindex-Cl2scBD9.js  [39m[1m[2m369.85 kB[22m[1m[22m[2m │ gzip: 116.44 kB[22m
+[32m✓ built in 1.86s[39m
+[final gate] tests
+
+> test
+> npm run test:unit && npm run test:db && npm run test:api && npm run test:arch
+
+
+> test:unit
+> vitest run server/test/unit
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/unit/validation.engine.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[90m 28[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.rules.spec.ts [2m([22m[2m71 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/adapter.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2010[2mms[22m[39m
+   [33m[2m✓[22m[39m createHttpProvider — the API key never leaks (FR-9.13 / FR-9.16)[2m > [22m10. the configured apiKey appears in no ProviderResult and no log line across all branches [33m2003[2mms[22m[39m
+ [32m✓[39m server/test/unit/canonical.spec.ts [2m([22m[2m19 tests[22m[2m)[22m[90m 59[2mms[22m[39m
+ [32m✓[39m server/test/unit/config.spec.ts [2m([22m[2m51 tests[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m server/test/unit/validation.registry.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 4[2mms[22m[39m
+ [32m✓[39m server/test/unit/errorMapper.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 23[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/outputSchema.spec.ts [2m([22m[2m25 tests[22m[2m)[22m[90m 2[2mms[22m[39m
+ [32m✓[39m server/test/unit/headers.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 16[2mms[22m[39m
+ [32m✓[39m server/test/unit/throttle.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/redaction.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/unit/contract.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/fakeProvider.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/cookies.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/ai/promptManifest.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 1[2mms[22m[39m
+ [32m✓[39m server/test/unit/scaffolding.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 0[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m297 passed[39m[22m[90m (297)[39m
+[2m   Start at [22m 03:08:39
+[2m   Duration [22m 2.73s[2m (transform 111ms, setup 0ms, collect 466ms, tests 2.16s, environment 0ms, prepare 23ms)[22m
+
+
+> test:db
+> vitest run server/test/db
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/db/chain.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 831[2mms[22m[39m
+   [33m[2m✓[22m[39m TEST-DB-13 & TEST-DB-14 — sequencing under concurrency and chain refusal at commit[2m > [22mTEST-DB-13: two concurrent appends produce contiguous sequences 4 and 5 with correct linkage, the second blocked until the first commits [33m430[2mms[22m[39m
+ [32m✓[39m server/test/db/immutability.spec.ts [2m([22m[2m34 tests[22m[2m)[22m[90m 229[2mms[22m[39m
+ [32m✓[39m server/test/db/exceptionBasis.spec.ts [2m([22m[2m14 tests[22m[2m)[22m[90m 210[2mms[22m[39m
+ [32m✓[39m server/test/db/coupling.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 236[2mms[22m[39m
+ [32m✓[39m server/test/db/receipt.spec.ts [2m([22m[2m16 tests[22m[2m)[22m[90m 130[2mms[22m[39m
+ [32m✓[39m server/test/db/provenance.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 347[2mms[22m[39m
+ [32m✓[39m server/test/db/queueService.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 890[2mms[22m[39m
+   [33m[2m✓[22m[39m queue/caseRead services — F7 composition (plan 04-02)[2m > [22m3a. 501 open exceptions serve as 500 rows, truncated:true, the 500 lowest receipt_position values [33m705[2mms[22m[39m
+{"level":40,"time":1789614525517,"pid":168155,"hostname":"pivota-sandbox-74afd381","exception_id":"1a247052-957a-44bd-8a4a-5f58c7eff035","msg":"generation job: no recommendation row, exiting"}
+ [32m✓[39m server/test/db/generation.job.spec.ts [2m([22m[2m13 tests[22m[2m)[22m[90m 96[2mms[22m[39m
+ [32m✓[39m server/test/db/entries.repo.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 90[2mms[22m[39m
+ [32m✓[39m server/test/db/recommendationWrite.repo.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 94[2mms[22m[39m
+ [32m✓[39m server/test/db/queueRead.repo.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 129[2mms[22m[39m
+ [32m✓[39m server/test/db/hitl.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 184[2mms[22m[39m
+ [32m✓[39m server/test/db/receiptAtomicity.spec.ts [2m([22m[2m7 tests[22m[2m)[22m[90m 89[2mms[22m[39m
+ [32m✓[39m server/test/db/session.service.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 342[2mms[22m[39m
+ [32m✓[39m server/test/db/writer.spec.ts [2m([22m[2m9 tests[22m[2m)[22m[90m 71[2mms[22m[39m
+ [32m✓[39m server/test/db/harness.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 100[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m      Tests [22m [1m[32m196 passed[39m[22m[90m (196)[39m
+[2m   Start at [22m 03:08:42
+[2m   Duration [22m 4.45s[2m (transform 169ms, setup 0ms, collect 283ms, tests 4.07s, environment 0ms, prepare 22ms)[22m
+
+
+> test:api
+> vitest run server/test/api
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/api/decision.spec.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 346[2mms[22m[39m
+ [32m✓[39m server/test/api/exceptions.spec.ts [2m([22m[2m20 tests[22m[2m)[22m[90m 261[2mms[22m[39m
+ [32m✓[39m server/test/api/entries.spec.ts [2m([22m[2m27 tests[22m[2m)[22m[90m 189[2mms[22m[39m
+ [32m✓[39m server/test/api/audit.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 228[2mms[22m[39m
+ [32m✓[39m server/test/api/guard.spec.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 340[2mms[22m[39m
+ [32m✓[39m server/test/api/expiry.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 310[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendation.spec.ts [2m([22m[2m10 tests[22m[2m)[22m[90m 123[2mms[22m[39m
+ [32m✓[39m server/test/api/session.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 394[2mms[22m[39m
+ [32m✓[39m server/test/api/actor.spec.ts [2m([22m[2m15 tests[22m[2m)[22m[90m 130[2mms[22m[39m
+ [32m✓[39m server/test/api/recommendationDispatch.spec.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 305[2mms[22m[39m
+ [32m✓[39m server/test/api/boot.spec.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 48[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m      Tests [22m [1m[32m170 passed[39m[22m[90m (170)[39m
+[2m   Start at [22m 03:08:46
+[2m   Duration [22m 3.13s[2m (transform 162ms, setup 0ms, collect 362ms, tests 2.67s, environment 0ms, prepare 22ms)[22m
+
+
+> test:arch
+> vitest run server/test/architecture
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.5 [39m[90m/home/daytona/project[39m
+
+ [32m✓[39m server/test/architecture/absence.spec.ts [2m([22m[2m54 tests[22m[2m)[22m[90m 37[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — exactly two destinations (FR-2.7, §8.3, criterion 5)[2m > [22m[2mthe rendered <nav aria-label="Primary"> contains exactly two anchors
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4c. no rendered <Shell> link/button name outside the footer is an excluded affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at HeaderName (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderName.js:25:23)
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no excluded affordance in any UI destination or control[2m > [22m[2m4d. the footer link set equals the list pinned in Footer.tsx (exemption is auditable)
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at HeaderName (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderName.js:25:23)
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m6. the authenticated shell contains no supervisory affordance
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at HeaderName (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderName.js:25:23)
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at NavLinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:892:25)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at li
+    at HeaderMenuItem (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderMenuItem.js:26:72)
+    at ul
+    at nav
+    at HeaderNavigation (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderNavigation.js:25:43)
+    at Nav
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/navigation.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 22[2mms[22m[39m
+[90mstderr[2m | server/test/architecture/navigation.spec.ts[2m > [22m[2mnavigation — no second-role affordance; reduced shell has no navigation[2m > [22m[2m7. the reduced (/sign-in) shell renders no primary nav and no sign-out control
+[22m[39mWarning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+Warning: useLayoutEffect does nothing on the server, because its effect cannot be encoded into the server renderer's output format. This will lead to a mismatch between the initial, non-hydrated UI and the intended UI. To avoid this, useLayoutEffect should only be used in components that render exclusively on the client. See https://reactjs.org/link/uselayouteffect-ssr for common fixes.
+    at LinkWithRef (/home/daytona/project/node_modules/react-router-dom/dist/umd/react-router-dom.development.js:814:9)
+    at /home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Link.js:23:10
+    at HeaderName (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/HeaderName.js:25:23)
+    at header
+    at Header (/home/daytona/project/node_modules/@carbon/react/lib/components/UIShell/Header.js:24:30)
+    at Header (/home/daytona/project/web/src/shell/Header.tsx:11:11)
+    at Shell (/home/daytona/project/web/src/shell/Shell.tsx:14:25)
+    at Router (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1207:17)
+    at MemoryRouter (/home/daytona/project/node_modules/react-router/dist/umd/react-router.development.js:1101:7)
+
+ [32m✓[39m server/test/architecture/receiptPaths.spec.ts [2m([22m[2m11 tests[22m[2m)[22m[90m 15[2mms[22m[39m
+ [32m✓[39m server/test/architecture/validation.spec.ts [2m([22m[2m8 tests[22m[2m)[22m[90m 19[2mms[22m[39m
+ [32m✓[39m server/test/architecture/headers.spec.ts [2m([22m[2m48 tests[22m[2m)[22m[90m 60[2mms[22m[39m
+ [32m✓[39m server/test/architecture/privileges.spec.ts [2m([22m[2m12 tests[22m[2m)[22m[90m 78[2mms[22m[39m
+ [32m✓[39m server/test/architecture/aiCapability.spec.ts [2m([22m[2m5 tests[22m[2m)[22m[90m 3[2mms[22m[39m
+ [32m✓[39m server/test/architecture/schema.spec.ts [2m([22m[2m6 tests[22m[2m)[22m[90m 72[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m155 passed[39m[22m[90m (155)[39m
+[2m   Start at [22m 03:08:50
+[2m   Duration [22m 836ms[2m (transform 157ms, setup 0ms, collect 436ms, tests 306ms, environment 0ms, prepare 22ms)[22m
 ```
 
