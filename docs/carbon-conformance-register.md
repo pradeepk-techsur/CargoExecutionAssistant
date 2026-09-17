@@ -55,6 +55,12 @@ overwrites the other.
 | Sign-in session notices (expired / signed-out) | Carbon `InlineNotification` — `kind="info"` "Your session expired. Sign in again to continue." and `kind="success"` "You are signed out." — each `role="status"` (a polite announcement, not an alert), `lowContrast`, `hideCloseButton`, replacing the inline `usa-alert--info` / `usa-alert--success`; the reason is read from a fixed `URLSearchParams` allowlist (`'expired'`/`'signed-out'`), never raw query content (T-07-21) (`SignIn.tsx`) | Sign in | `docs/a11y/sign-in.md` (re-signed 07-07) |
 | NotBuiltYet transitional placeholder notice | Carbon `InlineNotification kind="info"` (`role="status"`, `lowContrast`, `hideCloseButton`) with an in-notice react-router `Link` to the OTHER nav destination (reads `NAV_ITEMS`, unchanged since 07-05), replacing `usa-alert--info`; renders NO disabled control, no "coming soon" chip, no tooltip (UX Pattern 7 / FR-12.11) (`NotBuiltYet.tsx`) | /entries/new placeholder (transitional) | `docs/a11y/shell.md` (fallback screens) |
 | NotFound screen | Plain prose (`h1` + paragraph + a react-router `Link` back to `/queue`), Carbon typography via the shell's tokens; no alert/status role (a dead route is not an error condition to announce), focus moved to the `h1` and title announced on mount (unchanged `useScreenFocus`) (`NotFound.tsx`) | `*` not-found route | `docs/a11y/shell.md` (fallback screens) |
+| Decision region — three equal-weight actions | **THE load-bearing equal-weight control (FR-12.1, UX Pattern 3):** three Carbon `Button`s (Approve / Edit-and-approve or Resolve-directly / Reject) sharing EXACTLY ONE `kind="tertiary"` — Carbon's outline-equivalent weight, the "three identical outline buttons" Pattern 3 requires — with NO `kind="primary"` on any, no pre-selection, no autoFocus, DOM order Approve→Edit→Reject; when Approve is not permitted it is ABSENT with a stated note, never a disabled button. Because all three pass an identical `kind` and no other class-affecting prop, Carbon renders the SAME class string on each, so a visual-weight regression fails `e2e/decision.spec.ts` test 1's "all three action buttons share one class" (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Decision region — two-step-commitment step indicator (Pattern 3) | Carbon `ProgressIndicator` + `ProgressStep` (four steps: "Choose an action → Complete the form → Review what will be recorded → Record"), replacing USWDS's `usa-step-indicator`; Carbon sets `aria-current="step"` on the current `ProgressStep`, preserving Pattern 3's requirement that the current step be announced (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Decision region — edit / reject resolution form | The shared form pattern (`UswdsForm`/`TextAreaField`/`SubmitButton`/`ErrorSummary`, 07-06, UNCHANGED) with the per-field text inputs on Carbon `TextInput` (`hideLabel` + `aria-label`, inside a `<dl>` row whose `<dt>` carries the value's `ProvenanceBadge`); the ≥10-char reason gate and the specialist-modified marking are unchanged behaviour. The "Continue" button is a Carbon `Button` (tertiary-weight submit via the shared `SubmitButton`), "Cancel" is `kind="tertiary"` — equal weight, no primary in the form (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Decision region — pre-submission summary + Record | **Composition:** a native `<dl>` of the before/after values (each with its `ProvenanceBadge`), the permanence statement, and the ONE primary button in the whole path — the "Record decision" `SubmitButton` (Carbon `Button`, default `kind="primary"` — Pattern 3's "the commit button is the only primary-styled button") with a tertiary "Back". The idempotency key is minted when the summary renders (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Decision region — server-driven confirmation | **Composition:** a native `<dl>` + the shared `DecisionSummaryTable` (`<dl>` of per-value `ProvenanceBadge`s), built ONLY from the server's `DecisionRecordResponse`, with Carbon `Link` navigation ("View the audit trail", "Back to review queue"); focus moves to the "Decision recorded" heading on record (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
+| Decision region — already-decided / network notices | Carbon `InlineNotification` — `kind="info"` (already-decided conflict, FR-12.12/FR-12.13) and `kind="warning"` (ambiguous network failure), each kept `role="alert"` so the condition is announced but NEVER `kind="error"` (not the specialist's error), replacing the USWDS `usa-alert--info`/`--warning` (`DecisionPanel.tsx`) | Case detail (decision region) | `docs/a11y/case-detail.md` |
 
 ## Notes on the compositions
 
@@ -199,6 +205,36 @@ overwrites the other.
   of its own, and a wide table must scroll within its own region (not the
   document body) at 320px (FR-2.19). This mirrors the emphasis the retired USWDS
   register placed on the same absence guarantee, now re-established on Carbon.
+- **Decision region — the equal-weight three actions** is registered precisely
+  because, as with the queue table, the SAFE way to render it on Carbon is not
+  the obvious one. Carbon's `Button` defaults to `kind="primary"`, and the
+  natural instinct — a primary "Approve" beside secondary alternatives — would
+  be a DEFECT here: FR-12.1 forbids any visual steer toward one action, because
+  a nudge toward "Approve the AI's answer" is exactly the automation bias this
+  whole product exists to resist ("nothing resolves without her" means she must
+  choose, not rubber-stamp). So all three actions render on ONE shared
+  `kind="tertiary"` (Carbon's outline-equivalent, the "three identical outline
+  buttons" of UX Pattern 3), and the ONLY primary-weighted button anywhere in
+  the decision path is the final "Record decision" button on the summary — the
+  deliberate second, committing action of the two-step pattern (Pattern 3: "the
+  commit button is the only primary-styled button"). The equal weight is not a
+  styling preference; it is the mechanism by which "choosing the AI's answer
+  costs exactly the same number of deliberate keystrokes as refusing it." A
+  regression is caught structurally, not by inspection: `e2e/decision.spec.ts`
+  test 1 reads all three buttons' `class` attributes and asserts the set has
+  exactly one member, so any primary/secondary asymmetry sneaking onto one of
+  them fails a permanent test (T-07-27). This mirrors the emphasis the retired
+  USWDS register placed on the same equal-weight guarantee, now on Carbon.
+- **Decision region — error summary inside a Carbon notification.** The decision
+  forms reuse the shared `ErrorSummary` (07-06), whose in-page links are the
+  pattern's whole point. During the 07-10 rebuild this surfaced a real defect
+  fixed here (a `[Rule 1 - Bug]`): Carbon's `InlineNotification` runs
+  `useNoInteractiveChildren` and THROWS on any interactive child, so the link
+  list could not remain nested inside the notification. `ErrorSummary` now
+  renders the Carbon `InlineNotification` (title only) and the interactive link
+  list as SIBLINGS inside the same project-owned `role="alert"` focusable
+  container — every focus/order/link mechanic unchanged; only the DOM nesting of
+  the link list relative to the notification moved. See `ErrorSummary.tsx`.
 
 ## Relationship to the USWDS register
 

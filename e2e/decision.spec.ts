@@ -176,8 +176,12 @@ test.describe('decision region (F12)', () => {
     // Leave the reason empty, activate Continue.
     await page.getByRole('button', { name: 'Continue', exact: true }).click();
 
-    // The error summary appears, is role="alert", and receives focus.
-    const summary = page.locator('.usa-alert--error[role="alert"]');
+    // The error summary appears, is role="alert", and receives focus. As of the
+    // Carbon rebuild (07-10) the ErrorSummary is a project-owned focusable
+    // container `.cargoexec-error-summary[role="alert"]` wrapping a Carbon
+    // `InlineNotification kind="error"` (the focus/role mechanics are unchanged
+    // from USWDS; only the class carrier moved).
+    const summary = page.locator('.cargoexec-error-summary[role="alert"]');
     await expect(summary).toBeVisible();
     await expect(summary).toBeFocused();
 
@@ -238,19 +242,24 @@ test.describe('decision region (F12)', () => {
     expect(secondId).not.toBeNull();
 
     // The changed field's dt badge; the unchanged field's dt badge. Locate each
-    // input's owning <div> (dt + dd), then the badge in the dt.
+    // input's owning row <div> (the div holding both the <dt> label+badge and
+    // the <dd> input). As of the Carbon rebuild (07-10) the input renders inside
+    // a Carbon `TextInput` (which wraps it in its own field-wrapper div), so the
+    // row is the nearest ancestor div that CONTAINS a <dt> — not `ancestor::div[1]`
+    // (which would now be Carbon's wrapper). The provenance badge is a Carbon
+    // `Tag` (`.cds--tag`).
     await inputs.nth(0).fill('A specialist-corrected value');
 
     // The changed field now reads "Specialist-modified"; the untouched one still
     // reads "AI-suggested". Scope each assertion to the field's row.
     const changedRow = page
       .locator(`input#${firstId}`)
-      .locator('xpath=ancestor::div[1]');
+      .locator('xpath=ancestor::div[.//dt][1]');
     const unchangedRow = page
       .locator(`input#${secondId}`)
-      .locator('xpath=ancestor::div[1]');
-    await expect(changedRow.locator('.usa-tag')).toHaveText(/Specialist-modified/);
-    await expect(unchangedRow.locator('.usa-tag')).toHaveText(/AI-suggested/);
+      .locator('xpath=ancestor::div[.//dt][1]');
+    await expect(changedRow.locator('.cds--tag')).toHaveText(/Specialist-modified/);
+    await expect(unchangedRow.locator('.cds--tag')).toHaveText(/AI-suggested/);
 
     // Complete the flow: reason, Continue, Record decision.
     await page.getByLabel('Reason for your changes').fill(REASON);
@@ -272,10 +281,10 @@ test.describe('decision region (F12)', () => {
     // from the response). Assert via the rendered badge text.
     const confirmRegion = confirmHeading.locator('xpath=ancestor::div[1]');
     await expect(
-      confirmRegion.locator('.usa-tag', { hasText: 'Specialist-modified' }),
+      confirmRegion.locator('.cds--tag', { hasText: 'Specialist-modified' }),
     ).toHaveCount(1);
     await expect(
-      confirmRegion.locator('.usa-tag', { hasText: 'AI-suggested' }).first(),
+      confirmRegion.locator('.cds--tag', { hasText: 'AI-suggested' }).first(),
     ).toBeVisible();
   });
 
@@ -356,12 +365,21 @@ test.describe('decision region (F12)', () => {
     // Back in the original context, activate Record decision → 409.
     await page.getByRole('button', { name: 'Record decision', exact: true }).click();
 
-    // An informational alert (usa-alert--info), NOT an error summary. It states
-    // the case was already decided.
-    const infoAlert = page.locator('.usa-alert--info[role="alert"]');
+    // An informational alert, NOT an error summary. As of the Carbon rebuild
+    // (07-10) it is a Carbon `InlineNotification kind="info"` kept `role="alert"`
+    // so the already-decided condition is announced; the error carrier would be
+    // `.cds--inline-notification--error` (or the `.cargoexec-error-summary`
+    // container) — neither is present here. It states the case was already
+    // decided.
+    const infoAlert = page.locator(
+      '.cds--inline-notification--info[role="alert"]',
+    );
     await expect(infoAlert).toBeVisible();
     await expect(infoAlert).toContainText(/already (rejected|resolved)/i);
-    await expect(page.locator('.usa-alert--error[role="alert"]')).toHaveCount(0);
+    await expect(
+      page.locator('.cds--inline-notification--error[role="alert"]'),
+    ).toHaveCount(0);
+    await expect(page.locator('.cargoexec-error-summary[role="alert"]')).toHaveCount(0);
 
     // The controls are gone after the conflict (onConflict refetched the case →
     // the read-only decided record replaces the panel; no Record decision left).

@@ -1,9 +1,24 @@
 // The F12 decision region — the "Your decision" section of the case-detail
 // screen (F12 FR-12.1 … FR-12.18; TechArch §9.1's named component DecisionPanel;
-// Phase 6 goal). This is where "nothing resolves without her" becomes a real,
-// keyboard-operable interaction: the specialist approves, edits-and-approves, or
-// rejects, and the record that explains the decision is built from the server's
-// own response.
+// Phase 6 goal), now rendered on the **Carbon Design System** (`@carbon/react`)
+// in place of USWDS (Phase 7, plan 07-10 — the final two USWDS-coupled files).
+// EVERY behaviour is unchanged from Phase 6; only the rendered DOM moved from
+// `usa-*` markup to Carbon components. This is where "nothing resolves without
+// her" becomes a real, keyboard-operable interaction: the specialist approves,
+// edits-and-approves, or rejects, and the record that explains the decision is
+// built from the server's own response.
+//
+// THE EQUAL-WEIGHT CONSTRAINT ON CARBON (FR-12.1, UX Pattern 3 — the single most
+// load-bearing visual rule in this file): the three decision actions
+// (Approve / Edit-and-approve or Resolve-directly / Reject) render as three
+// Carbon `Button`s sharing EXACTLY ONE `kind` (`kind="tertiary"`, the outline-
+// equivalent weight Pattern 3 specifies for "three identical outline buttons").
+// NO `kind="primary"` on any of them, no pre-selection, no autoFocus. The ONLY
+// primary-weighted button in the entire path is the final "Record decision"
+// button on the pre-submission summary (Pattern 3: "the commit button is the
+// only primary-styled button"). The two-step commitment (Pattern 3) shows a
+// visible Carbon `ProgressIndicator` (four steps) in place of USWDS's
+// `usa-step-indicator`.
 //
 // The whole region is a five-stage state machine:
 //   chooser → edit | reject → summary → confirmed
@@ -34,7 +49,15 @@
 // appear even in a comment; hence this wording.)
 
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Button,
+  InlineNotification,
+  Link as CarbonLink,
+  ProgressIndicator,
+  ProgressStep,
+  TextInput,
+} from '@carbon/react';
 import type {
   DecisionCreateRequest,
   DecisionRecordResponse,
@@ -51,6 +74,49 @@ import { useAnnounce } from '../shell/LiveRegions.js';
 import { ProvenanceBadge } from './ProvenanceBadge.js';
 import { ErrorSummary, type SummaryItem } from './ErrorSummary.js';
 import { TextAreaField, SubmitButton, UswdsForm } from './UswdsForm.js';
+
+// ─── the two-step-commitment step indicator (UX Pattern 3) ───────────────────
+// Pattern 3's visible four-step progress ("Choose an action → Complete the form
+// → Review what will be recorded → Record"), mapped to Carbon's
+// `ProgressIndicator`/`ProgressStep` in place of USWDS's `usa-step-indicator`.
+// Carbon sets `aria-current="step"` on the ProgressStep at `currentIndex`,
+// preserving the Pattern-3 requirement that the current step be announced. The
+// four labels are the FRD/mockup's exact step names. Approve has no form, so its
+// path skips visibly through step 2 straight to Review — the indicator still
+// shows all four steps so the specialist sees the full commitment shape.
+
+const COMMITMENT_STEPS = [
+  'Choose an action',
+  'Complete the form',
+  'Review what will be recorded',
+  'Record',
+] as const;
+
+/** Map a stage to its zero-based index in the four-step commitment path. */
+function stepIndexFor(stage: Stage, chosenType: DecisionType | null): number {
+  if (stage === 'chooser') return 0;
+  if (stage === 'edit' || stage === 'reject') return 1;
+  if (stage === 'summary') return 2;
+  // confirmed
+  void chosenType;
+  return 3;
+}
+
+function CommitmentSteps(props: { readonly current: number }): JSX.Element {
+  // spaceEqually keeps the four steps evenly distributed; currentIndex drives
+  // Carbon's complete/current/incomplete state and the aria-current="step".
+  return (
+    <ProgressIndicator
+      currentIndex={props.current}
+      spaceEqually
+      className="cargoexec-commitment-steps"
+    >
+      {COMMITMENT_STEPS.map((label) => (
+        <ProgressStep key={label} label={label} />
+      ))}
+    </ProgressIndicator>
+  );
+}
 
 // ─── plain-language field labels ─────────────────────────────────────────────
 // The same label set the case-detail screen uses (FR-10.3 / FR-12.8): never the
@@ -353,19 +419,32 @@ export function DecisionPanel(props: DecisionPanelProps): JSX.Element {
   }
 
   // A conflict that has not yet been replaced by the refetched read-only record:
-  // show the informational alert and nothing else (controls are gone).
+  // show the informational alert and nothing else (controls are gone). It is
+  // INFORMATION, not the specialist's error (FR-12.12/FR-12.13): Carbon
+  // `InlineNotification kind="info"`, but kept `role="alert"` so assistive
+  // technology announces the already-decided condition when it appears (the
+  // project owns this role — Carbon's info notification is otherwise a polite
+  // status). It is NOT `kind="error"`, so it is never confused with the error
+  // summary (e2e test 6 asserts no error notification is present here).
   if (conflict !== null) {
     return (
-      <div className="usa-alert usa-alert--info" role="alert">
-        <div className="usa-alert__body">
-          <p className="usa-alert__text">{conflict}</p>
-        </div>
-      </div>
+      <InlineNotification
+        kind="info"
+        role="alert"
+        lowContrast
+        hideCloseButton
+        title="This case was already decided"
+        subtitle={conflict}
+      />
     );
   }
 
   return (
     <>
+      {/* Pattern 3's visible step indicator, shown across the whole
+          choose→complete→review→record path (Carbon ProgressIndicator). */}
+      <CommitmentSteps current={stepIndexFor(stage, chosenType)} />
+
       {stage === 'chooser' && (
         <Chooser
           isAvailable={isAvailable}
@@ -444,35 +523,32 @@ function Chooser(props: {
   // else "Resolve directly" (FRD presentation-states table).
   const middleLabel = isAvailable ? 'Edit and approve' : 'Resolve directly';
 
-  // Three equally-weighted controls, no autoFocus, no pre-selection, DOM order
-  // Approve → Edit/Resolve → Reject (FR-12.1). All three share the SAME class
-  // — no primary/outline emphasis asymmetry.
+  // THE load-bearing equal-weight constraint (FR-12.1, UX Pattern 3): the three
+  // decision actions render as three Carbon `Button`s sharing EXACTLY ONE `kind`
+  // — `kind="tertiary"`, Carbon's outline-equivalent weight (Pattern 3: "the
+  // three actions are identical outline buttons"). No `kind="primary"` on any of
+  // them (the ONLY primary button in the whole path is the final Record button
+  // on the summary), no autoFocus, no pre-selection. Because all three pass the
+  // identical `kind` and no other class-affecting prop, Carbon renders the SAME
+  // class string on each (`cds--btn cds--btn--tertiary`) — the property
+  // `e2e/decision.spec.ts` test 1 asserts ("all three action buttons share one
+  // class"). DOM order Approve → Edit/Resolve → Reject.
   return (
-    <div>
+    <div className="cargoexec-decision-actions">
       <p>Choose what to do with this case.</p>
-      <ul className="usa-button-group">
-        {canApprove ? (
-          <li className="usa-button-group__item">
-            <button type="button" className="usa-button" onClick={onApprove}>
-              Approve
-            </button>
-          </li>
-        ) : (
-          <li className="usa-button-group__item">
-            <span>There is no AI recommendation to approve.</span>
-          </li>
-        )}
-        <li className="usa-button-group__item">
-          <button type="button" className="usa-button" onClick={onEdit}>
-            {middleLabel}
-          </button>
-        </li>
-        <li className="usa-button-group__item">
-          <button type="button" className="usa-button" onClick={onReject}>
-            Reject
-          </button>
-        </li>
-      </ul>
+      {canApprove ? (
+        <Button kind="tertiary" onClick={onApprove}>
+          Approve
+        </Button>
+      ) : (
+        <p>There is no AI recommendation to approve.</p>
+      )}
+      <Button kind="tertiary" onClick={onEdit}>
+        {middleLabel}
+      </Button>
+      <Button kind="tertiary" onClick={onReject}>
+        Reject
+      </Button>
     </div>
   );
 }
@@ -533,12 +609,13 @@ function EditForm(props: {
                 )}
               </dt>
               <dd>
-                <input
-                  className="usa-input"
+                <TextInput
                   id={`decision-field-${ef.field}`}
                   name={`decision-field-${ef.field}`}
                   type="text"
                   value={current}
+                  labelText=""
+                  hideLabel
                   aria-label={humanLabel(ef.field)}
                   onChange={(e) => onFieldChange(ef.field, e.target.value)}
                 />
@@ -559,9 +636,9 @@ function EditForm(props: {
         {...(reasonError !== undefined ? { errorText: reasonError } : {})}
       />
       <SubmitButton busy={false} idleLabel="Continue" busyLabel="Continue" />{' '}
-      <button type="button" className="usa-button usa-button--outline" onClick={onCancel}>
+      <Button type="button" kind="tertiary" onClick={onCancel}>
         Cancel
-      </button>
+      </Button>
     </UswdsForm>
   );
 }
@@ -598,9 +675,9 @@ function RejectForm(props: {
         {...(reasonError !== undefined ? { errorText: reasonError } : {})}
       />
       <SubmitButton busy={false} idleLabel="Continue" busyLabel="Continue" />{' '}
-      <button type="button" className="usa-button usa-button--outline" onClick={onCancel}>
+      <Button type="button" kind="tertiary" onClick={onCancel}>
         Cancel
-      </button>
+      </Button>
     </UswdsForm>
   );
 }
@@ -625,11 +702,14 @@ function Summary(props: {
     <UswdsForm busy={busy} onSubmit={onRecord} ariaLabel="Record decision">
       {errors.length > 0 && <ErrorSummary items={errors} />}
       {network !== null && (
-        <div className="usa-alert usa-alert--warning" role="alert">
-          <div className="usa-alert__body">
-            <p className="usa-alert__text">{network}</p>
-          </div>
-        </div>
+        <InlineNotification
+          kind="warning"
+          role="alert"
+          lowContrast
+          hideCloseButton
+          title="The decision may not have been recorded"
+          subtitle={network}
+        />
       )}
       <h2>This is what will be recorded</h2>
       <p>{DECISION_WORDS[chosenType]}</p>
@@ -676,10 +756,15 @@ function Summary(props: {
         be changed afterwards.
       </p>
 
+      {/* The Record button (SubmitButton → Carbon Button, default kind=primary)
+          is the ONLY primary-weighted button in the whole decision path
+          (Pattern 3: "the commit button is the only primary-styled button").
+          Back is tertiary, matching the equal-weight discipline everywhere
+          else. */}
       <SubmitButton busy={busy} idleLabel="Record decision" busyLabel="Recording…" />{' '}
-      <button type="button" className="usa-button usa-button--outline" onClick={onBack}>
+      <Button type="button" kind="tertiary" onClick={onBack}>
         Back
-      </button>
+      </Button>
     </UswdsForm>
   );
 }
@@ -721,10 +806,14 @@ function Confirmation(props: {
       <DecisionSummaryTable values={resolution_values} />
 
       <p>
-        <a href="#audit-trail">View the audit trail for this case</a>
+        <CarbonLink href="#audit-trail">
+          View the audit trail for this case
+        </CarbonLink>
       </p>
       <p>
-        <Link to="/queue">Back to review queue</Link>
+        <CarbonLink as={RouterLink} to="/queue">
+          Back to review queue
+        </CarbonLink>
       </p>
     </div>
   );

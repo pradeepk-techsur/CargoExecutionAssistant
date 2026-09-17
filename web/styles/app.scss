@@ -154,6 +154,27 @@
   margin-block-end: var(--cds-spacing-02);
 }
 
+// ─── Decision region (Phase 7, plan 07-10 — F12) ────────────────────────────
+//
+// The three equal-weight decision actions (Approve / Edit-and-approve or
+// Resolve-directly / Reject) are three Carbon `Button kind="tertiary"` sharing
+// one weight (FR-12.1). Lay them out in a row with Carbon spacing between them;
+// on a narrow viewport they wrap. No colour/emphasis is introduced here — the
+// equal weight is Carbon's own tertiary treatment, untouched.
+.cargoexec-decision-actions {
+  .cds--btn {
+    margin-inline-end: var(--cds-spacing-03);
+    margin-block-end: var(--cds-spacing-03);
+  }
+}
+
+// Pattern 3's four-step commitment indicator (Carbon ProgressIndicator). Give it
+// space from the content that follows so the step context reads as a header for
+// the whole decision path.
+.cargoexec-commitment-steps {
+  margin-block: var(--cds-spacing-05);
+}
+
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
 // understood; when a specialist asks for reduced motion, honour it globally by
 // collapsing transitions and animations to an instant.

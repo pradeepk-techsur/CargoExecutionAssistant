@@ -10,10 +10,14 @@
 // The contract, each part load-bearing and PRESERVED across the USWDS→Carbon
 // swap (these are focus/order/link mechanics, NOT visual styling — they do not
 // change with the primitive):
-//   - Rendered on Carbon `InlineNotification kind="error"`. `ActionableNotification`
-//     is NOT used: its content model is a single action button, whereas this
-//     pattern needs a custom list of per-control in-page links as children —
-//     which `InlineNotification` renders via `subtitle`/children.
+//   - Rendered on Carbon `InlineNotification kind="error"` (title only), with the
+//     custom list of per-control in-page links rendered as a SIBLING of the
+//     notification inside the project-owned `role="alert"` container — NOT as the
+//     notification's children. Carbon's `InlineNotification` runs
+//     `useNoInteractiveChildren` and THROWS on any interactive child, so the
+//     links (the pattern's whole point) cannot be nested inside it.
+//     `ActionableNotification` is likewise unsuitable: its content model is a
+//     single action button, not a list of in-page links.
 //   - `role="alert"` and `tabIndex={-1}` on the focusable container. Carbon's
 //     notification does not auto-focus itself and does not itself carry
 //     `tabIndex={-1}`, so BOTH are asserted explicitly here.
@@ -74,10 +78,16 @@ export function ErrorSummary(props: ErrorSummaryProps): JSX.Element | null {
     return null;
   }
 
-  // The heading + the per-control link list are the notification's children,
-  // passed via `subtitle` (a ReactNode). Carbon renders `title` as the bold
-  // notification heading; we use the caller's `heading` for it and put the
-  // ordered link list in `subtitle`.
+  // The per-control link list is rendered as a SIBLING of the Carbon
+  // `InlineNotification`, INSIDE the project-owned focusable container — NOT as
+  // the notification's children. This is load-bearing (07-10 fix): Carbon's
+  // `InlineNotification` runs `useNoInteractiveChildren` on its own content and
+  // THROWS if it contains an interactive node (the error-summary pattern's whole
+  // point is a list of in-page `<a>` links). So the notification carries only
+  // the bold `title` (the heading + its error icon), and the ordered link list —
+  // the interactive part — lives beside it within the same `role="alert"`
+  // container. Every focus/order/link mechanic is unchanged; only the DOM nesting
+  // of the link list relative to the notification moved (out of, not into, it).
   return (
     <div
       ref={ref}
@@ -91,29 +101,28 @@ export function ErrorSummary(props: ErrorSummaryProps): JSX.Element | null {
         lowContrast
         hideCloseButton
         title={heading}
-      >
-        {/* The per-control link list is the notification's children (a ReactNode
-            slot), rendered IN SERVER ORDER. */}
-        <ul className="cargoexec-error-summary__list">
-          {items.map((item, i) => (
-            <li key={`${item.controlId ?? 'generic'}-${i}`}>
-              {item.controlId !== undefined ? (
-                <a
-                  href={`#${item.controlId}`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    focusControl(item.controlId as string);
-                  }}
-                >
-                  {item.message}
-                </a>
-              ) : (
-                <span>{item.message}</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      </InlineNotification>
+      />
+      {/* The per-control link list, rendered IN SERVER ORDER, as a sibling of the
+          notification (never its child — Carbon forbids interactive children). */}
+      <ul className="cargoexec-error-summary__list">
+        {items.map((item, i) => (
+          <li key={`${item.controlId ?? 'generic'}-${i}`}>
+            {item.controlId !== undefined ? (
+              <a
+                href={`#${item.controlId}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  focusControl(item.controlId as string);
+                }}
+              >
+                {item.message}
+              </a>
+            ) : (
+              <span>{item.message}</span>
+            )}
+          </li>
+        ))}
+      </ul>
       {/* The accessible name of the alert container is the heading text, exposed
           via aria-labelledby → this visually-hidden mirror (the Carbon title is
           inside the notification and not reliably the container's label). */}
