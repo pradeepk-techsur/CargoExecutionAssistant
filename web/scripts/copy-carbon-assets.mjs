@@ -25,22 +25,38 @@ import { dirname, join, resolve } from 'node:path';
 const HERE = dirname(fileURLToPath(import.meta.url)); // web/scripts
 const REPO_ROOT = resolve(HERE, '..', '..');
 const PLEX_SRC = join(REPO_ROOT, 'node_modules', '@ibm', 'plex');
-const OUT = join(REPO_ROOT, 'web', 'public', 'assets', 'fonts', 'plex');
+const FONTS_OUT = join(REPO_ROOT, 'web', 'public', 'assets', 'fonts', 'plex');
 
 // The IBM Plex families Carbon's default `@font-face` set references. Each is a
 // directory under @ibm/plex containing fonts/split + fonts/complete; copying the
 // whole family directory keeps every weight/style the compiled CSS asks for.
 const FAMILIES = ['IBM-Plex-Sans', 'IBM-Plex-Mono', 'IBM-Plex-Serif'];
 
+// Project-owned static images that must be served from web/public/assets (which
+// is a gitignored build directory). Their SOURCE lives under web/assets (which
+// IS git-tracked), so a fresh clone can rebuild them with no dependency on any
+// design-system package. The only such image is the U.S. government banner flag
+// (web/src/shell/Banner.tsx, FR-2.5); it used to be copied out of the @uswds
+// dist by copy-uswds-assets.mjs, which was removed in plan 07-11 when USWDS left
+// the tree — the flag itself is a plain public-domain federal image, not a
+// USWDS-coupled asset, so it is now vendored under web/assets/img and copied here.
+const IMG_SRC = join(REPO_ROOT, 'web', 'assets', 'img');
+const IMG_OUT = join(REPO_ROOT, 'web', 'public', 'assets', 'img');
+
 async function main() {
-  await mkdir(OUT, { recursive: true });
+  await mkdir(FONTS_OUT, { recursive: true });
   for (const family of FAMILIES) {
     const from = join(PLEX_SRC, family);
-    const to = join(OUT, family);
+    const to = join(FONTS_OUT, family);
     await cp(from, to, { recursive: true, force: true });
     process.stdout.write(`copied ${from} -> ${to}\n`);
   }
-  process.stdout.write('carbon (IBM Plex) assets copied\n');
+
+  await mkdir(IMG_OUT, { recursive: true });
+  await cp(IMG_SRC, IMG_OUT, { recursive: true, force: true });
+  process.stdout.write(`copied ${IMG_SRC} -> ${IMG_OUT}\n`);
+
+  process.stdout.write('carbon (IBM Plex) + project static assets copied\n');
 }
 
 main().catch((err) => {

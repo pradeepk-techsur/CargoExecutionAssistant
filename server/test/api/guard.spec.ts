@@ -291,7 +291,7 @@ describe('guard — the unauthenticated matrix and the redirect contract (criter
 // Two criterion-2 assertions are NOT provable on this serveStatic: false harness,
 // so they live in the real static-serving e2e suite rather than being dropped:
 //   (a) GET /sign-in with no session returns 200 and serves the SPA document, and
-//   (b) a static asset (GET /assets/uswds.css) is reachable unauthenticated
+//   (b) a static asset (GET /assets/app.css) is reachable unauthenticated
 //       (neither 401 nor 302, §4.2 row 4).
 // A reader auditing criterion 2 finds the missing half there. No .skip is used
 // here — a skipped test would read as coverage this suite does not have.

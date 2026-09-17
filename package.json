@@ -12,8 +12,8 @@
   },
   "scripts": {
     "migrate": "node --env-file=.env server/scripts/migrate.mjs",
-    "build:css": "sass --no-source-map --load-path=node_modules --load-path=node_modules/@uswds/uswds/packages web/styles/app.scss web/public/assets/uswds.css",
-    "build:assets": "node web/scripts/copy-uswds-assets.mjs && node web/scripts/copy-carbon-assets.mjs",
+    "build:css": "sass --no-source-map --load-path=node_modules web/styles/app.scss web/public/assets/app.css",
+    "build:assets": "node web/scripts/copy-carbon-assets.mjs",
     "build:web": "npm run build:css && npm run build:assets && vite build -c web/vite.config.ts",
     "build:prompt": "node server/scripts/copy-prompt-assets.mjs",
     "build:server": "tsc -b contract server && npm run build:prompt",
@@ -35,7 +35,6 @@
     "@carbon/icons-react": "11.88.0",
     "@carbon/react": "1.116.0",
     "@ibm/plex": "6.4.1",
-    "@uswds/uswds": "3.11.0",
     "argon2": "0.41.1",
     "express": "4.21.1",
     "helmet": "8.0.0",

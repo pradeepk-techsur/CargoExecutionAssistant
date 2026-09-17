@@ -75,7 +75,7 @@ async function authenticate(
 // ── The reduced (unauthenticated) shell, at /sign-in ─────────────────────────
 
 test.describe('reduced shell (/sign-in, unauthenticated)', () => {
-  test('0. GET /sign-in returns 200 serving the SPA document; /assets/uswds.css is reachable unauthenticated', async ({
+  test('0. GET /sign-in returns 200 serving the SPA document; /assets/app.css is reachable unauthenticated', async ({
     request,
   }) => {
     // Owned here (moved from plan 02-06 Task 1): 02-06's withApi harness runs
@@ -86,7 +86,7 @@ test.describe('reduced shell (/sign-in, unauthenticated)', () => {
     expect(doc.status()).toBe(200);
     expect(await doc.text()).toContain('id="root"');
 
-    const css = await request.get(`${BASE}/assets/uswds.css`);
+    const css = await request.get(`${BASE}/assets/app.css`);
     expect(css.status()).toBe(200);
     expect([401, 302]).not.toContain(css.status());
   });

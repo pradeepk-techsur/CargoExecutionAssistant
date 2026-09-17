@@ -1,43 +1,20 @@
-// USWDS 3.11.0 Sass entry point (TechArch §7.2, §6.4).
+// Carbon Design System Sass entry point (TechArch §6.2a, §7.2).
 //
-// USWDS is consumed here as **Sass + JS + icon sprite**, NOT as a wrapper
-// component library: the project owns every rendered DOM node so manual
-// per-screen accessibility review (§7.7) certifies the markup this project
-// actually ships. Only USWDS `$theme-*` settings appear below — FR-2.2
-// forbids a raw hex colour or a raw `px` spacing value in any screen-level
-// style, so every colour, space and type step is a design token.
+// As of Phase 7 plan 07-11, USWDS is fully removed from this repository — Carbon
+// is the ONLY design system present. Carbon is consumed here as **Sass + a small
+// set of project-owned compositions** (the U.S. government banner and the federal
+// footer/identifier, which Carbon ships no primitive for): the project owns every
+// rendered DOM node so manual per-screen accessibility review (§7.7) certifies the
+// markup this project actually ships. FR-2.2 forbids a raw hex colour or a raw
+// `px` spacing value in any screen-level style, so every colour, space and type
+// step is a Carbon design token.
 //
-// Compiled by `npm run build:css` (dart-sass) into web/public/assets/uswds.css
-// with `--load-path=node_modules --load-path=node_modules/@uswds/uswds/packages`,
-// and served as a LINKED stylesheet (web/index.html) so CSP `style-src 'self'`
-// holds with no `unsafe-inline` (§4.5) — never imported from JavaScript.
-
-// Configure uswds-core ONCE with `@use ... with`, then forward the full USWDS
-// bundle. `uswds` re-forwards the already-configured uswds-core, so this does
-// not re-load or re-configure it (a `@forward with` here would deadlock — the
-// canonical USWDS 3.x theme shape is @use core with (...) then @forward uswds).
-@use "uswds-core" with (
-  // Self-served asset paths (FR-2.3): the sprite, fonts and images are copied
-  // into web/public/assets by copy-uswds-assets.mjs and served from this
-  // origin. No CDN host is referenced at build time or at runtime.
-  $theme-image-path: "/assets/img",
-  $theme-font-path: "/assets/fonts",
-  $theme-show-compile-warnings: false,
-  $theme-show-notifications: false
-);
-
-@forward "uswds";
+// Compiled by `npm run build:css` (dart-sass) into web/public/assets/app.css with
+// `--load-path=node_modules`, and served as a LINKED stylesheet (web/index.html)
+// so CSP `style-src 'self'` holds with no `unsafe-inline` (§4.5) — never imported
+// from JavaScript.
 
 // ─── Carbon Design System (Phase 7, F2 — TechArch §6.2a) ────────────────────
-//
-// ADDITIVE install (plan 07-04): Carbon's full component CSS is compiled INTO
-// this same self-hosted `uswds.css` output, alongside — not instead of — the
-// USWDS forward above. Nothing in `web/src/**/*.tsx` consumes a `cds--*` class
-// yet; this block only makes the Carbon build exist and pass the CSP/CDN gates,
-// so the subsequent Phase-7 plans can migrate one file at a time without the app
-// ever passing through a visually-broken intermediate state. USWDS's `usa-*` and
-// Carbon's `cds--*` classes use disjoint prefixes, so both rule sets coexist in
-// one stylesheet with no collision (confirmed in the compiled output).
 //
 // THEME: White (Carbon's default light theme — the `$theme` config default is
 // `compat.$white`, so no explicit theme override is needed here). Reasoning:
@@ -61,23 +38,13 @@
   $font-path: "/assets/fonts/plex"
 );
 
-// Design-token abstraction seam (Phase 7, F2 — TechArch §1A.1b). `_tokens.scss`
-// publishes a small set of `--cargoexec-*` CSS custom properties at `:root`,
-// computed from the SAME already-configured `uswds-core` instance above (it
-// `@use`s "uswds-core" without re-configuring it, so no deadlock). `@use` here
-// (not `@forward`) so the partial's `:root` block is emitted INTO this
-// compiled `uswds.css` output. It re-exposes today's USWDS values under
-// swappable names and is consumed by nothing yet — a future-redesign seam only.
-//
-// SUPERSEDED (plan 07-04) — Carbon (§6.2a) ships its own complete token system
-// (colour, spacing, type) via @carbon/styles, forwarded above. `_tokens.scss`
-// was built on the premise that the redesign would be a recolour of USWDS's own
-// values; the concrete, named target (Carbon, White theme) does not use that
-// mechanism, so this seam is retired dead weight. It is NOT deleted here (a
-// later-wave file another in-flight plan might still reference is not safe to
-// remove mid-migration) — deletion is the Phase-7 final-cleanup plan's job. It
-// is not reused as the redesign mechanism.
-@use "tokens";
+// The `_tokens.scss` design-token seam (added in plan 07-03, superseded in
+// 07-04) has been REMOVED in this plan (07-11): Carbon (§6.2a) ships its own
+// complete token system (colour, spacing, type) via @carbon/styles, so the
+// USWDS-value-derived `--cargoexec-*` seam it published was dead weight consumed
+// by nothing. With USWDS gone from the tree there is no longer anything it could
+// even be computed from, so it is deleted here — this is the point at which
+// nothing in the codebase can still reference it.
 
 // Shell styles (Phase 7, F2 — plan 07-05). The persistent frame is now rendered
 // on Carbon UI Shell components plus two documented Carbon-conformant
