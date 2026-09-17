@@ -79,6 +79,40 @@
 // is not reused as the redesign mechanism.
 @use "tokens";
 
+// Shell styles (Phase 7, F2 — plan 07-05). The persistent frame is now rendered
+// on Carbon UI Shell components plus two documented Carbon-conformant
+// compositions (the U.S. government banner and the federal footer/identifier),
+// which Carbon ships no primitive for. `_shell.scss` provides those
+// compositions' project-owned layout — built on Carbon's own spacing/theme/type
+// tokens — and the small overrides they need to stay reflow-safe (no horizontal
+// body scroll at 320px / 200% zoom, FR-2.20; e2e shell test 14).
+@use "shell";
+
+// ─── Provenance badge shape carrier (Phase 7, plan 07-06 — FR-2.17 / WCAG 1.4.1)
+//
+// The provenance badge (web/src/components/ProvenanceBadge.tsx) carries FOUR
+// redundant, colour-independent carriers so its AI-vs-HUMAN distinction survives
+// a colour-removed rendering: text, a distinct icon, a distinct Carbon `Tag`
+// token colour, AND this distinct BORDER SHAPE. Carbon's `Tag` does not vary its
+// border style by type, so this one small, explicitly-documented rule supplies
+// the shape carrier: a DASHED 2px border on the AI variant and a SOLID 2px
+// border on the HUMAN variant. This lives in web/styles/ (not the .tsx) because
+// absence.spec.ts forbids a raw hex/px literal in web/src/**/*.tsx; a border
+// width is legitimately a raw length here, and the colour is a Carbon token
+// (`currentColor`, which inherits the Tag type's own AA-cleared text colour), so
+// no raw hex is introduced. This is a styling refinement of a REGISTERED Carbon
+// `Tag`, not a new bespoke interactive control (see docs/carbon-conformance-register.md).
+.cargoexec-provenance-badge {
+  border-width: 2px;
+  border-color: currentColor;
+}
+.cargoexec-provenance-badge--ai {
+  border-style: dashed;
+}
+.cargoexec-provenance-badge--human {
+  border-style: solid;
+}
+
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
 // understood; when a specialist asks for reduced motion, honour it globally by
 // collapsing transitions and animations to an instant.

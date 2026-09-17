@@ -31,6 +31,9 @@ overwrites the other.
 | Required-field marking | **Composition:** the visible text `*` marking (`abbr title="required"`) layered into Carbon's `labelText` slot + the "* indicates a required field" convention line above the form — FR-2.11's exact wording preserved rather than deferring to Carbon's default indicator (`UswdsForm.tsx`) | Shared form pattern (all forms) | reviewed at each consuming screen |
 | Primary submit (`SubmitButton`) | `Button` (busy state via `aria-disabled`, NOT `disabled`, to keep it in tab order — FR-1.19; idle/busy label swap) (`UswdsForm.tsx`) | Shared form pattern (all forms) | reviewed at each consuming screen |
 | Form wrapper (`UswdsForm`) | **Composition:** Carbon `Form` wrapping a native `<form noValidate>` contract — client constraint validation never pre-empts the server (FR-1.16); a second in-flight submit is a no-op (FR-1.19) (`UswdsForm.tsx`) | Shared form pattern (all forms) | reviewed at each consuming screen |
+| Error summary (`ErrorSummary`) | **Composition:** Carbon `InlineNotification kind="error"` + a project-owned focusable container (`role="alert"` + `tabIndex="-1"` + `ref`/`useEffect` `.focus()` on appearance, in server order) whose children are an unstyled list of in-page links, each moving focus to its named control by id (`ErrorSummary.tsx`) | Shared (Sign in, F6 entry, F12 decision) | carried forward from `docs/a11y/sign-in.md`; reviewed at each consuming screen |
+| Provenance badge (`ProvenanceBadge`) | Carbon `Tag` (`type="purple"` AI / `type="gray"` HUMAN) + a distinct `@carbon/icons-react` icon per origin (`Settings` AI / `User` HUMAN, `aria-hidden`) + a distinct border SHAPE (dashed AI / solid HUMAN, one scoped rule in `web/styles/app.scss`) — **four** colour-independent carriers (text + icon + shape + colour), legible in monochrome and via AT (`ProvenanceBadge.tsx`) | Case detail, decision region, audit trail | `docs/a11y/case-detail.md`; reviewed at each consuming screen |
+| Shared status/error/empty/degraded/read-only states | Carbon `Loading` (region-scoped, 300ms-delayed, `role="status"`+`aria-busy`), plain prose + `Button`-as-`Link` (`Empty`, no alert role), `InlineNotification kind="error"`+`role="alert"` (`ErrorState`), `InlineNotification kind="warning"`+`role="status"` (`Degraded`, the "not an error" distinction), `InlineNotification kind="info"` in a `role="note"` wrapper (`ReadOnlyNotice`) (`states.tsx`) | Shared (`states.tsx`); Case detail (`Degraded` for UNAVAILABLE recommendation) | reviewed at each consuming screen; `docs/a11y/case-detail.md` |
 
 ## Notes on the compositions
 
@@ -52,6 +55,36 @@ overwrites the other.
   using Carbon's built-in required indicator, so FR-2.11's exact wording and the
   signed a11y record's convention statement continue to match. The native
   `required` attribute is still set on each control as a browser hint only.
+- **Error summary** is the one control here that is a composition rather than a
+  single Carbon component. It combines Carbon's `InlineNotification kind="error"`
+  with a project-owned focusable container: the `role="alert"` + `tabIndex="-1"`
+  wrapper and the `ref`/`useEffect` that calls `.focus()` when a non-empty item
+  set appears are NOT provided by Carbon (its notifications do not auto-focus),
+  so they are asserted explicitly and are UNCHANGED from the pre-Carbon version.
+  The children are an unstyled list of in-page anchors in SERVER ORDER; on
+  activation, focus moves to the named control by id (`preventDefault` +
+  `.focus()`). An item with no `controlId` renders as plain text, never a dead
+  link. Registered so the composition is auditable and re-reviewed whenever it
+  changes.
+- **Provenance badge** is a single Carbon `Tag` differentiated by FOUR
+  colour-independent carriers, so its meaning survives a colour-removed rendering
+  (WCAG 1.4.1, FR-2.17): (1) distinct **text**, (2) a distinct **icon** — a
+  genuinely different `@carbon/icons-react` glyph per origin (`Settings` for AI,
+  `User` for HUMAN), rendered `aria-hidden` so the visible label is the
+  accessible name; (3) a distinct **border shape** — one small scoped rule in
+  `web/styles/app.scss` (`.cargoexec-provenance-badge--ai` dashed 2px,
+  `--human` solid 2px, colour via `currentColor` so no raw hex is introduced and
+  the absence.spec hex/px scan on `web/src` is untouched); and (4) a distinct
+  Carbon `Tag` `type` **colour** (`purple` AI / `gray` HUMAN, an AA-documented
+  pair). The border-shape rule is a styling refinement of a registered Carbon
+  `Tag`, not a bespoke interactive control. **`AttributedValue` gap (recorded,
+  not hidden):** TechArch §1A.4 describes an `AttributedValue` component that
+  type-enforces "a value cannot render without an origin" — it does NOT exist in
+  this codebase; the actual shipped guarantee is "every value that has an origin
+  is rendered with an adjacent `ProvenanceBadge`, verified per screen by review,
+  never by the type system." This plan documents that discrepancy (a code comment
+  at the top of `ProvenanceBadge.tsx`) rather than inventing the wrapper as
+  unplanned scope.
 
 ## Relationship to the USWDS register
 
