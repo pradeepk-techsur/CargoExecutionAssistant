@@ -107,10 +107,11 @@
 Every displayed value carries the shared badge — **text + icon + programmatic name, never
 colour alone** (US-2.5, US-10.4, NFR-4). Full specification in `Y0-patterns.md`.
 
-> ⚠ **Phase 7 — pending redesign:** the badge text and the never-colour-alone requirement below
-> are the authoritative interaction behaviour and are unaffected by the redesign. The specific
-> icon names and border-style cue in the table are Phase-6 USWDS choices, pending replacement
-> once the Phase 7 design is imported (see `00-overview.md`).
+> ⚠ **Phase 7 — redesign decided: Carbon Design System.** The badge text and the never-colour-
+> alone requirement below are the authoritative interaction behaviour and are unaffected by the
+> redesign. The specific icon names and border-style cue in the table are Phase-6 USWDS choices,
+> pending replacement with Carbon-equivalent iconography (`@carbon/icons-react`) and visual
+> treatment — the exact icon and treatment remain Phase 7 planning work (see `00-overview.md`).
 
 | Value source | Badge text | Icon | Redundant non-colour cue | Where |
 |---|---|---|---|---|

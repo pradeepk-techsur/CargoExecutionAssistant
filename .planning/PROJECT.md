@@ -54,7 +54,7 @@ A cargo exception is never resolved without an accountable human decision, and e
 
 ## Context
 
-- **Users are federal agency staff.** Cargo specialists working exceptions inside CBP. Federal agency users, statutory accessibility standards, and audit/oversight expectations are baseline assumptions, not features to be negotiated. (USWDS was the delivered design system through Phase 6; Phase 7 replaces it with a newly-approved visual system — the accessibility bar itself does not move.)
+- **Users are federal agency staff.** Cargo specialists working exceptions inside CBP. Federal agency users, statutory accessibility standards, and audit/oversight expectations are baseline assumptions, not features to be negotiated. (USWDS was the delivered design system through Phase 6; Phase 7 replaces it with the Carbon Design System via `@carbon/react` — the accessibility bar itself does not move: Carbon's own stated compliance target is WCAG AA / Section 508 / EN standards, the same bar NFR-2 already requires.)
 - **AI is an assistant, not a decider.** It summarises the exception and drafts a resolution; the user retains the final decision. Provenance — AI-suggested vs. human-entered — must be distinguishable in the record, not merely logged.
 - **The audit trail is the product.** Append-only, per-case viewable, and detailed enough to answer "who decided this, what did the AI say, and what did the human change" without external tooling.
 - **Purpose is demonstration of governed delivery.** The complete, provable governed decision loop (receive → validate → except → recommend → human decide → audit) matters more than feature breadth. Anything that widens surface area at the cost of loop completeness is the wrong trade.
@@ -62,7 +62,7 @@ A cargo exception is never resolved without an accountable human decision, and e
 
 ## Constraints
 
-- **Design system**: Through Phase 6, the UI followed USWDS (U.S. Web Design System). Phase 7 replaces the visual system with a newly-approved design; Section 508 / WCAG 2.1 AA conformance is the binding constraint regardless of which system implements it.
+- **Design system**: Through Phase 6, the UI followed USWDS (U.S. Web Design System). Phase 7 replaces it with the Carbon Design System (carbondesignsystem.com, IBM's open-source design system) via `@carbon/react`; Section 508 / WCAG 2.1 AA conformance is the binding constraint regardless of which system implements it — Carbon's own compliance target is stated as exactly that bar.
 - **Accessibility**: Section 508 / WCAG 2.1 AA compliance required — statutory for federal applications; enforced by design and review, not by CI in v1
 - **Auditability**: Audit entries are append-only/immutable — an editable audit trail cannot support oversight
 - **Human-in-the-loop**: No AI recommendation may auto-apply — accountability requires a human decision on every resolution
@@ -81,7 +81,7 @@ A cargo exception is never resolved without an accountable human decision, and e
 | Manual entry only — no file/API ingestion in v1 | Ingestion adapters and ACE/ATS boundaries are integration work that does not prove the decision loop | — Pending |
 | Single ordered queue — no filter, sort, assignment or prioritisation | Receipt-order list is sufficient to demonstrate queue → open → decide; queue management is a separate product | — Pending |
 | USWDS + 508/WCAG 2.1 AA by design, no CI accessibility gate in v1 | Compliance is a requirement of the UI; automating the gate is explicitly deferred | — Pending |
-| [Phase 7] Replace USWDS with a newly-approved visual design | Requested redesign; 508/WCAG 2.1 AA conformance is preserved as a system-independent requirement, mechanism decided in Phase 7 planning | — Pending |
+| [Phase 7] Replace USWDS with the Carbon Design System (`@carbon/react`) | Requested redesign; Carbon's own stated compliance target (WCAG AA / Section 508 / EN) matches NFR-2, so the swap is not an accessibility relaxation; per-screen manual re-review (FR-2.26) still required | — Pending |
 | [Phase 7] Reverse the no-seed-data exclusion; add a hand-authored seed script (F15) | Enables demonstrating every scenario (not just the ones reachable by hand-typing live) without removing manual entry | — Pending |
 | [Phase 7] Require a real hosted LLM in the demo/production posture, not the default fake provider | The AI capability being demonstrated should be genuine; architecture (provider abstraction, no vendor SDK) is unchanged | — Pending |
 

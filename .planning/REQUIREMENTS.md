@@ -44,9 +44,13 @@ All 15 functional requirements are P0. This is a demonstration whose value is a 
 - [ ] **F13**: Every state change writes exactly one append-only audit entry in the same transaction — who, what, when, before/after, and AI-vs-human origin
 - [ ] **F14**: A cargo specialist can view a case's complete audit trail in the UI and answer "who decided this, what did the AI say, what did the human change" without an export or any external tool
 
+### G — Demonstration Enablement (Phase 7)
+
+- [ ] **F15**: A hand-authored, idempotent seed script pre-loads one demonstration case that has already progressed through the full lifecycle (received → validated-failed → exception → AI recommendation with rationale → human decision via `EDIT_APPROVE`, showing mixed AI/human provenance → full audit trail), writing through the same repository/service code the live application uses — no migration `INSERT`, no bypass of append-only audit, provenance, or no-auto-apply invariants. Additive to F6; manual entry is not removed.
+
 ### Non-Functional
 
-- [ ] **NFR-1**: UI conforms to USWDS — every interactive component is a USWDS component or a documented USWDS-conformant composition, with USWDS tokens governing type, spacing and colour
+- [ ] **NFR-1**: UI conforms to a governed design system — USWDS through Phase 6; Phase 7 replaces it with the Carbon Design System (`@carbon/react`), and every interactive component must remain a design-system component or a documented conformant composition, with design tokens (not hard-coded values) governing type, spacing and colour
 - [ ] **NFR-2**: Every screen meets Section 508 / WCAG 2.1 AA — met by design and manual per-screen review including an assistive-technology walkthrough, and explicitly **not** by an automated CI gate in v1
 - [ ] **NFR-3**: Audit immutability — insert-only, UPDATE/DELETE revoked at the database, sequence and prior-entry hash linkage for tamper evidence
 - [ ] **NFR-4**: AI-vs-human provenance is distinguishable at value granularity, in the record and in the UI — a structural property, not incidental log metadata
@@ -80,7 +84,7 @@ Explicitly excluded from v1. Each was named as out of scope in the project descr
 | Queue filtering, sorting, assignment or prioritisation | A single receipt-ordered list is sufficient to demonstrate queue → open → decide. The queue API rejects query parameters rather than ignoring them, so the absence is testable. |
 | Audit export — no export format, no oversight package, no reporting extract | The trail is viewable in the UI (F14) and must answer oversight questions in place (NFR-7). An export substitutes a file for the in-product traceability the product exists to prove. |
 | File or API ingestion — no bulk upload, no ingestion adapter, no ACE/ATS interface boundary | Manual entry only. Integration adapters are work that does not prove the decision loop. |
-| Seeded demonstration dataset | Entries are created by hand during the demo. Seed data would let the loop appear complete without having been walked. |
+| ~~Seeded demonstration dataset~~ — **superseded in Phase 7 (F15)** | Originally: entries are created by hand during the demo, so seed data would let the loop appear complete without having been walked. Phase 7 reverses this: a seed script pre-loads one fully-lifecycle case so every scenario is reachable without re-typing each stage live; manual entry (F6) is not removed and remains fully demonstrable — additive, not a substitute. |
 | Autonomous AI resolution without human approval | Directly contradicts the core value — an autonomous resolver removes the accountable decision the product exists to guarantee. |
 | Duty/tariff calculation or classification rulings | Customs determination logic is a different product; validation here is presence/format/code-list only. |
 | Native mobile apps | Web only. A second client platform multiplies the accessibility and UI surface with no gain in loop provability. |
@@ -104,7 +108,7 @@ Each of the 11 Active requirements in PROJECT.md maps to at least one v1 require
 | 8 | Every state change writes an append-only audit entry: who, what, when, before/after, AI-vs-human origin | F0, F13, NFR-3, NFR-4, NFR-6 |
 | 9 | The audit trail is viewable per case in the UI | F14, NFR-7 |
 | 10 | Authenticated users sign in as a cargo specialist | F1, NFR-8 |
-| 11 | The UI follows USWDS and meets Section 508 / WCAG 2.1 AA | F2, F6, F8, F10, F12, F14, NFR-1, NFR-2 |
+| 11 | The UI meets Section 508 / WCAG 2.1 AA (USWDS through Phase 6; new design system from Phase 7) | F2, F6, F8, F10, F12, F14, NFR-1, NFR-2 |
 
 ---
 
@@ -135,13 +139,14 @@ Which phases cover which requirements. Populated during roadmap creation.
 | F12 | Phase 6 — The Human Decision and the Record That Explains It | Pending |
 | F13 | Phase 1 — Governed Record Substrate | Pending |
 | F14 | Phase 6 — The Human Decision and the Record That Explains It | Pending |
+| F15 | Phase 7 — Redesign UI, seeded demo data, and real LLM integration | Pending |
 
 **Non-functional requirements by phase:**
 
 | NFR | Phase(s) |
 |-----|----------|
-| NFR-1 USWDS conformance | 2 (foundation), 3, 4, 5, 6 (per screen) |
-| NFR-2 Section 508 / WCAG 2.1 AA | 2 (foundation + sign-in sign-off), 3, 4, 5, 6 (per-screen sign-off) — no CI gate |
+| NFR-1 Design system conformance | 2 (USWDS foundation), 3, 4, 5, 6 (per screen, USWDS); 7 (visual system replaced, conformance mechanism re-verified) |
+| NFR-2 Section 508 / WCAG 2.1 AA | 2 (foundation + sign-in sign-off), 3, 4, 5, 6 (per-screen sign-off) — no CI gate; bar unchanged and re-signed in 7 |
 | NFR-3 Audit immutability | 1 |
 | NFR-4 Per-value provenance | 1 (stored), 5 (rendered), 6 (re-stamped on edit) |
 | NFR-5 Human-in-the-loop / no auto-apply | 1 (database refusal), 6 (no path, verified by test) |
@@ -154,13 +159,13 @@ Which phases cover which requirements. Populated during roadmap creation.
 | NFR-12 Platform | 2 (shell), inherited by 3, 4, 5, 6 |
 
 **Coverage:**
-- v1 functional requirements: 15 total
+- v1 functional requirements: 16 total (F0–F15; F15 added Phase 7, see PRD-CargoExec.md §5.7)
 - v1 non-functional requirements: 12 total
-- Mapped to phases: 15 ✓ (each to exactly one phase — no orphans, no duplicates)
+- Mapped to phases: 16 ✓ (each to exactly one phase — no orphans, no duplicates)
 - Unmapped: 0
 
-**Loop closure:** the governed decision loop (receive → validate → except → recommend → human decide → audit) first runs end to end at **Phase 6**, when F11, F12 and F14 land together. No phase defers a loop stage past that point.
+**Loop closure:** the governed decision loop (receive → validate → except → recommend → human decide → audit) first runs end to end at **Phase 6**, when F11, F12 and F14 land together. No phase defers a loop stage past that point. Phase 7 does not add a loop stage — it replaces the loop's visual presentation, adds an operator-only demonstration shortcut (F15) alongside the existing manual-entry path, and changes AI deployment posture (real hosted LLM vs. default fake provider).
 
 ---
 *Requirements defined: 2026-09-11*
-*Last updated: 2026-09-12 after roadmap creation (traceability populated)*
+*Last updated: 2026-09-16 after Phase 7 added (F15 introduced, NFR-1/NFR-2 phase coverage extended, §10 #7 exclusion superseded — see PRD-CargoExec.md v1.1 and .planning/PROJECT.md)*

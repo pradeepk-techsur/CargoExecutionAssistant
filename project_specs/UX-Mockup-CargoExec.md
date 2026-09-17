@@ -14,13 +14,20 @@
 
 ---
 
-> ### ⚠ Phase 7 — pending redesign
+> ### ⚠ Phase 7 — redesign decided: Carbon Design System
 >
-> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the product's visual system with a
-> newly-approved external design. The exact tokens, colours, spacing and component styling of
-> that design are **not yet known to this framework** — they are captured during Phase 7 UX
-> discovery/planning from an external design file this framework cannot currently access. Three
-> things follow, and they hold for every chunk in this document, not only this one:
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the product's visual system. The replacement has
+> now been **decided: the Carbon Design System (carbondesignsystem.com), IBM's open-source design
+> system, via the `@carbon/react` package.** Carbon is open source and IBM-maintained; it ships
+> its own design tokens (IBM Design Language type scale, spacing, and named colour themes — White
+> / Gray 10 / Gray 90 / Gray 100), its own icon set (`@carbon/icons-react`, SVG React components),
+> and IBM Plex as its default typeface. It explicitly targets WCAG AA, Section 508 and EN
+> accessibility standards (the IBM Accessibility Checklist) — the same bar this project already
+> requires (NFR-2) — and it compiles from Sass to static CSS, not runtime CSS-in-JS, which is
+> compatible with this project's build-time, self-hosted, CSP `style-src 'self'`-with-no-
+> `unsafe-inline` pipeline. This is no longer an unknown external design; it is a concrete,
+> documented target. Three things follow, and they hold for every chunk in this document, not
+> only this one:
 >
 > 1. **Every screen/flow spec below describes interaction behaviour** — focus order, state
 >    transitions, error handling, live-region announcements, keyboard paths, DOM structure and
@@ -28,10 +35,14 @@
 >    authoritative** through and beyond the redesign.
 > 2. **Every visual/token reference below is Phase-6-era** — the USWDS component register in
 >    §1.2, and any specific colour token, icon name, or component name named anywhere in this
->    document — and will be superseded once the Phase 7 design is imported and a new
->    `Y0-patterns.md` token table is authored. Nothing below is deleted for this reason: it
+>    document — and will be superseded once a Carbon theme is chosen and the mapping is authored
+>    into a new `Y0-patterns.md` token table. Nothing below is deleted for this reason: it
 >    remains historically accurate for what shipped through Phase 6.
-> 3. **No screen in this document is redesigned by this update.** This note, and the inline
+> 3. **No screen in this document is redesigned by this update, and no specific Carbon theme or
+>    per-screen component mapping is committed here.** Which Carbon theme (White / Gray 10 /
+>    Gray 90 / Gray 100) and which Carbon component replaces each USWDS-composed control are
+>    still Phase 7 planning/execution work — that work is simply no longer blocked on an unknown
+>    design, since the replacement system is now named and documented. This note, and the inline
 >    flags placed beside concrete visual/token references, are the full extent of this wave's
 >    change to the UX Mockup.
 
@@ -1487,10 +1498,11 @@ Nothing on this screen mutates state. The only interactive elements are links pl
 Every displayed value carries the shared badge — **text + icon + programmatic name, never
 colour alone** (US-2.5, US-10.4, NFR-4). Full specification in `Y0-patterns.md`.
 
-> ⚠ **Phase 7 — pending redesign:** the badge text and the never-colour-alone requirement below
-> are the authoritative interaction behaviour and are unaffected by the redesign. The specific
-> icon names and border-style cue in the table are Phase-6 USWDS choices, pending replacement
-> once the Phase 7 design is imported (see `00-overview.md`).
+> ⚠ **Phase 7 — redesign decided: Carbon Design System.** The badge text and the never-colour-
+> alone requirement below are the authoritative interaction behaviour and are unaffected by the
+> redesign. The specific icon names and border-style cue in the table are Phase-6 USWDS choices,
+> pending replacement with Carbon-equivalent iconography (`@carbon/icons-react`) and visual
+> treatment — the exact icon and treatment remain Phase 7 planning work (see `00-overview.md`).
 
 | Value source | Badge text | Icon | Redundant non-colour cue | Where |
 |---|---|---|---|---|
@@ -2025,18 +2037,21 @@ a print stylesheet, a "print view" or a "copy trail" control (US-14.6, PRD §10 
 8. Recording a decision refreshes the trail in place without a manual reload (US-14.1).
 ## Y0: Interaction Patterns
 
-> ### ⚠ Phase 7 — pending redesign
+> ### ⚠ Phase 7 — redesign decided: Carbon Design System
 >
-> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the visual system; the new tokens, colours and
-> component styling are not yet known to this framework and will be captured during Phase 7
-> planning. **The ten patterns below describe interaction behaviour** — focus movement, live-
-> region timing and wording, state transitions, keyboard paths, DOM ordering — which is
-> unaffected by which visual system renders it and **remains authoritative**. Where a pattern
-> names a concrete USWDS colour token, icon, or component as its *current* implementation (most
-> visibly Pattern 1's colour-token row below), that reference is Phase-6-era and will be
-> superseded by a new token table once the Phase 7 design is imported; it is left in place here
-> as the historically accurate record of what shipped through Phase 6, not as a constraint on
-> the redesign. See `00-overview.md` for the full note.
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the visual system. The replacement is now
+> **decided: the Carbon Design System, IBM's open-source design system, via `@carbon/react`** —
+> it ships its own token set (IBM Design Language type scale, spacing, and named colour themes
+> such as White / Gray 10 / Gray 90 / Gray 100) and its own icon set (`@carbon/icons-react`).
+> **The ten patterns below describe interaction behaviour** — focus movement, live-region timing
+> and wording, state transitions, keyboard paths, DOM ordering — which is unaffected by which
+> visual system renders it and **remains authoritative**. Where a pattern names a concrete USWDS
+> colour token, icon, or component as its *current* implementation (most visibly Pattern 1's
+> colour-token row below), that reference is Phase-6-era and will be superseded by a new token
+> table drawn from Carbon's own status/severity colour tokens once a Carbon theme is chosen and
+> the exact mapping is authored; it is left in place here as the historically accurate record of
+> what shipped through Phase 6, not as a constraint on the redesign. See `00-overview.md` for the
+> full note.
 
 Patterns are defined once in the F2 shell and inherited without variation by every screen
 (US-2.1 … US-2.6). A screen that re-implements one of these divergently is a defect.
@@ -2807,13 +2822,16 @@ US-12.5, US-4.4
 > for all specialist-facing surfaces; F15 does not add, remove, or alter any of them. See
 > `00-overview.md` §3 for the corresponding note in the screen index.
 >
-> **Phase 7 — pending redesign.** PRD §5.1 F2 replaces USWDS as the visual system. Assumptions
+> **Phase 7 — redesign decided: Carbon Design System.** PRD §5.1 F2 replaces USWDS as the visual
+> system. The replacement is now **decided: the Carbon Design System, via `@carbon/react`**,
+> which ships its own icon set (`@carbon/icons-react`) and its own colour tokens. Assumptions
 > A-5, A-6 and A-7 below name concrete USWDS icons and colour tokens; those are Phase-6-era
 > implementation choices, left in place as the historically accurate record of what shipped
 > through Phase 6. The *underlying requirement* each assumption satisfies — a distinct icon per
 > origin (FR-2.20), a non-colour border cue, and colour that is never the sole carrier — is a
-> behavioural constraint that is unaffected by the redesign and must be re-satisfied by whatever
-> icon/colour choices the Phase 7 design specifies. See `00-overview.md` for the full note.
+> behavioural constraint that is unaffected by the redesign and must be re-satisfied by whichever
+> specific `@carbon/icons-react` icons and Carbon colour tokens are chosen once Phase 7 planning
+> selects a Carbon theme and authors the mapping. See `00-overview.md` for the full note.
 
 ### 1. Design assumptions
 

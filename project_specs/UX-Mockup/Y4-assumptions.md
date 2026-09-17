@@ -10,13 +10,16 @@
 > for all specialist-facing surfaces; F15 does not add, remove, or alter any of them. See
 > `00-overview.md` §3 for the corresponding note in the screen index.
 >
-> **Phase 7 — pending redesign.** PRD §5.1 F2 replaces USWDS as the visual system. Assumptions
+> **Phase 7 — redesign decided: Carbon Design System.** PRD §5.1 F2 replaces USWDS as the visual
+> system. The replacement is now **decided: the Carbon Design System, via `@carbon/react`**,
+> which ships its own icon set (`@carbon/icons-react`) and its own colour tokens. Assumptions
 > A-5, A-6 and A-7 below name concrete USWDS icons and colour tokens; those are Phase-6-era
 > implementation choices, left in place as the historically accurate record of what shipped
 > through Phase 6. The *underlying requirement* each assumption satisfies — a distinct icon per
 > origin (FR-2.20), a non-colour border cue, and colour that is never the sole carrier — is a
-> behavioural constraint that is unaffected by the redesign and must be re-satisfied by whatever
-> icon/colour choices the Phase 7 design specifies. See `00-overview.md` for the full note.
+> behavioural constraint that is unaffected by the redesign and must be re-satisfied by whichever
+> specific `@carbon/icons-react` icons and Carbon colour tokens are chosen once Phase 7 planning
+> selects a Carbon theme and authors the mapping. See `00-overview.md` for the full note.
 
 ### 1. Design assumptions
 

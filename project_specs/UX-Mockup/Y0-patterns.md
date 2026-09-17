@@ -1,17 +1,20 @@
 ## Y0: Interaction Patterns
 
-> ### ⚠ Phase 7 — pending redesign
+> ### ⚠ Phase 7 — redesign decided: Carbon Design System
 >
-> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the visual system; the new tokens, colours and
-> component styling are not yet known to this framework and will be captured during Phase 7
-> planning. **The ten patterns below describe interaction behaviour** — focus movement, live-
-> region timing and wording, state transitions, keyboard paths, DOM ordering — which is
-> unaffected by which visual system renders it and **remains authoritative**. Where a pattern
-> names a concrete USWDS colour token, icon, or component as its *current* implementation (most
-> visibly Pattern 1's colour-token row below), that reference is Phase-6-era and will be
-> superseded by a new token table once the Phase 7 design is imported; it is left in place here
-> as the historically accurate record of what shipped through Phase 6, not as a constraint on
-> the redesign. See `00-overview.md` for the full note.
+> PRD §5.1 F2 (Phase 7 update) replaces USWDS as the visual system. The replacement is now
+> **decided: the Carbon Design System, IBM's open-source design system, via `@carbon/react`** —
+> it ships its own token set (IBM Design Language type scale, spacing, and named colour themes
+> such as White / Gray 10 / Gray 90 / Gray 100) and its own icon set (`@carbon/icons-react`).
+> **The ten patterns below describe interaction behaviour** — focus movement, live-region timing
+> and wording, state transitions, keyboard paths, DOM ordering — which is unaffected by which
+> visual system renders it and **remains authoritative**. Where a pattern names a concrete USWDS
+> colour token, icon, or component as its *current* implementation (most visibly Pattern 1's
+> colour-token row below), that reference is Phase-6-era and will be superseded by a new token
+> table drawn from Carbon's own status/severity colour tokens once a Carbon theme is chosen and
+> the exact mapping is authored; it is left in place here as the historically accurate record of
+> what shipped through Phase 6, not as a constraint on the redesign. See `00-overview.md` for the
+> full note.
 
 Patterns are defined once in the F2 shell and inherited without variation by every screen
 (US-2.1 … US-2.6). A screen that re-implements one of these divergently is a defect.
