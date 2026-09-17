@@ -1,0 +1,22 @@
+{
+  "duration_secs": 17162.0,
+  "token_usage": {
+    "input": 415,
+    "output": 119992,
+    "total": 35886141,
+    "cache_read": 34363457,
+    "cache_write": 1402277,
+    "cost": 11.579133899999995
+  },
+  "model": "claude-sonnet-5",
+  "files_changed": [
+    ".pivota/dev-script.meta.json",
+    ".planning/phases/07-redesign-ui-seeded-demo-data-and-real-llm-integration/07-UAT.md",
+    ".planning/phases/07-redesign-ui-seeded-demo-data-and-real-llm-integration/07-UAT.summary.json"
+  ],
+  "verification_status": "passed",
+  "error_message": null,
+  "attempt_number": 2,
+  "created_at": "2026-09-17T12:17:47.069568+00:00",
+  "completed_at": "2026-09-17T17:03:49.583566380+00:00"
+}
