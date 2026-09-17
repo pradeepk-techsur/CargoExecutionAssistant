@@ -45,6 +45,9 @@ overwrites the other.
 | Case-detail "On this page" in-page navigation | **Composition:** an unconditional `<nav aria-label="On this page">` list of native `#fragment` anchors rendered with Carbon `Link` inside a Carbon `Stack` (`as="ul"`)/`ListItem`, styled with Carbon tokens (`.cargoexec-in-page-nav`) — Carbon has no in-page-navigation primitive; native `<a href="#…">` in-page navigation is standard HTML, not a bespoke interactive control (FR-2.1); fixed FR-10.10 reading order preserved (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
 | Case-detail submitted-entry 14-field display | **Composition:** a native `<dl>` styled with Carbon spacing tokens (`.cargoexec-detail-list`), each present value rendered with its adjacent (unchanged 07-06) `ProvenanceBadge` (HUMAN); "Not provided" carries no badge (FR-10.3) (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
 | Case-detail validation-findings list | Carbon `OrderedList` + `ListItem` (native `<ol>`/`<li>`), rendering findings verbatim in server order with NO severity language added (FR-10.6) (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Case-detail AI-recommendation "AI-suggested resolution" whole-recommendation tag | Carbon `Tag` (`type="purple"`, matching the per-value AI badge colour carrier) — a whole-recommendation marker, not a per-value badge (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Case-detail AI-recommendation comparison rows (AI vs HUMAN per value) | **Composition:** a native `<dl>` styled with Carbon spacing tokens (`.cargoexec-detail-list.cargoexec-comparison-rows`), each row showing the submitted (HUMAN) value with its badge and the AI-suggested value with its badge — both via the unchanged 07-06 `ProvenanceBadge`; rationale as plain `<p>` paragraphs (no accordion/collapse, FR-10.4). Carbon ships no definition-list/comparison primitive (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
+| Case-detail AI-recommendation PENDING / stale / UNAVAILABLE presentations | Carbon `Loading` (region-scoped, from shared `states.tsx`, 07-06) for PENDING; Carbon `Degraded` (`InlineNotification kind="warning"`+`role="status"`, 07-06) for stale-PENDING and UNAVAILABLE — the "not an error" distinction (UX Pattern 8), never `ErrorState`; polling timing logic unchanged (`CaseDetail.tsx`) | Case detail | `docs/a11y/case-detail.md` (re-sign in 07-10) |
 
 ## Notes on the compositions
 
@@ -149,6 +152,18 @@ overwrites the other.
   preserved verbatim, and `e2e/case-detail.spec.ts` "10." clicks each link and
   asserts its target heading is in the viewport. Registered so the composition is
   auditable and re-reviewed whenever it changes.
+- **Case-detail AI-recommendation comparison rows** are a composition, not a
+  single Carbon component, for the same reason the retired USWDS register
+  recorded them a composition: there is no design-system primitive for a
+  per-value "submitted (HUMAN) vs AI-suggested (AI)" comparison. It is a native
+  `<dl>` (the correct structural markup for the field-label → value-pair shape,
+  which assistive technology navigates well) styled with Carbon spacing tokens,
+  where EACH value renders with its adjacent, unchanged 07-06 `ProvenanceBadge`
+  so the four-carrier colour-independence guarantee (FR-2.17) holds per value
+  (T-07-24). The un-applied-proposal framing ("Nothing here has been applied…")
+  is verbatim wording (UX Pattern 2, P2), and the rationale is plain `<p>`
+  paragraphs — never an accordion or any collapsing control (FR-10.4). Registered
+  so the composition is auditable and re-reviewed whenever it changes.
 
 ## Relationship to the USWDS register
 
