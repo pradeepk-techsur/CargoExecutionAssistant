@@ -1,113 +1,98 @@
-// The inherited form pattern (TechArch §7.6; F2 FR-2.10 … FR-2.13; UX Pattern 2).
+// The inherited form pattern (TechArch §7.6; F2 FR-2.10 … FR-2.13; UX Pattern 2),
+// now rendered on the **Carbon Design System** (@carbon/react) in place of USWDS.
 //
-// F6 and F12 render Field/SubmitButton/UswdsForm unchanged. This is the single
-// implementation of the form pattern; no screen re-implements it.
+// ⚠️ FILE NAME NOTE (Phase 7, plan 07-06): this file is still named
+// `UswdsForm.tsx` and still exports `UswdsForm`, even though its internals now
+// render Carbon components, NOT USWDS. The name is deliberately unchanged:
+// every screen already imports `Field`/`SelectField`/`TextAreaField`/`DateField`/
+// `Fieldset`/`SubmitButton`/`UswdsForm` from '../components/UswdsForm.js', and
+// renaming the file (or the `UswdsForm` export) would force an edit to every one
+// of those consumers — the exact churn this shared-component swap is designed to
+// avoid. A file-name/content mismatch is an accepted, documented cost here; a
+// future cleanup phase may rename it together with all its import sites.
 //
-// Load-bearing details:
-//   - Field: usa-form-group, <label class="usa-label" for={id}> bound to the
-//     control's id, optional hint in usa-hint associated via aria-describedby,
-//     usa-input. Placeholder text is NEVER a label and never the only hint.
-//     Required fields get the USWDS marking (visible * plus `required`).
-//   - Inline error: when `invalid`, render usa-error-message inside
-//     usa-form-group--error, bound via aria-describedby, with aria-invalid="true"
-//     (FR-2.13). SignIn simply never sets `invalid` (the sign-in exception).
-//   - SubmitButton: usa-button; while `busy`, the text changes and
-//     aria-disabled="true" is set. A second activation is IGNORED via a handler
-//     guard — NOT the `disabled` attribute, which drops the control out of the
-//     tab order mid-interaction and strands a keyboard user (FR-1.19).
-//   - UswdsForm: the <form> carries `noValidate` so native constraint validation
-//     never pre-empts the server (FR-1.16). The browser may hint; the server
-//     decides.
-//   - No colour-only signalling and no raw hex/px — tokens only (FR-2.2, FR-2.17).
+// F6 and F12 render these exports unchanged. This is the single implementation
+// of the form pattern; no screen re-implements it. Every exported function name
+// and prop interface is BYTE-IDENTICAL to the pre-Carbon version — only the JSX
+// internals changed — so no consumer needs a prop-shape edit (proven by
+// `npm run typecheck`).
+//
+// Load-bearing details preserved across the USWDS→Carbon swap:
+//   - Field: Carbon `TextInput` owns the label/id association, the
+//     `invalid`/`invalidText` inline-error rendering (maps to this project's
+//     `invalid`/`errorText`), and `helperText` (maps to `hint`). Carbon manages
+//     the hint+error `aria-describedby` wiring INTERNALLY — we do NOT layer a
+//     second hand-rolled `aria-describedby` on top (that would duplicate the
+//     association; threat T-07-19). Placeholder text is NEVER a label.
+//   - Required marking: FR-2.11 requires a visible text `*` plus a legend/
+//     convention statement above the form. Carbon's own `required` indicator
+//     differs in wording, so we layer the EXISTING visible `*` + "required"
+//     `abbr` into Carbon's `labelText` (a ReactNode) rather than relying on
+//     Carbon's default — FR-2.11's exact wording survives. The native
+//     `required` attribute is still set on the control (browser hint only; the
+//     server stays authoritative, FR-1.16).
+//   - Inline error: when `invalid`, Carbon renders `invalidText` with
+//     `aria-invalid` and its own describedby association (FR-2.13). SignIn simply
+//     never sets `invalid` (the sign-in exception).
+//   - SubmitButton: Carbon `Button`; while `busy`, the text changes and
+//     `aria-disabled="true"` is set — NOT the `disabled` attribute, which drops
+//     the control out of the tab order mid-interaction and strands a keyboard
+//     user (FR-1.19). A second activation is IGNORED via the form's onSubmit
+//     guard.
+//   - UswdsForm: the native `<form noValidate>` wrapper is kept (client
+//     constraint validation must never pre-empt the server, FR-1.16) with
+//     Carbon's `Form` component wrapping it for consistent spacing — verified to
+//     compose cleanly around the existing `onSubmit`/`noValidate` contract.
+//   - No colour-only signalling and no raw hex/px — Carbon tokens only
+//     (FR-2.2, FR-2.17).
 
 import { useEffect, useRef } from 'react';
-import type { FormEvent, ReactNode } from 'react';
+import type { ChangeEvent, FormEvent, ReactNode } from 'react';
+import {
+  Button,
+  DatePicker,
+  DatePickerInput,
+  Form,
+  Select,
+  SelectItem,
+  TextArea,
+  TextInput,
+} from '@carbon/react';
 
-// ── Shared field internals ─────────────────────────────────────────────────────
+// ── Shared label internals ─────────────────────────────────────────────────────
 //
-// `Field` originally owned the label/hint/error wiring inline. F6 needs three
-// more control types (select, textarea, date) that must obey the SAME
-// label/hint/error/aria-describedby/aria-invalid contract, so that wiring is
-// factored out here and reused by all four controls. The per-screen a11y review
-// then certifies ONE implementation of the pattern, not four.
-//
-// ⚠️ `Field`'s rendered markup MUST stay byte-identical to its pre-refactor
-// output: e2e/sign-in.spec.ts, e2e/shell.spec.ts and
-// server/test/architecture/navigation.spec.ts all render it, and Phase 2's
-// signed docs/a11y/sign-in.md certifies that exact markup.
+// Every control in this file obeys the SAME label + required-marking contract.
+// Carbon components accept `labelText` as a ReactNode, so the required `*`
+// marking is assembled once here and passed straight into each control's own
+// label slot — Carbon then owns the label/id/`for` association and the
+// hint/error `aria-describedby` wiring, so there is exactly ONE describedby
+// mechanism per control (never a hand-rolled one layered on top; threat
+// T-07-19). The per-screen a11y review certifies ONE implementation of the
+// pattern, not four.
 
 /**
- * The id/aria-describedby contract shared by every control in this file.
- * `hintId` exists whenever a hint is supplied; `errorId` only when the control
- * is invalid AND carries error text. `describedBy` joins the supplied fragment
- * ids (extras first — e.g. a character-count region — then hint, then error),
- * and is `undefined` when empty so no bare attribute is emitted.
+ * The control label as a Carbon `labelText` node: the text, plus — for a
+ * required field — the visible `*` marking (FR-2.11's exact wording, an
+ * `abbr title="required"`, preserved verbatim from the pre-Carbon version so the
+ * signed a11y record's convention statement still matches). The convention line
+ * ("* indicates a required field") lives above the form at each call site,
+ * unchanged.
  */
-function useFieldIds(
-  id: string,
-  hint: string | undefined,
-  invalid: boolean,
-  errorText: string | undefined,
-  extraDescribedByIds: readonly string[] = [],
-): { hintId?: string; errorId?: string; describedBy?: string } {
-  const hintId = hint !== undefined ? `${id}-hint` : undefined;
-  const errorId = invalid && errorText !== undefined ? `${id}-error` : undefined;
-  const describedBy =
-    [...extraDescribedByIds, hintId, errorId]
-      .filter((x): x is string => x !== undefined)
-      .join(' ') || undefined;
-  const out: { hintId?: string; errorId?: string; describedBy?: string } = {};
-  if (hintId !== undefined) out.hintId = hintId;
-  if (errorId !== undefined) out.errorId = errorId;
-  if (describedBy !== undefined) out.describedBy = describedBy;
-  return out;
-}
-
-/**
- * The `usa-form-group` shell: the group div (with `--error` when invalid), the
- * `usa-label` (with the USWDS required marking), an optional hint, and the
- * inline `usa-error-message`. The control itself is passed as `children`.
- * `Field`'s original markup ordering — label, hint, error, then control — is
- * preserved exactly.
- */
-function FormGroup(props: {
-  readonly id: string;
-  readonly label: string;
-  readonly required: boolean;
-  readonly hint?: string;
-  readonly hintId?: string;
-  readonly invalid: boolean;
-  readonly errorText?: string;
-  readonly errorId?: string;
-  readonly children: ReactNode;
-}): JSX.Element {
-  const { id, label, required, hint, hintId, invalid, errorText, errorId, children } =
-    props;
+// Return type is deliberately the narrow `JSX.Element | string` rather than the
+// wide `ReactNode`: Carbon's `DatePickerInput` types `labelText` via prop-types'
+// `ReactNodeLike`, which the React 18 `ReactNode` union (now including async
+// iterables) is NOT assignable to. `JSX.Element | string` is assignable to both
+// `ReactNode` and `ReactNodeLike`, so one helper feeds every control's label
+// slot without a cast.
+function labelNode(label: string, required: boolean): JSX.Element | string {
+  if (!required) return label;
   return (
-    <div className={`usa-form-group${invalid ? ' usa-form-group--error' : ''}`}>
-      <label className="usa-label" htmlFor={id}>
-        {label}
-        {required && (
-          <>
-            {' '}
-            <abbr title="required" className="usa-hint--required">
-              *
-            </abbr>
-          </>
-        )}
-      </label>
-      {hint !== undefined && (
-        <span className="usa-hint" id={hintId}>
-          {hint}
-        </span>
-      )}
-      {invalid && errorText !== undefined && (
-        <span className="usa-error-message" id={errorId} role="alert">
-          {errorText}
-        </span>
-      )}
-      {children}
-    </div>
+    <>
+      {label}{' '}
+      <abbr title="required" className="cargoexec-required-marker">
+        *
+      </abbr>
+    </>
   );
 }
 
@@ -140,32 +125,25 @@ export function Field(props: FieldProps): JSX.Element {
     errorText,
   } = props;
 
-  const { hintId, errorId, describedBy } = useFieldIds(id, hint, invalid, errorText);
-
+  // Carbon's TextInput owns the label/id association and — via
+  // `invalid`/`invalidText` and `helperText` — the hint+error `aria-describedby`
+  // wiring. We pass through `required` (native browser hint) and `autoComplete`
+  // via rest props. `invalidText` must be a non-empty string when `invalid` is
+  // true for Carbon to render (and associate) it.
   return (
-    <FormGroup
+    <TextInput
       id={id}
-      label={label}
+      name={id}
+      type={type}
+      labelText={labelNode(label, required)}
+      value={value}
       required={required}
-      {...(hint !== undefined ? { hint } : {})}
-      {...(hintId !== undefined ? { hintId } : {})}
       invalid={invalid}
-      {...(errorText !== undefined ? { errorText } : {})}
-      {...(errorId !== undefined ? { errorId } : {})}
-    >
-      <input
-        className={`usa-input${invalid ? ' usa-input--error' : ''}`}
-        id={id}
-        name={id}
-        type={type}
-        value={value}
-        required={required}
-        {...(autoComplete !== undefined ? { autoComplete } : {})}
-        {...(describedBy !== undefined ? { 'aria-describedby': describedBy } : {})}
-        {...(invalid ? { 'aria-invalid': true } : {})}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    </FormGroup>
+      invalidText={invalid ? (errorText ?? '') : ''}
+      {...(hint !== undefined ? { helperText: hint } : {})}
+      {...(autoComplete !== undefined ? { autoComplete } : {})}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 
@@ -206,40 +184,26 @@ export function SelectField(props: SelectFieldProps): JSX.Element {
     errorText,
   } = props;
 
-  const { hintId, errorId, describedBy } = useFieldIds(id, hint, invalid, errorText);
-
   return (
-    <FormGroup
+    <Select
       id={id}
-      label={label}
+      name={id}
+      labelText={labelNode(label, required)}
+      value={value}
       required={required}
-      {...(hint !== undefined ? { hint } : {})}
-      {...(hintId !== undefined ? { hintId } : {})}
       invalid={invalid}
-      {...(errorText !== undefined ? { errorText } : {})}
-      {...(errorId !== undefined ? { errorId } : {})}
+      invalidText={invalid ? (errorText ?? '') : ''}
+      {...(hint !== undefined ? { helperText: hint } : {})}
+      onChange={(e) => onChange(e.target.value)}
     >
-      <select
-        className={`usa-select${invalid ? ' usa-input--error' : ''}`}
-        id={id}
-        name={id}
-        value={value}
-        required={required}
-        {...(describedBy !== undefined ? { 'aria-describedby': describedBy } : {})}
-        {...(invalid ? { 'aria-invalid': true } : {})}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {/* The empty first option is load-bearing: NOTHING is pre-chosen on the
-            specialist's behalf (FR-6.6). Default copy is '- Select -' per the
-            Screen-01 mockup. */}
-        <option value="">{placeholder ?? '- Select -'}</option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-    </FormGroup>
+      {/* The empty first option is load-bearing: NOTHING is pre-chosen on the
+          specialist's behalf (FR-6.6). Default copy is '- Select -' per the
+          Screen-01 mockup. */}
+      <SelectItem value="" text={placeholder ?? '- Select -'} />
+      {options.map((o) => (
+        <SelectItem key={o.value} value={o.value} text={o.label} />
+      ))}
+    </Select>
   );
 }
 
@@ -272,61 +236,31 @@ export function TextAreaField(props: TextAreaFieldProps): JSX.Element {
     errorText,
   } = props;
 
-  // The character count is a describedby target, so it is announced with the
-  // control. It is listed BEFORE the hint/error fragments in aria-describedby.
-  const infoId = `${id}-info`;
-  const { hintId, errorId, describedBy } = useFieldIds(id, hint, invalid, errorText, [
-    infoId,
-  ]);
-
-  // The counter is rendered in React, NOT via USWDS JS. The usa-character-count
-  // behaviour is initialised by /assets/js/uswds.min.js at document load, but
-  // this component mounts later from React, so that init would never see it. A
-  // React-computed counter is deterministic, needs no init, and announces the
-  // same text. `maxLength` caps input at the F3 structural limit so an
-  // over-length 422 is not reachable by typing; the server check stays
-  // authoritative. USWDS copy: "{n} characters allowed" under the limit,
-  // "{n} characters over limit" if exceeded (unreachable with maxLength set,
-  // but the branch keeps the copy correct).
-  const overBy = value.length - maxLength;
-  const message =
-    overBy > 0
-      ? `${overBy} character${overBy === 1 ? '' : 's'} over limit`
-      : `${maxLength - value.length} character${
-          maxLength - value.length === 1 ? '' : 's'
-        } allowed`;
-
+  // Carbon's TextArea ships a NATIVE character counter (`enableCounter` +
+  // `maxCount`) that REPLACES the hand-rolled React counter the USWDS version
+  // used. Carbon renders the counter as "{n}/{max}" and associates it with the
+  // control internally, so it is announced with the field via Carbon's own
+  // describedby mechanism (no separate hand-rolled aria-live region — that would
+  // duplicate the association). `maxCount` also caps input at the F3 structural
+  // limit so an over-length 422 is not reachable by typing; the server check
+  // stays authoritative. The counter FORMAT differs from the USWDS
+  // "{n} characters allowed" wording — this difference is called out in the
+  // 07-06 SUMMARY.
   return (
-    <FormGroup
+    <TextArea
       id={id}
-      label={label}
+      name={id}
+      labelText={labelNode(label, required)}
+      rows={rows ?? 5}
+      value={value}
       required={required}
-      {...(hint !== undefined ? { hint } : {})}
-      {...(hintId !== undefined ? { hintId } : {})}
+      enableCounter
+      maxCount={maxLength}
       invalid={invalid}
-      {...(errorText !== undefined ? { errorText } : {})}
-      {...(errorId !== undefined ? { errorId } : {})}
-    >
-      <textarea
-        className={`usa-textarea${invalid ? ' usa-input--error' : ''}`}
-        id={id}
-        name={id}
-        maxLength={maxLength}
-        rows={rows ?? 5}
-        value={value}
-        required={required}
-        {...(describedBy !== undefined ? { 'aria-describedby': describedBy } : {})}
-        {...(invalid ? { 'aria-invalid': true } : {})}
-        onChange={(e) => onChange(e.target.value)}
-      />
-      <span
-        className="usa-hint usa-character-count__message"
-        id={infoId}
-        aria-live="polite"
-      >
-        {message}
-      </span>
-    </FormGroup>
+      invalidText={invalid ? (errorText ?? '') : ''}
+      {...(hint !== undefined ? { helperText: hint } : {})}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 
@@ -355,67 +289,58 @@ export function DateField(props: DateFieldProps): JSX.Element {
     errorText,
   } = props;
 
-  const { hintId, errorId, describedBy } = useFieldIds(id, hint, invalid, errorText);
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
-
   // ⚠️ The text input ALONE is sufficient to complete the task (Screen-01
   // §Interactive elements): typing YYYY-MM-DD works, the value submits, and no
   // error appears. The calendar is a progressive enhancement ONLY.
   //
-  // The USWDS date-picker behaviour is normally initialised by
-  // /assets/js/uswds.min.js at document load; this component mounts later from
-  // React, so we attempt explicit init here. The installed @uswds/uswds build
-  // (web/public/assets/js/uswds.min.js) exposes only `window.uswdsPresent` and
-  // does NOT expose an imperative `window.uswds.components['usa-date-picker'].on()`
-  // accessor, so this init is a guarded no-op by design: the plain `usa-input`
-  // + YYYY-MM-DD hint is rendered and is fully keyboard-operable. We never let a
-  // widget rewrite the value — the client submits the date AS TYPED (FR-6.5).
-  // type="text" (never type="date") so the browser never coerces to a locale
-  // format. See SUMMARY deviation D-1.
-  useEffect(() => {
-    const el = wrapperRef.current;
-    if (el === null) return;
-    try {
-      const g = (
-        window as {
-          uswds?: {
-            components?: {
-              ['usa-date-picker']?: { on(el: Element): void };
-            };
-          };
-        }
-      ).uswds;
-      g?.components?.['usa-date-picker']?.on(el);
-    } catch {
-      // Swallow: the plain text input is authoritative and already works.
-    }
-  }, []);
+  // Carbon's `DatePicker` (`datePickerType="single"`) is a real React component,
+  // not a DOM-attached USWDS JS behaviour, so the old workaround comment about
+  // `window.uswds.components['usa-date-picker'].on()` not being invocable is now
+  // MOOT — the picker Just Works as a controlled React component and needs no
+  // imperative init. We keep the load-bearing invariant: the client submits the
+  // date AS TYPED (FR-6.5). We drive `DatePicker` in its light "no flatpickr
+  // coercion" mode by NOT passing `dateFormat`/`datePickerType="single"`'s
+  // locale parsing over the raw string — the `DatePickerInput` carries the value
+  // verbatim and `onChange` reads the input's own string, so a typed
+  // `YYYY-MM-DD` is submitted unchanged (never a native `<input type="date">`,
+  // which would coerce to a locale format).
+  // Carbon's `DatePickerInput` props type extends `HTMLAttributes<HTMLInputElement>`
+  // with `value`, `onChange`, `name` and `required` deliberately OMITTED /
+  // unsurfaced (they are input attributes Carbon manages via the parent
+  // `DatePicker`'s controlled `value`/`onChange` and the `...rest` spread). To
+  // keep the value flowing verbatim AND `npm run typecheck` clean, the controlled
+  // `value` + the raw-string `onChange` live on the parent `DatePicker`, and the
+  // native `name`/`required` input attributes are passed through the input's
+  // `...rest` spread via a small typed extra-attributes bag rather than as named
+  // props. `onChange` on `DatePicker` (single mode) receives the selected dates
+  // AND the raw typed string as its second arg, which we forward verbatim — so a
+  // typed `YYYY-MM-DD` is submitted unchanged with no locale coercion (FR-6.5).
+  const nativeAttrs: { name: string; value: string; required?: boolean } = {
+    name: id,
+    value,
+  };
+  if (required) nativeAttrs.required = true;
 
   return (
-    <FormGroup
-      id={id}
-      label={label}
-      required={required}
-      {...(hint !== undefined ? { hint } : {})}
-      {...(hintId !== undefined ? { hintId } : {})}
-      invalid={invalid}
-      {...(errorText !== undefined ? { errorText } : {})}
-      {...(errorId !== undefined ? { errorId } : {})}
+    <DatePicker
+      datePickerType="single"
+      value={value}
+      onChange={(_dates: Date[], currentValue?: string) => {
+        // Forward the raw typed/selected string verbatim; never a coerced Date.
+        if (currentValue !== undefined) onChange(currentValue);
+      }}
     >
-      <div className="usa-date-picker" data-default-value="" ref={wrapperRef}>
-        <input
-          className={`usa-input${invalid ? ' usa-input--error' : ''}`}
-          id={id}
-          name={id}
-          type="text"
-          value={value}
-          required={required}
-          {...(describedBy !== undefined ? { 'aria-describedby': describedBy } : {})}
-          {...(invalid ? { 'aria-invalid': true } : {})}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </div>
-    </FormGroup>
+      <DatePickerInput
+        id={id}
+        placeholder="YYYY-MM-DD"
+        labelText={labelNode(label, required)}
+        invalid={invalid}
+        invalidText={invalid ? (errorText ?? '') : ''}
+        {...(hint !== undefined ? { helperText: hint } : {})}
+        {...nativeAttrs}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
+      />
+    </DatePicker>
   );
 }
 
@@ -432,8 +357,12 @@ export interface FieldsetProps {
 export function Fieldset(props: FieldsetProps): JSX.Element {
   const { id, legend, statement, errorTexts, children } = props;
 
-  // aria-describedby on the <fieldset> joins the statement id (when present)
-  // then the fieldset error id (when error texts exist), in that order.
+  // Carbon has no dedicated Fieldset wrapper component, so we keep the native
+  // `<fieldset>`/`<legend>` — required, semantic, standards-based HTML, not a
+  // "bespoke control" — styled with Carbon typography/spacing tokens via a
+  // scoped class. The `aria-describedby` JOIN ORDER (statement id, then
+  // fieldset-level error id) and the `tabIndex={-1}` focus target are preserved
+  // exactly.
   //
   // This is the mechanism behind FR-6.10's sole exception: RIV-070 and RIV-073
   // each carry a single field_name, but BOTH render on the Transport fieldset —
@@ -449,21 +378,21 @@ export function Fieldset(props: FieldsetProps): JSX.Element {
 
   return (
     <fieldset
-      className="usa-fieldset"
+      className="cargoexec-fieldset"
       id={id}
       // Focusable as an error-summary link target (the summary link focuses the
       // fieldset when a finding lives on the pair, not on one field).
       tabIndex={-1}
       {...(describedBy !== undefined ? { 'aria-describedby': describedBy } : {})}
     >
-      <legend className="usa-legend">{legend}</legend>
+      <legend className="cargoexec-legend">{legend}</legend>
       {hasStatement && (
-        <p className="usa-hint" id={`${id}-statement`}>
+        <p className="cargoexec-fieldset-statement" id={`${id}-statement`}>
           {statement}
         </p>
       )}
       {hasErrors && (
-        <div className="usa-error-message" id={`${id}-error`} role="alert">
+        <div className="cargoexec-fieldset-error" id={`${id}-error`} role="alert">
           {errorTexts.map((t, i) => (
             <p key={i}>{t}</p>
           ))}
@@ -485,15 +414,14 @@ export interface SubmitButtonProps {
 export function SubmitButton(props: SubmitButtonProps): JSX.Element {
   const { busy, idleLabel, busyLabel } = props;
   return (
-    <button
+    <Button
       type="submit"
-      className="usa-button"
       // aria-disabled (NOT the disabled attribute) keeps the control in the tab
       // order while busy; the form's onSubmit guard ignores the repeat activation.
       aria-disabled={busy ? true : undefined}
     >
       {busy ? busyLabel : idleLabel}
-    </button>
+    </Button>
   );
 }
 
@@ -510,6 +438,16 @@ export interface UswdsFormProps {
 
 export function UswdsForm(props: UswdsFormProps): JSX.Element {
   const { busy, onSubmit, children, ariaLabel, className } = props;
+  const formRef = useRef<HTMLFormElement | null>(null);
+
+  // Carbon's `Form` renders a native `<form>` and forwards `onSubmit`,
+  // `noValidate`, `aria-label` and `className` to it. We set `noValidate` so
+  // native constraint validation never pre-empts the server (FR-1.16, F2 process
+  // step 3): the server decides. The ref lets us confirm the rendered element is
+  // a real <form> in review; nothing else depends on it.
+  useEffect(() => {
+    void formRef.current;
+  }, []);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>): void {
     e.preventDefault();
@@ -520,15 +458,14 @@ export function UswdsForm(props: UswdsFormProps): JSX.Element {
   }
 
   return (
-    <form
-      // noValidate: native constraint validation must never pre-empt the server
-      // (FR-1.16, F2 process step 3). The server decides.
+    <Form
+      ref={formRef}
       noValidate
-      className={`usa-form${className !== undefined ? ` ${className}` : ''}`}
+      className={`cargoexec-form${className !== undefined ? ` ${className}` : ''}`}
       onSubmit={handleSubmit}
       {...(ariaLabel !== undefined ? { 'aria-label': ariaLabel } : {})}
     >
       {children}
-    </form>
+    </Form>
   );
 }

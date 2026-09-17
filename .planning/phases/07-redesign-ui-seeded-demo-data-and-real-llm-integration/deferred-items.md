@@ -27,3 +27,30 @@ Logged, not fixed, per the SCOPE BOUNDARY rule (execute-plan.md).
 - **Owner:** the F15 seeded-demonstration-case plan(s) must either narrow those
   two arch allowlists to permit the F15 spec/command docs, or relocate/rename
   those files. Not 07-03's concern.
+
+## From plan 07-06 (rebuild shared component library on Carbon)
+
+### `web/src/shell/Header.tsx` typecheck error — Carbon `Header` `role`/children props (owner: plan 07-05, the shell)
+
+- **Discovered:** running `npm run typecheck` / `npm run build` during 07-06
+  Task 1 verification.
+- **Failing check:** `tsc -p web --noEmit` →
+  `web/src/shell/Header.tsx(35,19): error TS2322 ... Property 'role' does not
+  exist on type '... HeaderProps ...'` (Carbon's `Header` prop-types shape does
+  not surface `role`).
+- **Cause (NOT this plan):** `web/src/shell/Header.tsx` and
+  `web/src/shell/Banner.tsx` are plan **07-05**'s uncommitted, in-flight shell
+  migration to Carbon (wave 3, shared branch — the coordination note's
+  concurrency case). 07-06 touches ONLY `web/src/components/{UswdsForm,
+  ErrorSummary,ProvenanceBadge,states}.tsx` and `docs/carbon-conformance-register.md`;
+  it does not import, render, or edit any `web/src/shell/*` file.
+- **Proof it pre-exists 07-06:** stashing all 07-06 working changes
+  (`git stash push -- web/src/components/UswdsForm.tsx docs/carbon-conformance-register.md`)
+  and re-running `npm run typecheck` reproduces the identical single
+  `Header.tsx(35,19)` error — 07-06's own four files add zero typecheck errors,
+  and all real consumers of them (`SignIn.tsx`, `CaseDetail.tsx`,
+  `DecisionPanel.tsx`, `AuditTrailRegion.tsx`) compile clean, proving the
+  export-name/prop-shape preservation this plan guarantees.
+- **Owner:** plan **07-05** (the shell) — it owns making its Carbon `Header`
+  render pass typecheck (drop the unsupported `role` prop or wrap the landmark
+  correctly). Not 07-06's concern.
