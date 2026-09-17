@@ -90,7 +90,7 @@ export function Queue(): JSX.Element {
   }, [load]);
 
   return (
-    <div className="cds--content-prose">
+    <div className="cargoexec-prose">
       <h1 tabIndex={-1} ref={h1Ref}>
         Review queue
       </h1>

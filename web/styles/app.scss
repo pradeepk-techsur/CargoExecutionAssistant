@@ -73,6 +73,27 @@
   padding-block: var(--cds-spacing-07);
 }
 
+// ─── Prose container (Phase 7 — post-USWDS reading-width owner) ─────────────
+//
+// USWDS previously shipped `.usa-prose` (a reading-width prose wrapper); the
+// migrated screens replaced that emitter with `.cargoexec-prose` (CaseDetail,
+// states.Empty, NotBuiltYet, NotFound) but never defined the rule, and Queue
+// emitted `.cds--content-prose` — NOT a real Carbon class (Carbon ships
+// `cds--content`, not `cds--content-prose`), so it never resolved either. Queue
+// is converged onto `.cargoexec-prose` (its emitter, in Queue.tsx) so both the
+// queue and the case-detail screen share the SAME resolved prose container and
+// cannot diverge. Carbon components inside carry their own typography; this rule
+// supplies only the wrapper-level reading-width cap and vertical rhythm, on
+// Carbon spacing tokens (the measure cap is a length Carbon exposes no token
+// for; no raw hex).
+.cargoexec-prose {
+  max-inline-size: 42rem;
+
+  > * + * {
+    margin-block-start: var(--cds-spacing-05);
+  }
+}
+
 // ─── Provenance badge shape carrier (Phase 7, plan 07-06 — FR-2.17 / WCAG 1.4.1)
 //
 // The provenance badge (web/src/components/ProvenanceBadge.tsx) carries FOUR
