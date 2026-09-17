@@ -3,15 +3,15 @@ pivota_spec_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 07-10-PLAN.md
-last_updated: "2026-09-17T02:44:28.828Z"
-last_activity: "2026-09-17 — 07-10 executed (wave 5): Task 1 be9f280 (DecisionPanel on Carbon + ErrorSummary Rule-1 fix), Task 2 e75241a (AuditTrailRegion on Carbon + joint case-detail a11y sign-off). The last two USWDS-coupled .tsx files migrated — all 18 now on Carbon. 1 deviation auto-fixed (R1: Carbon InlineNotification throws on interactive children → ErrorSummary link list moved to a sibling). Gate: build+typecheck exit 0; arch 155; e2e case-detail 10 / decision 8 / audit-trail 10 / whole-loop 2, 0 skipped."
+stopped_at: Completed 07-11-PLAN.md
+last_updated: "2026-09-17T02:56:59.825Z"
+last_activity: "2026-09-17 — 07-11 executed (wave 6, FINAL): Task 1 de6a097 (USWDS removed from the dependency tree + build pipeline entirely), Task 2 1dba8b2 (three named arch tests re-verified unmodified, Carbon register finalized, full regression gate green). @uswds/uswds gone from package.json/Sass/scripts; compiled app.css is Carbon-only (0 usa-*, 7729 cds--); the Carbon migration ships with ZERO regression. 3 deviations auto-fixed (R3: flag PNG vendored as web/assets/img so the banner survives USWDS removal; R1: e2e global-setup compose ${AI_PROVIDER_URL:?} interpolation abort; R1: NotBuiltYet InlineNotification interactive-child crash — the same defect 07-10 fixed for ErrorSummary, latent since 07-07, caught by the full gate). Gate: npm run test 818 (unit 297/db 196/api 170/arch 155) + npm run test:e2e 67 = 885, 0 failures, 0 skips."
 progress:
   total_phases: 7
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 53
-  completed_plans: 52
-  percent: 86
+  completed_plans: 53
+  percent: 100
 ---
 
 # Project State
@@ -25,7 +25,10 @@ See: .planning/PROJECT.md (updated 2026-09-11)
 
 ## Current Position
 
-Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — IN PROGRESS. v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 is the follow-on milestone work.
+Phase: 7 of 7 (redesign UI, seeded demo data, and real LLM integration) — COMPLETE (53/53 plans). v1.0 MILESTONE was COMPLETE at end of Phase 6; Phase 7 (the follow-on redesign/seed/LLM milestone work) is now done. Ready for verification / milestone transition.
+Plan: 07-11 COMPLETE (wave 6, FINAL) — the Carbon migration is CLOSED OUT. @uswds/uswds is removed from the repository entirely: the dependency (npm uninstall), the @use "uswds-core"/@forward "uswds" Sass, web/styles/_tokens.scss (the superseded token seam), web/scripts/copy-uswds-assets.mjs, and the uswds.min.js <script> tag are all gone. The compiled stylesheet moved /assets/uswds.css → /assets/app.css and contains 0 usa-* rules and 7729 cds-- rules — Carbon is the ONLY design system present. The banner flag (us_flag_small.png) was vendored as a git-tracked project asset (web/assets/img) and is build-copied by copy-carbon-assets.mjs (now the sole asset-copy step). The three named architecture tests were explicitly re-verified UNMODIFIED against the fully-Carbon codebase — navigation.spec.ts (11), headers.spec.ts (48), absence.spec.ts's raw-hex/px + CDN-absence + dependency-allowlist scans (54); no assertion weakened. docs/carbon-conformance-register.md is finalized with a row-by-row cross-check against the retired USWDS register (every product control mapped) and the Phase 7 close-out note; docs/uswds-conformance-register.md carries its final superseding line. The mandatory full regression gate is GREEN: npm run test (unit 297/db 196/api 170/arch 155 = 818) + npm run test:e2e (67) = 885 tests, 0 failures, 0 skips. 3 deviations auto-fixed (R3 flag vendoring; R1 e2e compose interpolation abort; R1 NotBuiltYet InlineNotification interactive-child crash — a real crashing regression latent since 07-07, the exact useNoInteractiveChildren defect 07-10 fixed for ErrorSummary, caught by this final cross-screen gate per T-07-32). Commits: de6a097 (Task 1), 1dba8b2 (Task 2).
+
+--- prior (07-10) ---
 Plan: 07-10 COMPLETE (wave 5) — the LAST TWO USWDS-coupled .tsx files are rebuilt on Carbon, completing the eighteen-file USWDS→Carbon migration of every screen. DecisionPanel.tsx (F12): the three decision actions (Approve / Edit-and-approve or Resolve-directly / Reject) render as three Carbon Button kind="tertiary" sharing EXACTLY ONE class (equal weight, FR-12.1 — no visual steer toward Approve; e2e test 1's one-shared-class assertion is re-pointed at Carbon's class, same semantic check, T-07-27); the ONLY primary button in the whole path is the final "Record decision". UX Pattern 3's two-step commitment is now a Carbon ProgressIndicator/ProgressStep (four steps Choose→Complete→Review→Record, aria-current="step"). Edit-form inputs → Carbon TextInput (hideLabel + aria-label, badge in the dt); conflict/network notices → Carbon InlineNotification kind=info/warning kept role=alert (never kind=error); the edit/reject form reuses the UNCHANGED 07-06 UswdsForm/TextAreaField/SubmitButton/ErrorSummary/ProvenanceBadge. AuditTrailRegion.tsx (F14): the before/after value-change table → Carbon's PLAIN table primitives (Table/TableHead/TableRow/TableHeader/TableBody/TableCell — a genuine data table, NO DataTable/isSortable, no grid role, native <th scope=row> for row headers, caption + scope=col preserved); the integrity-failure alert → Carbon InlineNotification kind=error + role=alert with NO repair action (FR-14.10); the chronological <ol>/<li>/<h3> event list and the AI-never-a-person rendering (AI ({model_id}), never entry.actor — T-07-29) unchanged. docs/a11y/case-detail.md CLOSED as ONE joint five-section sign-off (the record 07-09 left open) — whole screen fully on Carbon, citing the same real tests now green against Carbon-class locators; docs/carbon-conformance-register.md completed for every case-detail control. 1 deviation auto-fixed (R1: Carbon InlineNotification's useNoInteractiveChildren THROWS on the ErrorSummary's in-page link children → the link list moved from the notification's children to a SIBLING inside the role=alert container; focus/order/link mechanics unchanged; sign-in 13/13 still green). Gate: npm run build exit 0; npm run typecheck exit 0; architecture 155/155; e2e case-detail 10 / decision 8 / audit-trail 10 / whole-loop 2, 0 failures, 0 skipped. Commits: be9f280 (Task 1), e75241a (Task 2). NOTE: only the USWDS-from-the-dependency-tree cleanup (Sass @forward "uswds", copy-uswds-assets, the --cargoexec-* token seam) remains for a later wave.
 
 --- prior (07-07) ---
@@ -148,6 +151,7 @@ Progress: [█████████░] 86%
 | Phase 07 P08 | 8 min | 1 tasks | 4 files |
 | Phase 07 P07 | 22 min | 2 tasks | 7 files |
 | Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration P10 | 22 min | 2 tasks | 8 files |
+| Phase 07 P11 | 11 min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -241,6 +245,7 @@ Recent decisions affecting current work:
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-09: CaseDetail core read sections (header, On-this-page nav, submitted-entry, findings, AI-recommendation all four states) migrated to Carbon; in-page nav and header/entry/comparison definition lists are documented Carbon compositions (no Carbon primitive) styled with spacing tokens; DecisionPanel/AuditTrailRegion left untouched for 07-10 (screen visually mixed one wave).
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-08: the review queue uses Carbon's plain table primitives (Table/TableHead/TableHeader/TableBody/TableCell) composed by hand, NEVER DataTable and NEVER isSortable — so FR-8.3's mandated absence of any sort/filter/assignment/priority affordance is structural; verified against @carbon/react's TableHeader source (no isSortable ⇒ bare <th scope>).
 - [Phase 07-redesign-ui-seeded-demo-data-and-real-llm-integration]: 07-10: the three decision actions share one Carbon kind=tertiary (equal weight, FR-12.1); the sole primary button in the whole path is the final Record decision. Carbon InlineNotification throws on interactive children, so ErrorSummary's link list moved to a sibling of the notification inside the role=alert container. The audit value-change table is a genuine Carbon data table (plain primitives, no DataTable/isSortable/grid). All 18 USWDS-coupled .tsx files now render on Carbon; docs/a11y/case-detail.md closed as one joint five-section sign-off.
+- [Phase 07]: Phase 7 Carbon migration complete: @uswds/uswds fully removed from the dependency tree, Sass pipeline and build scripts; compiled app.css is Carbon-only (0 usa-* / 7729 cds-- rules); the three named architecture tests re-verified unmodified; full regression gate green (npm run test 818 + npm run test:e2e 67, 0 failures/skips)
 
 ### Verify Notes
 
@@ -273,6 +278,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-09-17T02:44:28.826Z
-Stopped at: Completed 07-10-PLAN.md
+Last session: 2026-09-17T02:56:59.823Z
+Stopped at: Completed 07-11-PLAN.md
 Resume file: None
