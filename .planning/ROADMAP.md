@@ -213,11 +213,11 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. The Receipt-Ordered Queue | 0/TBD | Complete | 2007-09-15 |
 | 5. AI Recommendation as an Un-Applied Proposal | 0/TBD | Complete | 2007-09-16 |
 | 6. The Human Decision and the Record That Explains It | 0/TBD | Complete | 2007-09-16 |
-| 7. Redesign UI, seeded demo data, and real LLM integration | 0/3 | Not started | — |
+| 7. Redesign UI, seeded demo data, and real LLM integration | 0/3 | In progress | — |
 
 ### Phase 7: Redesign UI, seeded demo data, and real LLM integration
 **Goal**: The demonstration is walkable without hand-typing every stage first — an operator-run seed script pre-loads one case already carried through the whole governed loop; the deployed AI now defaults toward a real hosted model rather than the deterministic fake; and the entire UI is redesigned from USWDS onto the Carbon Design System (`@carbon/react`), the user's named replacement, with every FR-2.x accessibility guarantee re-verified per screen rather than merely re-hosted.
-**Status**: Not started
+**Status**: In progress
 **Depends on**: Phase 6
 **Requirements**: F15 (new); F9 (deployment posture only — FR-9.20); F2 (full visual redesign onto Carbon — shell + all six screens, conformance register re-authored, every per-screen a11y record re-signed)
 **Non-functional carried**: NFR-1 (USWDS conformance requirement now satisfied by Carbon conformance, re-verified per screen — the redesign that 07-03 prepared for and could not yet perform, performed here); NFR-2 (Section 508 / WCAG 2.1 AA re-verified per screen against the Carbon rebuild, no CI gate, ever)
