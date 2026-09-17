@@ -28,6 +28,15 @@
 
 @forward "uswds";
 
+// Design-token abstraction seam (Phase 7, F2 — TechArch §1A.1b). `_tokens.scss`
+// publishes a small set of `--cargoexec-*` CSS custom properties at `:root`,
+// computed from the SAME already-configured `uswds-core` instance above (it
+// `@use`s "uswds-core" without re-configuring it, so no deadlock). `@use` here
+// (not `@forward`) so the partial's `:root` block is emitted INTO this
+// compiled `uswds.css` output. It re-exposes today's USWDS values under
+// swappable names and is consumed by nothing yet — a future-redesign seam only.
+@use "tokens";
+
 // Reduced motion (FR-2.21). Nothing in this shell depends on motion to be
 // understood; when a specialist asks for reduced motion, honour it globally by
 // collapsing transitions and animations to an instant.

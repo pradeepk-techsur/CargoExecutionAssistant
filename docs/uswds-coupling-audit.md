@@ -211,5 +211,16 @@ attempted in this phase** (no design to author it against).
   or replace the compiled stylesheet entirely) rather than a per-component
   rewrite of all 18 coupled files enumerated in §1.
 
+  **Named seam location:** `web/styles/_tokens.scss` is now the single place
+  this seam lives. It `@use`s the same already-configured `uswds-core` instance
+  (never re-configuring it), and `web/styles/app.scss` `@use`s it immediately
+  after its own `@use "uswds-core" with (...)` block so the `:root` custom
+  properties are emitted into the compiled `web/public/assets/uswds.css`. As of
+  this phase the compiled stylesheet carries eight `--cargoexec-*` properties
+  (`--cargoexec-color-primary`, `-primary-dark`, `-error`, `-base-ink`,
+  `-space-1`, `-space-2`, `-space-3`, `-font-family-body`), each a
+  function-derived echo of USWDS's own current value — additive to, and leaving
+  unchanged, every pre-existing `usa-*` rule.
+
 **The actual visual redesign remains blocked pending the (currently
 inaccessible, 403) approved design and is deferred to a future phase.**

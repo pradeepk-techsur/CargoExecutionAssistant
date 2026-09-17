@@ -1,0 +1,52 @@
+// Design-token abstraction seam (Phase 7, Feature F2 — TechArch §1A.1b).
+//
+// ─── What this file is ──────────────────────────────────────────────────────
+// A curated set of CSS custom properties, published at `:root`, whose VALUES
+// are computed from USWDS core's OWN existing theme configuration — never a
+// hand-typed hex/px guess. Because every value flows through USWDS's public
+// `color()`, `units()`, and `family()` functions against the theme `app.scss`
+// already configures, these properties are guaranteed identical to what the
+// shell renders today. This is a behaviour-preserving SEAM, not a reskin.
+//
+// ─── What this file is NOT ──────────────────────────────────────────────────
+// It invents no colour, spacing, or type value, and nothing in
+// `web/src/**/*.tsx` consumes these properties yet. Consumption is future work,
+// once the (currently inaccessible, 403) approved design becomes readable — at
+// which point applying it is a token/CSS OVERRIDE of these properties (or a
+// wholesale stylesheet replacement) rather than a per-component rewrite of the
+// 18 USWDS-coupled files enumerated in docs/uswds-coupling-audit.md.
+//
+// ─── Module wiring ──────────────────────────────────────────────────────────
+// This file `@use`s `uswds-core` WITHOUT `with (...)` — it reaches the SAME
+// already-configured `uswds-core` instance that `app.scss` sets up (Sass caches
+// a configured module and shares it across `@use`s). Re-configuring it here
+// would deadlock (see app.scss's header comment). `app.scss` `@use`s this file
+// after its own `@use "uswds-core" with (...)` block, so the configuration is
+// in place before these functions are evaluated.
+//
+// The values below trace back to USWDS 3.11.0's default theme settings, which
+// this project has not overridden:
+//   color("primary")      -> $theme-color-primary       (blue-60v)   #005ea2
+//   color("primary-dark") -> $theme-color-primary-dark  (blue-warm-70v) #1a4480
+//   color("error")        -> $theme-color-error                       #d54309
+//   color("ink")          -> $theme-color-base-ink       (gray-90)    #1b1b1b
+//   units(1|2|3)          -> project spacing scale        0.5rem/1rem/1.5rem
+//   family("body")        -> the configured body font stack (Source Sans Pro …)
+
+@use "uswds-core" as *;
+
+:root {
+  // Colour tokens — re-exposed from the current USWDS theme palette.
+  --cargoexec-color-primary: #{color("primary")};
+  --cargoexec-color-primary-dark: #{color("primary-dark")};
+  --cargoexec-color-error: #{color("error")};
+  --cargoexec-color-base-ink: #{color("ink")};
+
+  // Spacing tokens — re-exposed from the current USWDS spacing scale.
+  --cargoexec-space-1: #{units(1)};
+  --cargoexec-space-2: #{units(2)};
+  --cargoexec-space-3: #{units(3)};
+
+  // Typography — re-exposed from the current USWDS body font family.
+  --cargoexec-font-family-body: #{family("body")};
+}
